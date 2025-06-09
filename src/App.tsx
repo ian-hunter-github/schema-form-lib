@@ -1,5 +1,5 @@
 import JsonSchemaForm from './components/JsonSchemaForm';
-import type { JSONSchemaProperties } from './components/JsonSchemaForm';
+import type { JSONSchemaProperties } from './types/schema';
 import './App.css';
 
 function App() {

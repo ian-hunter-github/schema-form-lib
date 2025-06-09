@@ -1,30 +1,13 @@
 import React, { useState } from 'react';
-
-type JSONValue = string | number | boolean | string[];
-type FormValue = string | number | boolean | string[];
-
-type JSONSchema = {
-  type: 'string' | 'number' | 'boolean' | 'array';
-  description?: string;
-  enum?: string[];
-  default?: FormValue;
-  minimum?: number;
-  maximum?: number;
-  minLength?: number;
-  maxLength?: number;
-  readOnly?: boolean;
-  items?: JSONSchema;
-};
-
-export type JSONSchemaProperties = {
-  [key: string]: JSONSchema;
-};
+import type { JSONSchemaProperties, JSONValue, FormValue } from '../types/schema';
+import FieldRenderer from './FieldRenderer';
 
 type Props = {
   schema: JSONSchemaProperties;
+  onSubmit?: (data: Record<string, JSONValue>) => void;
 };
 
-const JsonSchemaForm: React.FC<Props> = ({ schema }) => {
+const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit }) => {
   const initialState = Object.keys(schema).reduce((acc, key) => {
     const def = schema[key].default;
     if (schema[key].type === 'array') {
@@ -68,130 +51,40 @@ const JsonSchemaForm: React.FC<Props> = ({ schema }) => {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleArrayChange = (key: string, index: number, value: string) => {
-    const current = formData[key];
-    if (!Array.isArray(current)) return;
-    const arr = [...current];
-    arr[index] = value;
-    setFormData(prev => ({ ...prev, [key]: arr }));
-  };
-
-  const addArrayItem = (key: string) => {
-    const current = formData[key];
-    if (!Array.isArray(current)) return;
-    setFormData(prev => ({ ...prev, [key]: [...current, ''] }));
-  };
-
-  const removeArrayItem = (key: string, index: number) => {
-    const current = formData[key];
-    if (!Array.isArray(current)) return;
-    const arr = [...current];
-    arr.splice(index, 1);
-    setFormData(prev => ({ ...prev, [key]: arr }));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
+    let hasErrors = false;
+    
     Object.keys(schema).forEach(key => {
       const err = validateField(key, formData[key]);
-      if (err) newErrors[key] = err;
+      if (err) {
+        newErrors[key] = err;
+        hasErrors = true;
+      }
     });
+    
     setErrors(newErrors);
+    
+    if (!hasErrors && onSubmit) {
+      onSubmit(formData);
+    }
   };
 
   return (
     <form data-testid="form" onSubmit={handleSubmit}>
-      {Object.keys(schema).map(key => {
-        const field = schema[key];
-        const value = formData[key];
-
-        return (
-          <div key={key}>
-            {field.description && (
-              <div data-testid={`description-${key}`}>{field.description}</div>
-            )}
-
-            {field.type === 'string' && !field.enum && (
-              <input
-                data-testid={key}
-                type="text"
-                value={value as string}
-                disabled={field.readOnly}
-                onChange={e => handleChange(key, e.target.value)}
-              />
-            )}
-
-            {field.type === 'number' && (
-              <input
-                data-testid={key}
-                type="number"
-                value={value as number}
-                disabled={field.readOnly}
-                onChange={e => handleChange(key, Number(e.target.value))}
-              />
-            )}
-
-            {field.type === 'boolean' && (
-              <input
-                data-testid={key}
-                type="checkbox"
-                checked={value as boolean}
-                disabled={field.readOnly}
-                onChange={e => handleChange(key, e.target.checked)}
-              />
-            )}
-
-            {field.enum && (
-              <select
-                data-testid={key}
-                value={value as string}
-                onChange={e => handleChange(key, e.target.value)}
-              >
-                <option value="">Select...</option>
-                {field.enum.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            )}
-
-            {field.type === 'array' && field.items?.type === 'string' && (
-              <div>
-                {(value as string[]).map((item: string, index: number) => (
-                  <div key={`${key}-${index}`}>
-                    <input
-                      data-testid={`${key}-${index}`}
-                      type="text"
-                      value={item}
-                      onChange={e => handleArrayChange(key, index, e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      data-testid={`${key}-${index}-remove`}
-                      onClick={() => removeArrayItem(key, index)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  data-testid={`add-${key}`}
-                  onClick={() => addArrayItem(key)}
-                >
-                  Add
-                </button>
-              </div>
-            )}
-
-            {errors[key] && (
-              <div data-testid={`error-${key}`} style={{ color: 'red' }}>
-                {errors[key]}
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {Object.keys(schema).map(key => (
+        <div key={key}>
+          <FieldRenderer
+            name={key}
+            value={formData[key]}
+            schema={schema[key]}
+            onChange={(value) => handleChange(key, value)}
+            error={errors[key]}
+          />
+        </div>
+      ))}
       <button type="submit">Submit</button>
     </form>
   );
