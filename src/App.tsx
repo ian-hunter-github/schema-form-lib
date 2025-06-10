@@ -21,7 +21,8 @@ function App() {
             latitude: { type: 'number', minimum: -90, maximum: 90, default: 20.0 },
             longitude: { type: 'number', minimum: -180, maximum: 180, default: 30.0 },
           }
-        }
+        },
+        features: { type: 'array', items: { type: 'string' }, default: ['feature1', 'feature2'] },
       },
     },
   };
