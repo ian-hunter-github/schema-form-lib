@@ -9,6 +9,14 @@ function App() {
     isStudent: { type: 'boolean' },
     gender: { type: 'string', enum: ['male', 'female', 'other'] },
     tags: { type: 'array', items: { type: 'string' } },
+    address: {
+      type: 'object',
+      properties: {
+        street: { type: 'string' },
+        city: { type: 'string' },
+        zipCode: { type: 'string', minLength: 5, maxLength: 10 },
+      },
+    },
   };
   return (
     <div>

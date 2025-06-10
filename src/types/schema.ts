@@ -1,8 +1,19 @@
-export type JSONValue = string | number | boolean | string[];
-export type FormValue = string | number | boolean | string[];
+export type PrimitiveJSONValue = string | number | boolean;
+
+export interface JSONObject {
+  [key: string]: JSONValue;
+}
+
+export type JSONValue = PrimitiveJSONValue | PrimitiveJSONValue[] | JSONObject;
+
+export interface FormObject {
+  [key: string]: FormValue;
+}
+
+export type FormValue = PrimitiveJSONValue | PrimitiveJSONValue[] | FormObject;
 
 export type JSONSchema = {
-  type: 'string' | 'number' | 'boolean' | 'array';
+  type: 'string' | 'number' | 'boolean' | 'array' | 'object';
   title?: string;
   description?: string;
   enum?: string[];
@@ -13,6 +24,7 @@ export type JSONSchema = {
   maxLength?: number;
   readOnly?: boolean;
   items?: JSONSchema;
+  properties?: JSONSchemaProperties;
 };
 
 export type JSONSchemaProperties = {
@@ -25,4 +37,6 @@ export type FieldProps = {
   schema: JSONSchema;
   onChange: (value: FormValue) => void;
   error?: string;
+  depth?: number;
+  testIdPrefix?: string;
 };

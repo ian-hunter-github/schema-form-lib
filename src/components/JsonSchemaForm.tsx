@@ -5,19 +5,29 @@ import FieldRenderer from './FieldRenderer';
 type Props = {
   schema: JSONSchemaProperties;
   onSubmit?: (data: Record<string, JSONValue>) => void;
+  testIdPrefix?: string;
+  depth?: number;
 };
 
-const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit }) => {
-  const initialState = Object.keys(schema).reduce((acc, key) => {
-    const def = schema[key].default;
-    if (schema[key].type === 'array') {
-      acc[key] = def ?? [''];
-    } else {
-      acc[key] = def ?? (schema[key].type === 'boolean' ? false : '');
-    }
-    return acc;
-  }, {} as Record<string, JSONValue>);
+const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit, testIdPrefix }) => {
+  const buildInitialState = (schema: JSONSchemaProperties, prefix = ''): Record<string, JSONValue> => {
+    return Object.keys(schema).reduce((acc, key) => {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      const field = schema[key];
+      const def = field.default;
 
+      if (field.type === 'object' && field.properties) {
+        acc[key] = buildInitialState(field.properties, fullKey);
+      } else if (field.type === 'array') {
+        acc[key] = def ?? [''];
+      } else {
+        acc[key] = def ?? (field.type === 'boolean' ? false : '');
+      }
+      return acc;
+    }, {} as Record<string, JSONValue>);
+  };
+
+  const initialState = buildInitialState(schema);
   const [formData, setFormData] = useState<Record<string, JSONValue>>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -51,7 +61,6 @@ const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit }) => {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
@@ -72,19 +81,29 @@ const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit }) => {
     }
   };
 
-  return (
-    <form data-testid="form" onSubmit={handleSubmit}>
-      {Object.keys(schema).map(key => (
-        <div key={key}>
+  const renderFields = (schema: JSONSchemaProperties, prefix = '') => {
+    return Object.keys(schema).map(key => {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      const field = schema[key];
+
+      return (
+        <div key={fullKey}>
           <FieldRenderer
             name={key}
             value={formData[key]}
-            schema={schema[key]}
+            schema={field}
             onChange={(value) => handleChange(key, value)}
             error={errors[key]}
+            testIdPrefix={prefix ? `${prefix}.${key}` : key}
           />
         </div>
-      ))}
+      );
+    });
+  };
+
+  return (
+    <form data-testid="form" onSubmit={handleSubmit}>
+      {renderFields(schema)}
       <button type="submit">Submit</button>
     </form>
   );

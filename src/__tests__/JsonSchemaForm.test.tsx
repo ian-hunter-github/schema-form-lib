@@ -167,12 +167,15 @@ describe('JsonSchemaForm Enum Field', () => {
 
 describe('JsonSchemaForm Nested Features', () => {
   const nestedSchema = {
+    type: 'object',
     properties: {
       person: {
+        type: 'object',
         properties: {
           name: { type: 'string' },
           age: { type: 'number' },
           address: {
+            type: 'object',
             properties: {
               street: { type: 'string' },
               city: { type: 'string' }
@@ -184,12 +187,14 @@ describe('JsonSchemaForm Nested Features', () => {
           }
         }
       }
-    } as unknown as JSONSchemaProperties
+    } as JSONSchemaProperties
   };
 
   it('renders nested object fields', () => {
     render(<JsonSchemaForm schema={nestedSchema.properties} />);
     
+    //expect(screen.getByTestId('person-accordion')).toBeInTheDocument();
+
     expect(screen.getByTestId('person.name')).toBeInTheDocument();
     expect(screen.getByTestId('person.age')).toBeInTheDocument();
     expect(screen.getByTestId('person.address.street')).toBeInTheDocument();

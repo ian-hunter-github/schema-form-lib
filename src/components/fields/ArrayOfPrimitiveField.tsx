@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import type { FieldProps } from '../../types/schema';
 
-const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema, onChange, error }) => {
-  const [items, setItems] = useState<string[]>(Array.isArray(value) ? value : []);
+const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema, onChange, error, testIdPrefix }) => {
+  const fieldTestId = testIdPrefix && testIdPrefix.endsWith(name) ? testIdPrefix : 
+                    testIdPrefix ? `${testIdPrefix}.${name}` : name;
+  const [items, setItems] = useState<string[]>(
+    Array.isArray(value) ? value.map(String) : []
+  );
 
   const handleAddItem = () => {
     const newItems = [...items, ''];
@@ -25,23 +29,23 @@ const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema,
 
   return (
     <div>
-      <label htmlFor={`${name}-0`} data-testid={`label-${name}`}>
+      <label htmlFor={`${name}-0`} data-testid={`label-${fieldTestId}`}>
         {schema.title || name}
       </label>
       {schema.description && (
-        <div data-testid={`description-${name}`}>{schema.description}</div>
+        <div data-testid={`description-${fieldTestId}`}>{schema.description}</div>
       )}
       {items.map((item, index) => (
         <div key={index}>
           <input
-            data-testid={`${name}-${index}`}
+            data-testid={`${fieldTestId}-${index}`}
             type="text"
             value={item}
             onChange={(e) => handleItemChange(index, e.target.value)}
             disabled={schema.readOnly}
           />
           <button
-            data-testid={`${name}-${index}-remove`}
+            data-testid={`${fieldTestId}-${index}-remove`}
             type="button"
             onClick={() => handleRemoveItem(index)}
           >
@@ -50,14 +54,14 @@ const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema,
         </div>
       ))}
       <button
-        data-testid={`add-${name}`}
+        data-testid={`add-${fieldTestId}`}
         type="button"
         onClick={handleAddItem}
       >
         Add Item
       </button>
       {error && (
-        <div data-testid={`error-${name}`} style={{ color: 'red' }}>
+        <div data-testid={`error-${fieldTestId}`} style={{ color: 'red' }}>
           {error}
         </div>
       )}

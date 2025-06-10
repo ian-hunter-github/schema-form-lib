@@ -8,7 +8,7 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error 
 
   const isMultiple = schema.type === 'array';
   const selectValue = isMultiple 
-    ? Array.isArray(value) ? value : []
+    ? Array.isArray(value) ? value.map(String) : []
     : typeof value === 'string' || typeof value === 'number' 
       ? String(value) 
       : '';
@@ -36,11 +36,14 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error 
           onChange(newValue);
         }}
       >
-        {schema.enum.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
+        {schema.enum.map((option) => {
+          const stringOption = String(option);
+          return (
+            <option key={stringOption} value={stringOption}>
+              {stringOption}
+            </option>
+          );
+        })}
       </select>
       {error && (
         <div data-testid={`error-${name}`} style={{ color: 'red' }}>
