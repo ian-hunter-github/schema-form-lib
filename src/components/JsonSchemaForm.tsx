@@ -9,7 +9,7 @@ type Props = {
   depth?: number;
 };
 
-const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit, testIdPrefix }) => {
+const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit, testIdPrefix, depth = 0 }) => {
   const buildInitialState = (schema: JSONSchemaProperties, prefix = ''): Record<string, JSONValue> => {
     return Object.keys(schema).reduce((acc, key) => {
       const fullKey = prefix ? `${prefix}.${key}` : key;
@@ -81,10 +81,13 @@ const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit, testIdPrefix }) => 
     }
   };
 
-  const renderFields = (schema: JSONSchemaProperties, prefix = '') => {
+  const renderFields = (schema: JSONSchemaProperties, prefix = '', currentDepth = 0) => {
     return Object.keys(schema).map(key => {
       const fullKey = prefix ? `${prefix}.${key}` : key;
       const field = schema[key];
+      if (field.type === 'object' && field.properties) {
+        currentDepth += 1;
+      }
 
       return (
         <div key={fullKey}>
@@ -94,6 +97,7 @@ const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit, testIdPrefix }) => 
             schema={field}
             onChange={(value) => handleChange(key, value)}
             error={errors[key]}
+            depth={currentDepth}
             testIdPrefix={prefix ? `${prefix}.${key}` : key}
           />
         </div>
@@ -103,7 +107,7 @@ const JsonSchemaForm: React.FC<Props> = ({ schema, onSubmit, testIdPrefix }) => 
 
   return (
     <form data-testid="form" onSubmit={handleSubmit}>
-      {renderFields(schema)}
+      {renderFields(schema, '', depth)}
       <button type="submit">Submit</button>
     </form>
   );

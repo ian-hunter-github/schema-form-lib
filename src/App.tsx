@@ -15,6 +15,13 @@ function App() {
         street: { type: 'string' },
         city: { type: 'string' },
         zipCode: { type: 'string', minLength: 5, maxLength: 10 },
+        coords: {
+          type: 'object',
+          properties: {
+            latitude: { type: 'number', minimum: -90, maximum: 90, default: 20.0 },
+            longitude: { type: 'number', minimum: -180, maximum: 180, default: 30.0 },
+          }
+        }
       },
     },
   };

@@ -3,7 +3,7 @@ import type { FieldProps, FormValue } from '../../types/schema';
 import FieldRenderer from '../FieldRenderer';
 
 const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, depth = 0, testIdPrefix }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const objectValue = value as Record<string, FormValue> || {};
 
   if (!schema.properties) {
@@ -19,16 +19,14 @@ const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
 
   return (
     <div style={{ marginLeft: `${depth * 16}px` }}>
-      {depth > 0 && (
-        <button 
-          type="button"
-          data-testid={`${testIdPrefix || name}-accordion`}
-          onClick={() => setIsExpanded(!isExpanded)}
-          style={{ display: 'flex', alignItems: 'center' }}
-        >
-          {isExpanded ? '▼' : '▶'} {schema.title || name}
-        </button>
-      )}
+      <button 
+        type="button"
+        data-testid={`${testIdPrefix || name}-accordion`}
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{ display: 'flex', alignItems: 'center' }}
+      >
+        {isExpanded ? '▼' : '▶'} {schema.title || name}
+      </button>
       {isExpanded && (
         <div style={{ borderLeft: depth > 0 ? '1px solid #ccc' : 'none', paddingLeft: '8px' }}>
           {Object.entries(schema.properties).map(([key, fieldSchema]) => (
