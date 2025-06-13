@@ -4,6 +4,7 @@ import type {
   JSONValue,
   FormValue,
 } from "../types/schema";
+import { FormValidator } from "../utils/FormValidator";
 import FieldRenderer from "./FieldRenderer";
 
 type Props = {
@@ -19,6 +20,7 @@ const JsonSchemaForm: React.FC<Props> = ({
   depth = 0,
   parentId = "",
 }) => {
+
   const buildInitialState = (
     schema: JSONSchemaProperties,
     prefix = ""
@@ -44,60 +46,43 @@ const JsonSchemaForm: React.FC<Props> = ({
   };
 
   const initialState = buildInitialState(schema);
-  const [formData, setFormData] =
-    useState<Record<string, JSONValue>>(initialState);
+  const [formData, setFormData] = useState<Record<string, JSONValue>>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validateField = (key: string, value: FormValue): string => {
-    const field = schema[key];
-
-    if (field.readOnly) return "";
-
-    if (value === "" || value === undefined) {
-      return "This field is required.";
-    }
-
-    if (field.type === "string" && typeof value === "string") {
-      if (field.minLength && value.length < field.minLength)
-        return `Must be at least ${field.minLength} characters.`;
-      if (field.maxLength && value.length > field.maxLength)
-        return `Must be no more than ${field.maxLength} characters.`;
-    }
-
-    if (field.type === "number") {
-      const num = Number(value);
-      if (isNaN(num)) return "Must be a number.";
-      if (field.minimum !== undefined && num < field.minimum)
-        return `Must be at least ${field.minimum}.`;
-      if (field.maximum !== undefined && num > field.maximum)
-        return `Must be no more than ${field.maximum}.`;
-    }
-
-    return "";
-  };
 
   const handleChange = (key: string, value: FormValue) => {
-    const error = validateField(key, value);
-    setErrors((prev) => ({ ...prev, [key]: error }));
+    const errors = FormValidator.validateField(
+      schema,
+      key,
+      value
+    );
+    setErrors((prev) => {
+      const updated = { ...prev };
+      if (errors.length > 0) {
+        updated[key] = errors[0];
+      } else {
+        delete updated[key];
+      }
+      return updated;
+    });
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const validationErrors = FormValidator.validateForm(formData, schema);
     const newErrors: Record<string, string> = {};
-    let hasErrors = false;
 
-    Object.keys(schema).forEach((key) => {
-      const err = validateField(key, formData[key]);
-      if (err) {
-        newErrors[key] = err;
-        hasErrors = true;
+    // Flatten nested errors and keep the first error for each field
+    Object.entries(validationErrors).forEach(([key, errs]) => {
+      if (errs.length > 0) {
+        newErrors[key] = errs[0];
       }
     });
 
     setErrors(newErrors);
 
-    if (!hasErrors && onSubmit) {
+    if (Object.keys(newErrors).length === 0 && onSubmit) {
       onSubmit(formData);
     }
   };

@@ -11,7 +11,7 @@ const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
         {schema.title || name}
       </label>
       {schema.description && (
-        <div id={`${fieldId}-description`} data-testId={`${fieldId}-description`} >{schema.description}</div>
+        <div id={`${fieldId}-description`} data-testid={`${fieldId}-description`} >{schema.description}</div>
       )}
       <input
         id={fieldId}
@@ -22,7 +22,7 @@ const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
         onChange={(e) => onChange(e.target.value)}
       />
       {error && (
-        <div id={`${fieldId}-error`} data-testId={`${fieldId}-error`} style={{ color: 'red' }}>
+        <div id={`${fieldId}-error`} data-testid={`${fieldId}-error`} style={{ color: 'red' }}>
           {error}
         </div>
       )}

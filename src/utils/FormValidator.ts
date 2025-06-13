@@ -9,8 +9,22 @@ export class FormValidator {
   static validateField(
     schema: JSONSchemaProperties,
     path: string,
-    value: FormValue
+    value: FormValue,
+    options: {
+      visited?: Set<string>;
+      maxDepth?: number;
+      currentDepth?: number;
+    } = {}
   ): string[] {
+    const { visited = new Set(), maxDepth = 20, currentDepth = 0 } = options;
+    
+    if (currentDepth > maxDepth) {
+      return [`Maximum validation depth (${maxDepth}) exceeded`];
+    }
+    if (visited.has(path)) {
+      return [`Circular reference detected at path: ${path}`];
+    }
+    visited.add(path);
     const errors: string[] = [];
     const fieldName = path.split('.').pop() || '';
     const field = schema[fieldName] || this.getNestedSchema(schema, path);
@@ -29,8 +43,9 @@ export class FormValidator {
         value as Record<string, JSONValue>,
         path
       );
-      if (Object.keys(objectErrors).length > 0) {
-        errors.push("Object contains invalid fields");
+      // Collect all nested errors
+      for (const errs of Object.values(objectErrors)) {
+        errors.push(...errs);
       }
     }
 
@@ -62,9 +77,23 @@ export class FormValidator {
   static validateObject(
     properties: JSONSchemaProperties,
     value: Record<string, JSONValue>,
-    prefix = ""
+    prefix = "",
+    options: {
+      visited?: Set<string>;
+      maxDepth?: number;
+      currentDepth?: number;
+    } = {}
   ): Record<string, string[]> {
+    const { visited = new Set(), maxDepth = 20, currentDepth = 0 } = options;
+    
+    if (currentDepth > maxDepth) {
+      return { [prefix]: [`Maximum validation depth (${maxDepth}) exceeded`] };
+    }
     const errors: Record<string, string[]> = {};
+    
+    if (!value || typeof value !== 'object') {
+      return { [prefix]: ['Must be an object'] };
+    }
 
     Object.keys(properties).forEach((key) => {
       const fullKey = prefix ? `${prefix}.${key}` : key;
@@ -75,7 +104,8 @@ export class FormValidator {
         const nestedErrors = this.validateObject(
           field.properties,
           fieldValue as Record<string, JSONValue> || {},
-          fullKey
+          fullKey,
+          { visited, maxDepth, currentDepth: currentDepth + 1 }
         );
         Object.assign(errors, nestedErrors);
       } else {
@@ -84,9 +114,10 @@ export class FormValidator {
           ? this.validateField(
               { [key]: fieldSchema } as JSONSchemaProperties,
               fullKey,
-              fieldValue
+              fieldValue,
+              { visited, maxDepth, currentDepth: currentDepth + 1 }
             )
-          : this.validateField(properties, fullKey, fieldValue);
+          : this.validateField(properties, fullKey, fieldValue, { visited, maxDepth, currentDepth: currentDepth + 1 });
         
         if (fieldErrors.length > 0) {
           errors[fullKey] = fieldErrors;
@@ -99,7 +130,10 @@ export class FormValidator {
 
   static validateForm(
     formData: Record<string, JSONValue>,
-    schema: JSONSchemaProperties
+    schema: JSONSchemaProperties,
+    options: {
+      maxDepth?: number;
+    } = {}
   ): Record<string, string[]> {
     const errors: Record<string, string[]> = {};
     
@@ -111,11 +145,12 @@ export class FormValidator {
         const objectErrors = this.validateObject(
           fieldSchema.properties,
           value as Record<string, JSONValue>,
-          key
+          key,
+          { maxDepth: options.maxDepth }
         );
         Object.assign(errors, objectErrors);
       } else {
-        const fieldErrors = this.validateField(schema, key, value);
+        const fieldErrors = this.validateField(schema, key, value, { maxDepth: options.maxDepth });
         if (fieldErrors.length > 0) {
           errors[key] = fieldErrors;
         }

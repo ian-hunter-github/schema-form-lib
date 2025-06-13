@@ -39,7 +39,7 @@ it("simple validation of fields", async () => {
           innerObject: {
             type: "object",
             properties: {
-              innerInnerField: {
+              innerField: {
                 type: "string",
                 minLength: 5,
               },
@@ -61,28 +61,30 @@ it("simple validation of fields", async () => {
   expect(accordion2).toBeInTheDocument();
   fireEvent.click(accordion2);
 
-  console.log("After validation:", screen.debug());
+  const element = document.querySelector("#outerField-error");
+  expect(element).toBeNull(); // Passes if element does not exist
 
-  // // Verify the accordion exists and can be clicked
-  // const accordion = screen.getByTestId("object-accordion");
-  // expect(accordion).toBeInTheDocument();
-  // fireEvent.click(accordion);
+  // Test outervalidation
+  const outerField = screen.getByTestId("outerField");
+  fireEvent.change(outerField, {
+    target: { value: "Al" },
+  });
+  fireEvent.blur(outerField);
 
-  // // Verify the inner field exists
-  // const outerField = await screen.findByTestId("outerField.outerField");
-  // expect(outerField).toBeInTheDocument();
+  expect(screen.getByTestId("outerField-error")).toBeInTheDocument();
 
-  // // Verify the inner field exists
-  // const innerField = await screen.findByTestId(
-  //   "object.object.innerField.innerField"
-  // );
-  // expect(innerField).toBeInTheDocument();
+  // Test inner validation
+  const innerField = screen.getByTestId("object.innerObject.innerField");
+  fireEvent.change(innerField, {
+    target: { value: "Al" },
+  });
+  fireEvent.blur(innerField);
 
-  // // Test validation
-  // fireEvent.change(innerField, {
-  //   target: { value: "Al" },
-  // });
-  // fireEvent.blur(innerField);
+  expect(
+    screen.getByTestId("object.innerObject.innerField-error")
+  ).toBeInTheDocument();
+
+  //console.log("After validation:", screen.debug());
 
   // // Submit form
   // fireEvent.submit(screen.getByTestId("form"));
@@ -109,7 +111,7 @@ it("validates min, max constraints", async () => {
       name: {
         type: "string",
         minLength: 3,
-        maxLength: 20,
+        maxLength: 7,
         default: "John Doe",
       },
       age: {
@@ -123,7 +125,7 @@ it("validates min, max constraints", async () => {
 
   render(
     <FormStateProvider>
-      <JsonSchemaForm schema={baseSchema.properties} parentId = ""/>
+      <JsonSchemaForm schema={baseSchema.properties} parentId="" />
     </FormStateProvider>
   );
 
