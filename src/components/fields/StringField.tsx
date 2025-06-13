@@ -1,27 +1,28 @@
 import React from 'react';
 import type { FieldProps } from '../../types/schema';
 
-const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, testIdPrefix }) => {
-  const fieldTestId = testIdPrefix && testIdPrefix.endsWith(name) ? testIdPrefix : 
-                    testIdPrefix ? `${testIdPrefix}.${name}` : name;
+const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, parentId }) => {
+
+  const fieldId = parentId ? parentId + '.' + name : name;
+
   return (
     <>
-      <label htmlFor={name} data-testid={`label-${fieldTestId}`}>
+      <label htmlFor={fieldId} id={`${fieldId}-label`}>
         {schema.title || name}
       </label>
       {schema.description && (
-        <div data-testid={`description-${fieldTestId}`}>{schema.description}</div>
+        <div id={`${fieldId}-description`} data-testId={`${fieldId}-description`} >{schema.description}</div>
       )}
       <input
-        id={name}
-        data-testid={fieldTestId}
+        id={fieldId}
+        data-testid={fieldId}
         type="text"
         value={value as string}
         disabled={schema.readOnly}
         onChange={(e) => onChange(e.target.value)}
       />
       {error && (
-        <div data-testid={`error-${fieldTestId}`} style={{ color: 'red' }}>
+        <div id={`${fieldId}-error`} data-testId={`${fieldId}-error`} style={{ color: 'red' }}>
           {error}
         </div>
       )}

@@ -38,5 +38,5 @@ export type FieldProps = {
   onChange: (value: FormValue) => void;
   error?: string;
   depth?: number;
-  testIdPrefix?: string;
+  parentId: string;
 };

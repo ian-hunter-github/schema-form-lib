@@ -1,0 +1,151 @@
+import { render, screen, fireEvent } from "@testing-library/react";
+import { it, expect } from "vitest";
+import { FormStateProvider } from "../contexts/FormStateContext";
+import {
+  toBeInTheDocument,
+  toHaveValue,
+  toBeChecked,
+  toBeDisabled,
+  toHaveTextContent,
+  toHaveAttribute,
+} from "@testing-library/jest-dom/matchers";
+import JsonSchemaForm from "../components/JsonSchemaForm";
+import type { JSONSchemaProperties } from "../types/schema";
+
+expect.extend({
+  toBeInTheDocument,
+  toHaveValue,
+  toBeChecked,
+  toBeDisabled,
+  toHaveTextContent,
+  toHaveAttribute,
+});
+
+it("simple validation of fields", async () => {
+  const schema = {
+    type: "object" as const,
+    properties: {
+      outerField: {
+        type: "string",
+        minLength: 3,
+      },
+      object: {
+        type: "object",
+        properties: {
+          innerField: {
+            type: "string",
+            minLength: 5,
+          },
+          innerObject: {
+            type: "object",
+            properties: {
+              innerInnerField: {
+                type: "string",
+                minLength: 5,
+              },
+            },
+          },
+        },
+      },
+    } as JSONSchemaProperties,
+  };
+
+  render(<JsonSchemaForm schema={schema.properties} parentId="" />);
+
+  // Verify the accordion exists and can be clicked
+  const accordion = screen.getByTestId("object-accordion");
+  expect(accordion).toBeInTheDocument();
+  fireEvent.click(accordion);
+
+  const accordion2 = screen.getByTestId("object.innerObject-accordion");
+  expect(accordion2).toBeInTheDocument();
+  fireEvent.click(accordion2);
+
+  console.log("After validation:", screen.debug());
+
+  // // Verify the accordion exists and can be clicked
+  // const accordion = screen.getByTestId("object-accordion");
+  // expect(accordion).toBeInTheDocument();
+  // fireEvent.click(accordion);
+
+  // // Verify the inner field exists
+  // const outerField = await screen.findByTestId("outerField.outerField");
+  // expect(outerField).toBeInTheDocument();
+
+  // // Verify the inner field exists
+  // const innerField = await screen.findByTestId(
+  //   "object.object.innerField.innerField"
+  // );
+  // expect(innerField).toBeInTheDocument();
+
+  // // Test validation
+  // fireEvent.change(innerField, {
+  //   target: { value: "Al" },
+  // });
+  // fireEvent.blur(innerField);
+
+  // // Submit form
+  // fireEvent.submit(screen.getByTestId("form"));
+
+  // // Debug after validation
+  // console.log("After validation:", screen.debug());
+
+  // // Verify outerField error is displayed
+  // const outerError = await screen.findByTestId("error-outerField.outerField");
+  // expect(outerError).toBeInTheDocument();
+
+  // // Verify innerField error is displayed
+  // const innerError = await screen.findByTestId(
+  //   "error-object.object.innerField.innerField"
+  // );
+  // expect(innerError).toBeInTheDocument();
+});
+
+it("validates min, max constraints", async () => {
+  const baseSchema = {
+    type: "object",
+    required: ["age"],
+    properties: {
+      name: {
+        type: "string",
+        minLength: 3,
+        maxLength: 20,
+        default: "John Doe",
+      },
+      age: {
+        type: "number",
+        minimum: 18,
+        maximum: 99,
+        default: 30,
+      },
+    } as JSONSchemaProperties,
+  };
+
+  render(
+    <FormStateProvider>
+      <JsonSchemaForm schema={baseSchema.properties} parentId = ""/>
+    </FormStateProvider>
+  );
+
+  // minLength
+  const nameInput = screen.getByTestId("name");
+  fireEvent.change(nameInput, { target: { value: "Al" } });
+  fireEvent.blur(nameInput);
+  expect(await screen.findByTestId("name-error")).toBeInTheDocument();
+
+  // maxLength
+  fireEvent.change(nameInput, { target: { value: "VeryLongNameHere" } });
+  fireEvent.blur(nameInput);
+  expect(await screen.findByTestId("name-error")).toBeInTheDocument();
+
+  // min number
+  const ageInput = screen.getByTestId("age");
+  fireEvent.change(ageInput, { target: { value: "10" } });
+  fireEvent.blur(ageInput);
+  expect(await screen.findByTestId("age-error")).toBeInTheDocument();
+
+  // max number
+  fireEvent.change(ageInput, { target: { value: "150" } });
+  fireEvent.blur(ageInput);
+  expect(await screen.findByTestId("age-error")).toBeInTheDocument();
+});

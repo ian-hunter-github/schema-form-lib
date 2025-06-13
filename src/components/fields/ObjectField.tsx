@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import type { FieldProps, FormValue } from '../../types/schema';
 import FieldRenderer from '../FieldRenderer';
 
-const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, depth = 0, testIdPrefix }) => {
+const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, depth = 0, parentId }) => {
+  console.debug('ObjectField props:', { name, parentId });
   const [isExpanded, setIsExpanded] = useState(false);
   const objectValue = value as Record<string, FormValue> || {};
 
@@ -17,11 +18,14 @@ const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
     });
   };
 
+  const thisId = parentId ? `${parentId}.${name}` : name;
+
   return (
-    <div style={{ marginLeft: `${depth * 16}px` }}>
+    <div id={thisId} data-testid={thisId} style={{ marginLeft: `${depth * 16}px` }}>
       <button 
         type="button"
-        data-testid={`${testIdPrefix || name}-accordion`}
+        id={`${thisId}-accordion`}
+        data-testid={`${thisId}-accordion`}
         onClick={() => setIsExpanded(!isExpanded)}
         style={{ display: 'flex', alignItems: 'center' }}
       >
@@ -29,18 +33,21 @@ const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
       </button>
       {isExpanded && (
         <div style={{ borderLeft: depth > 0 ? '1px solid #ccc' : 'none', paddingLeft: '8px' }}>
-          {Object.entries(schema.properties).map(([key, fieldSchema]) => (
-            <FieldRenderer
-              key={key}
-              name={key}
-              value={objectValue[key]}
-              schema={fieldSchema}
-              onChange={(val) => handleFieldChange(key, val)}
-              error={error}
-              depth={depth + 1}
-              testIdPrefix={testIdPrefix ? `${testIdPrefix}.${key}` : key}
-            />
-          ))}
+          {Object.entries(schema.properties).map(([key, fieldSchema]) => {
+            console.debug('Rendering property:', { key, parentId}); //, fieldSchema}); //, value: objectValue[key] });
+            return (
+              <FieldRenderer
+                key={key}
+                name={key}
+                value={objectValue[key]}
+                schema={fieldSchema}
+                onChange={(val) => handleFieldChange(key, val)}
+                error={error}
+                depth={depth + 1}
+                parentId={thisId}
+              />
+            );
+          })}
         </div>
       )}
     </div>

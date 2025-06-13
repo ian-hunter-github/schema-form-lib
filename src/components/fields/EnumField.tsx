@@ -1,7 +1,10 @@
 import React from 'react';
 import type { FieldProps } from '../../types/schema';
 
-const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error }) => {
+const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, parentId }) => {
+
+    const fieldId = parentId ? parentId + "." + name : name;
+
   if (!schema.enum) {
     return null;
   }
@@ -15,15 +18,15 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error 
 
   return (
     <>
-      <label htmlFor={name} data-testid={`label-${name}`}>
+      <label htmlFor={fieldId} data-testid={`${fieldId}-label`}>
         {schema.title || name}
       </label>
       {schema.description && (
-        <div data-testid={`description-${name}`}>{schema.description}</div>
+        <div data-testid={`${fieldId}-description`}>{schema.description}</div>
       )}
       <select
-        id={name}
-        data-testid={name}
+        id={fieldId}
+        data-testid={fieldId}
         multiple={isMultiple}
         value={selectValue}
         disabled={schema.readOnly}
@@ -46,7 +49,7 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error 
         })}
       </select>
       {error && (
-        <div data-testid={`error-${name}`} style={{ color: 'red' }}>
+        <div data-testid={`${fieldId}-error`} style={{ color: 'red' }}>
           {error}
         </div>
       )}

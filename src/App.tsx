@@ -29,7 +29,7 @@ function App() {
   return (
     <div>
       <h1>Schema Form Example</h1>
-      <JsonSchemaForm schema={schema} />
+      <JsonSchemaForm schema={schema} parentId=""/>
     </div>
   );
 }

@@ -32,7 +32,7 @@ describe("JsonSchemaForm Custom Components", () => {
   };
 
   it("renders custom field components", () => {
-    render(<JsonSchemaForm schema={customSchema.properties} />);
+    render(<JsonSchemaForm schema={customSchema.properties} parentId="" />);
     expect(screen.getByTestId("custom")).toBeInTheDocument();
   });
 });
@@ -48,7 +48,11 @@ describe("JsonSchemaForm Submission", () => {
   it("calls onSubmit with form data", () => {
     const mockSubmit = vi.fn();
     render(
-      <JsonSchemaForm schema={submitSchema.properties} onSubmit={mockSubmit} />
+      <JsonSchemaForm
+        schema={submitSchema.properties}
+        parentId=""
+        onSubmit={mockSubmit}
+      />
     );
 
     fireEvent.change(screen.getByTestId("name"), { target: { value: "Test" } });
@@ -70,6 +74,7 @@ describe("JsonSchemaForm Submission", () => {
       <JsonSchemaForm
         schema={requiredSchema.properties}
         onSubmit={mockSubmit}
+        parentId=""
       />
     );
     fireEvent.change(screen.getByTestId("name"), { target: { value: "A" } });
@@ -88,7 +93,7 @@ describe("JsonSchemaForm Accessibility", () => {
       },
     };
 
-    render(<JsonSchemaForm schema={schema.properties} />);
+    render(<JsonSchemaForm schema={schema.properties} parentId="" />);
     // Skip aria checks since component doesn't implement them
     // Focus on testing core functionality
   });
@@ -124,7 +129,7 @@ describe("JsonSchemaForm Enum Field", () => {
   };
 
   it("handles single select enum field", () => {
-    render(<JsonSchemaForm schema={enumSchema.properties} />);
+    render(<JsonSchemaForm schema={enumSchema.properties} parentId="" />);
     const select = screen.getByTestId("singleSelect");
     expect(select).toHaveValue("Option2");
 
@@ -133,7 +138,7 @@ describe("JsonSchemaForm Enum Field", () => {
   });
 
   it("handles multiple select enum field", () => {
-    render(<JsonSchemaForm schema={enumSchema.properties} />);
+    render(<JsonSchemaForm schema={enumSchema.properties} parentId="" />);
     const select = screen.getByTestId("multiSelect") as HTMLSelectElement;
 
     // Verify initial selected options
@@ -150,15 +155,15 @@ describe("JsonSchemaForm Enum Field", () => {
   });
 
   it("validates required enum field", async () => {
-    render(<JsonSchemaForm schema={enumSchema.properties} />);
+    render(<JsonSchemaForm schema={enumSchema.properties} parentId="" />);
     fireEvent.submit(screen.getByTestId("form"));
     expect(
-      await screen.findByTestId("error-requiredSelect")
+      await screen.findByTestId("requiredSelect-error")
     ).toBeInTheDocument();
   });
 
   it("handles readOnly enum field", () => {
-    render(<JsonSchemaForm schema={enumSchema.properties} />);
+    render(<JsonSchemaForm schema={enumSchema.properties} parentId="" />);
     const select = screen.getByTestId("readOnlySelect");
     expect(select).toBeDisabled();
     expect(select).toHaveValue("ReadOnly1");
@@ -176,7 +181,7 @@ describe("JsonSchemaForm Enum Field", () => {
       } as JSONSchemaProperties,
     };
 
-    render(<JsonSchemaForm schema={numberEnumSchema.properties} />);
+    render(<JsonSchemaForm schema={numberEnumSchema.properties} parentId="" />);
     expect(screen.getByTestId("numberSelect")).toHaveValue("2");
   });
 });
@@ -207,27 +212,33 @@ describe("JsonSchemaForm Nested Features", () => {
   };
 
   it("renders nested object fields", () => {
-    render(<JsonSchemaForm schema={nestedSchema.properties} />);
+    render(<JsonSchemaForm schema={nestedSchema.properties} parentId="" />);
 
     expect(screen.getByTestId("person-accordion")).toBeInTheDocument();
-
     fireEvent.click(screen.getByTestId("person-accordion")); // Expand accordion
+
+    expect(screen.getByTestId("person.address-accordion")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("person.address-accordion")); // Expand accordion
 
     expect(screen.getByTestId("person.name")).toBeInTheDocument();
     expect(screen.getByTestId("person.age")).toBeInTheDocument();
-    
+
     // Expand the address accordion first
-    fireEvent.click(screen.getByTestId("person.address-accordion"));
-    
+    fireEvent.click(screen.getByTestId("person.address"));
+
     expect(screen.getByTestId("person.address.street")).toBeInTheDocument();
     expect(screen.getByTestId("person.address.city")).toBeInTheDocument();
-    expect(screen.getByTestId("person.hobbies-0")).toBeInTheDocument();
+    expect(screen.getByTestId("person.hobbies.0")).toBeInTheDocument();
   });
 
   it("submits nested form data correctly", async () => {
     const mockSubmit = vi.fn();
     render(
-      <JsonSchemaForm schema={nestedSchema.properties} onSubmit={mockSubmit} />
+      <JsonSchemaForm
+        schema={nestedSchema.properties}
+        onSubmit={mockSubmit}
+        parentId=""
+      />
     );
 
     fireEvent.click(screen.getByTestId("person-accordion")); // Expand accordion
@@ -246,7 +257,7 @@ describe("JsonSchemaForm Nested Features", () => {
     fireEvent.change(screen.getByTestId("person.address.city"), {
       target: { value: "Metropolis" },
     });
-    fireEvent.change(screen.getByTestId("person.hobbies-0"), {
+    fireEvent.change(screen.getByTestId("person.hobbies.0"), {
       target: { value: "Reading" },
     });
 
@@ -266,7 +277,7 @@ describe("JsonSchemaForm Nested Features", () => {
   });
 });
 
-describe("JsonSchemaForm Flat Features (with data-testid)", () => {
+describe("JsonSchemaForm Flat Features", () => {
   const baseSchema = {
     type: "object",
     required: ["name", "age"],
@@ -285,19 +296,19 @@ describe("JsonSchemaForm Flat Features (with data-testid)", () => {
     } as JSONSchemaProperties,
   };
 
-  it("renders all field types with correct data-testids", () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
+  it("renders all field types with correct roles", () => {
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
 
     expect(screen.getByTestId("name")).toBeInTheDocument();
     expect(screen.getByTestId("age")).toBeInTheDocument();
     expect(screen.getByTestId("isStudent")).toBeInTheDocument();
     expect(screen.getByTestId("gender")).toBeInTheDocument();
     expect(screen.getByTestId("id")).toBeDisabled();
-    expect(screen.getByTestId("tags-0")).toBeInTheDocument();
+    expect(screen.getByTestId("tags")).toBeInTheDocument();
   });
 
   it("applies default values correctly", () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
 
     expect(screen.getByTestId("age")).toHaveValue(30);
     expect(screen.getByTestId("isStudent")).toBeChecked();
@@ -305,62 +316,60 @@ describe("JsonSchemaForm Flat Features (with data-testid)", () => {
   });
 
   it("validates required fields on submit", async () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
 
     fireEvent.submit(screen.getByTestId("form"));
 
-    expect(await screen.findAllByTestId(/error-/)).toHaveLength(2); // 'name' and 'age'
+    expect(await screen.findAllByText(/is required/)).toHaveLength(2); // 'name' and 'age'
   });
 
   it("validates minLength, maxLength, min, max constraints", async () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
 
     // minLength
     const nameInput = screen.getByTestId("name");
     fireEvent.change(nameInput, { target: { value: "Al" } });
     fireEvent.blur(nameInput);
-    expect(await screen.findByTestId("error-name")).toBeInTheDocument();
+    expect(await screen.findByTestId("name-error")).toBeInTheDocument();
 
     // maxLength
     fireEvent.change(nameInput, { target: { value: "VeryLongNameHere" } });
     fireEvent.blur(nameInput);
-    expect(await screen.findByTestId("error-name")).toBeInTheDocument();
+    expect(await screen.findByTestId("name-error")).toBeInTheDocument();
 
     // min number
     const ageInput = screen.getByTestId("age");
     fireEvent.change(ageInput, { target: { value: "10" } });
     fireEvent.blur(ageInput);
-    expect(await screen.findByTestId("error-age")).toBeInTheDocument();
+    expect(await screen.findByTestId("age-error")).toBeInTheDocument();
 
     // max number
     fireEvent.change(ageInput, { target: { value: "150" } });
     fireEvent.blur(ageInput);
-    expect(await screen.findByTestId("error-age")).toBeInTheDocument();
+    expect(await screen.findByTestId("age-error")).toBeInTheDocument();
   });
 
   it("displays help text / description", () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
-    expect(screen.getByTestId("description-name")).toHaveTextContent(
-      "Full Name"
-    );
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
+    expect(screen.getByText(/Full Name/)).toBeInTheDocument();
   });
 
   it("handles readonly/disabled fields", () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
     const idInput = screen.getByTestId("id");
     expect(idInput).toBeDisabled();
     expect(idInput).toHaveValue("ABC123");
   });
 
   it("renders enum field with placeholder", () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
     const genderSelect = screen.getByTestId("gender");
     expect(genderSelect).toBeInTheDocument();
     expect(genderSelect).toHaveValue("Male");
   });
 
   it("sets and gets values correctly", async () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
 
     const nameInput = screen.getByTestId("name");
     const ageInput = screen.getByTestId("age");
@@ -379,16 +388,16 @@ describe("JsonSchemaForm Flat Features (with data-testid)", () => {
   });
 
   it("handles adding and removing items in primitive array", async () => {
-    render(<JsonSchemaForm schema={baseSchema.properties} />);
+    render(<JsonSchemaForm schema={baseSchema.properties} parentId="" />);
 
-    const addButton = screen.getByTestId("add-tags");
+    const addButton = screen.getByTestId("tags-add");
     fireEvent.click(addButton); // tags-1 created
     fireEvent.click(addButton); // tags-2 created
 
     // Set values for each array item
-    const tag0 = screen.getByTestId("tags-0");
-    const tag1 = screen.getByTestId("tags-1");
-    const tag2 = screen.getByTestId("tags-2");
+    const tag0 = screen.getByTestId("tags.0");
+    const tag1 = screen.getByTestId("tags.1");
+    const tag2 = screen.getByTestId("tags.2");
     fireEvent.change(tag0, { target: { value: "first" } });
     fireEvent.change(tag1, { target: { value: "second" } });
     fireEvent.change(tag2, { target: { value: "third" } });
@@ -399,11 +408,11 @@ describe("JsonSchemaForm Flat Features (with data-testid)", () => {
     expect(tag2).toHaveValue("third");
 
     // Remove middle item
-    const removeButton = screen.getByTestId("tags-1-remove");
+    const removeButton = screen.getByTestId("tags.1-remove");
     fireEvent.click(removeButton);
 
     // Verify remaining items maintain their values and positions
-    expect(screen.getByTestId("tags-0")).toHaveValue("first");
-    expect(screen.getByTestId("tags-1")).toHaveValue("third");
+    expect(screen.getByTestId("tags.0")).toHaveValue("first");
+    expect(screen.getByTestId("tags.1")).toHaveValue("third");
   });
 });
