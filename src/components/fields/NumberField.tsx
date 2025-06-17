@@ -5,9 +5,16 @@ const NumberField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
   const fieldId = parentId ? parentId + '.' + name : name;
   return (
     <>
-      <label htmlFor={fieldId} id={`label-${fieldId}`}>
+    
+      <label 
+        htmlFor={fieldId} 
+        id={`${fieldId}-label`}
+        data-testid={`${fieldId}-label`}
+        className={schema.required ? 'label required' : 'label'}
+      >
         {schema.title || name}
       </label>
+
       {schema.description && (
         <div id={`${fieldId}-description`}>{schema.description}</div>
       )}

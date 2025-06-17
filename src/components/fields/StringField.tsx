@@ -7,9 +7,15 @@ const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
 
   return (
     <>
-      <label htmlFor={fieldId} id={`${fieldId}-label`}>
+      <label 
+        htmlFor={fieldId} 
+        id={`${fieldId}-label`}
+        data-testid={`${fieldId}-label`}
+        className={schema.required ? 'label required' : 'label'}
+      >
         {schema.title || name}
       </label>
+
       {schema.description && (
         <div id={`${fieldId}-description`} data-testid={`${fieldId}-description`} >{schema.description}</div>
       )}

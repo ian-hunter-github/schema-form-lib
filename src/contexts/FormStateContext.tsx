@@ -59,21 +59,9 @@ export const FormStateProvider: React.FC<FormStateProviderProps> = ({ children, 
     if (typeof action === 'function') {
       setState((prev) => {
         const newState = action(prev);
-        if (newState.errors !== prev.errors) {
-          console.log('Errors changed:', {
-            oldErrors: prev.errors,
-            newErrors: newState.errors
-          });
-        }
         return newState;
       });
     } else {
-      if (action.errors !== state.errors) {
-        console.log('Errors changed:', {
-          oldErrors: state.errors,
-          newErrors: action.errors
-        });
-      }
       setState(action);
     }
   };

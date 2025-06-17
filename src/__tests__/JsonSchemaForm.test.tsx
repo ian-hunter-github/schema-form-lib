@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
+import StringField from "../components/fields/StringField";
 import {
   toBeInTheDocument,
   toHaveValue,
@@ -7,6 +8,7 @@ import {
   toBeDisabled,
   toHaveTextContent,
   toHaveAttribute,
+  toHaveClass,
 } from "@testing-library/jest-dom/matchers";
 import JsonSchemaForm from "../components/JsonSchemaForm";
 import type { JSONSchemaProperties } from "../types/schema";
@@ -18,6 +20,7 @@ expect.extend({
   toBeDisabled,
   toHaveTextContent,
   toHaveAttribute,
+  toHaveClass,
 });
 
 describe("JsonSchemaForm Custom Components", () => {
@@ -257,6 +260,9 @@ describe("JsonSchemaForm Nested Features", () => {
     fireEvent.change(screen.getByTestId("person.address.city"), {
       target: { value: "Metropolis" },
     });
+
+    fireEvent.click(screen.getByTestId("person.hobbies-add")); // Add a hobby
+
     fireEvent.change(screen.getByTestId("person.hobbies.0"), {
       target: { value: "Reading" },
     });
@@ -275,6 +281,29 @@ describe("JsonSchemaForm Nested Features", () => {
       },
     });
   });
+});
+
+describe("Required Field Formatting", () => {
+  const requiredSchema = {
+    type: "object",
+    properties: {
+      requiredField: { type: "string", required: true },
+      optionalField: { type: "string" }
+    } as JSONSchemaProperties
+  };
+
+  it("marks required fields with required indicator", () => {
+    render(<JsonSchemaForm schema={requiredSchema.properties} parentId="" />);
+    
+    const requiredLabel = screen.getByTestId("requiredField-label");
+    expect(requiredLabel).toHaveClass('required');
+
+    const optionalLabel = screen.getByTestId("optionalField-label");
+    expect(optionalLabel).not.toHaveClass('required');
+
+  });
+
+
 });
 
 describe("JsonSchemaForm Flat Features", () => {

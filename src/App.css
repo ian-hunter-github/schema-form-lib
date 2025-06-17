@@ -6,6 +6,10 @@ form {
 label {
   font-weight: bold;
 }
+.label.required::after {
+  content: " *";
+  color: red;
+}
 input, select {
   padding: 0.5rem;
   width: 200px;

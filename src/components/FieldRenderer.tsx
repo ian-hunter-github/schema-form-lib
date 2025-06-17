@@ -15,14 +15,6 @@ const FieldRenderer: React.FC<FieldProps> = (props) => {
         </div>
       ));
 
-  console.log(
-    "Rendering field:",
-    props.name,
-    "with type:",
-    props.schema.type,
-    "and parentId:",
-    props.parentId
-  );
 
   return <FieldComponent {...props} />;
 };

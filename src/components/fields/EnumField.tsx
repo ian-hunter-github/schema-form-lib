@@ -18,9 +18,15 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error,
 
   return (
     <>
-      <label htmlFor={fieldId} data-testid={`${fieldId}-label`}>
+      <label 
+        htmlFor={fieldId} 
+        id={`${fieldId}-label`}
+        data-testid={`${fieldId}-label`}
+        className={schema.required ? 'label required' : 'label'}
+      >
         {schema.title || name}
       </label>
+      
       {schema.description && (
         <div data-testid={`${fieldId}-description`}>{schema.description}</div>
       )}

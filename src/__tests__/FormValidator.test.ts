@@ -63,6 +63,22 @@ describe("FormValidator", () => {
       expect(errors).toContain("This field is required.");
     });
 
+    it("returns required error for missing nested field", () => {
+      const nestedSchema: JSONSchemaProperties = {
+        address: {
+          type: "object",
+          properties: {
+            city: { 
+              type: "string",
+              minLength: 1 // Make it effectively required
+            }
+          }
+        }
+      };
+      const errors = FormValidator.validateField(nestedSchema, "address.city", "");
+      expect(errors).toContain("This field is required.");
+    });
+
   });
 
   describe("validateObject", () => {
@@ -107,6 +123,35 @@ describe("FormValidator", () => {
       );
 
       expect(errors).toEqual({});
+    });
+
+    it("validates required nested fields in objects", () => {
+      const schemaWithRequired: JSONSchemaProperties = {
+        person: {
+          type: "object",
+          properties: {
+            name: { 
+              type: "string",
+              minLength: 1 // Make it effectively required
+            },
+            age: { type: "number" }
+          }
+        }
+      };
+
+      const errors = FormValidator.validateObject(
+        schemaWithRequired,
+        {
+          person: {
+            age: 18, // missing required name
+            name: "" // empty string should trigger required error
+          }
+        },
+        ""
+      );
+
+      expect(errors["person.name"]).toBeDefined();
+      expect(errors["person.name"]).toContain("This field is required.");
     });
   });
 
@@ -154,6 +199,46 @@ describe("FormValidator", () => {
       );
 
       expect(errors).toEqual({});
+    });
+
+    it("validates deeply nested required fields", () => {
+      const deepSchema: JSONSchemaProperties = {
+        user: {
+          type: "object",
+          properties: {
+            profile: {
+              type: "object",
+              properties: {
+                address: {
+                  type: "object",
+                  properties: {
+                    city: { 
+                      type: "string",
+                      minLength: 1 // Make it effectively required
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const errors = FormValidator.validateForm(
+        {
+          user: {
+            profile: {
+              address: {
+                city: "" // empty string should trigger required error
+              }
+            }
+          }
+        },
+        deepSchema
+      );
+
+      expect(errors["user.profile.address.city"]).toBeDefined();
+      expect(errors["user.profile.address.city"]).toContain("This field is required.");
     });
   });
 });

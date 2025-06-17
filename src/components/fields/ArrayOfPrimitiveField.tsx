@@ -30,7 +30,12 @@ const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema,
 
   return (
     <div id={fieldId} data-testid={fieldId}>
-      <label htmlFor={`${fieldId}`} id={`${fieldId}-label`}>
+      <label 
+        htmlFor={fieldId} 
+        id={`${fieldId}-label`}
+        data-testid={`${fieldId}-label`}
+        className={schema.required ? 'label required' : 'label'}
+      >
         {schema.title || name}
       </label>
       {schema.description && (

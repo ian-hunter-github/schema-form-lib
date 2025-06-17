@@ -3,7 +3,6 @@ import type { FieldProps, FormValue } from '../../types/schema';
 import FieldRenderer from '../FieldRenderer';
 
 const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, depth = 0, parentId }) => {
-  console.debug('ObjectField props:', { name, parentId });
   const [isExpanded, setIsExpanded] = useState(false);
   const objectValue = value as Record<string, FormValue> || {};
 
@@ -34,7 +33,6 @@ const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
       {isExpanded && (
         <div style={{ borderLeft: depth > 0 ? '1px solid #ccc' : 'none', paddingLeft: '8px' }}>
           {Object.entries(schema.properties).map(([key, fieldSchema]) => {
-            console.debug('Rendering property:', { key, parentId}); //, fieldSchema}); //, value: objectValue[key] });
             return (
               <FieldRenderer
                 key={key}
