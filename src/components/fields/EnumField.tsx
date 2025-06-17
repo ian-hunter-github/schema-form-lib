@@ -18,19 +18,7 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error,
       : '';
 
   return (
-    <>
-      <label 
-        htmlFor={fieldId} 
-        id={`${fieldId}-label`}
-        data-testid={`${fieldId}-label`}
-        className={schema.required ? 'label required' : 'label'}
-      >
-        {capitalizeFirstLetter(schema.title || name)}
-      </label>
-      
-      {schema.description && (
-        <div data-testid={`${fieldId}-description`}>{schema.description}</div>
-      )}
+    <div className="field-container">
       <select
         id={fieldId}
         data-testid={fieldId}
@@ -55,12 +43,23 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error,
           );
         })}
       </select>
+      <label 
+        htmlFor={fieldId} 
+        id={`${fieldId}-label`}
+        data-testid={`${fieldId}-label`}
+        className={schema.required ? 'label required' : 'label'}
+      >
+        {capitalizeFirstLetter(schema.title || name)}
+      </label>
+      {schema.description && (
+        <div id={`${fieldId}-description`} data-testid={`${fieldId}-description`}>{schema.description}</div>
+      )}
       {error && (
         <div data-testid={`${fieldId}-error`} style={{ color: 'red' }}>
           {error}
         </div>
       )}
-    </>
+    </div>
   );
 };
 

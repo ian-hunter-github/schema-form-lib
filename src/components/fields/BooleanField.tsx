@@ -14,11 +14,8 @@ const BooleanField: React.FC<FieldProps> = ({
   const fieldId = parentId ? parentId + "." + name : name;
 
   return (
-    <>
-      {schema.description && (
-        <div data-testid={`${fieldId}-description`}>{schema.description}</div>
-      )}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    <div className="field-container">
+      <div className="checkbox-wrapper">
         <input
           id={fieldId}
           data-testid={fieldId}
@@ -27,16 +24,23 @@ const BooleanField: React.FC<FieldProps> = ({
           disabled={schema.readOnly}
           onChange={(e) => onChange(e.target.checked)}
         />
-        <label htmlFor={fieldId} data-testid={`${fieldId}-label`}>
+        <label 
+          htmlFor={fieldId} 
+          data-testid={`${fieldId}-label`}
+          className={schema.required ? 'label required' : 'label'}
+        >
           {capitalizeFirstLetter(schema.title || name)}
         </label>
       </div>
+      {schema.description && (
+        <div id={`${fieldId}-description`} data-testid={`${fieldId}-description`}>{schema.description}</div>
+      )}
       {error && (
         <div data-testid={`${fieldId}-error`} style={{ color: "red" }}>
           {error}
         </div>
       )}
-    </>
+    </div>
   );
 };
 

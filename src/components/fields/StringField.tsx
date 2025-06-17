@@ -7,7 +7,16 @@ const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
   const fieldId = parentId ? parentId + '.' + name : name;
 
   return (
-    <>
+    <div className="field-container">
+      <input
+        id={fieldId}
+        data-testid={fieldId}
+        type="text"
+        value={value as string}
+        disabled={schema.readOnly}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder=" "
+      />
       <label 
         htmlFor={fieldId} 
         id={`${fieldId}-label`}
@@ -18,22 +27,14 @@ const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
       </label>
 
       {schema.description && (
-        <div id={`${fieldId}-description`} data-testid={`${fieldId}-description`} >{schema.description}</div>
+        <div id={`${fieldId}-description`} data-testid={`${fieldId}-description`}>{schema.description}</div>
       )}
-      <input
-        id={fieldId}
-        data-testid={fieldId}
-        type="text"
-        value={value as string}
-        disabled={schema.readOnly}
-        onChange={(e) => onChange(e.target.value)}
-      />
       {error && (
         <div id={`${fieldId}-error`} data-testid={`${fieldId}-error`} style={{ color: 'red' }}>
           {error}
         </div>
       )}
-    </>
+    </div>
   );
 };
 

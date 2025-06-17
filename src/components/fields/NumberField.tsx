@@ -5,8 +5,16 @@ import { capitalizeFirstLetter } from '../../utils/StringUtils';
 const NumberField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, parentId }) => {
   const fieldId = parentId ? parentId + '.' + name : name;
   return (
-    <>
-    
+    <div className="field-container">
+      <input
+        id={fieldId}
+        data-testid={fieldId}
+        type="number"
+        value={value as number}
+        disabled={schema.readOnly}
+        onChange={(e) => onChange(Number(e.target.value))}
+        placeholder=" "
+      />
       <label 
         htmlFor={fieldId} 
         id={`${fieldId}-label`}
@@ -19,20 +27,12 @@ const NumberField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
       {schema.description && (
         <div id={`${fieldId}-description`}>{schema.description}</div>
       )}
-      <input
-        id={fieldId}
-        data-testid={fieldId}
-        type="number"
-        value={value as number}
-        disabled={schema.readOnly}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
       {error && (
         <div id={`${fieldId}-error`} data-testid={`${fieldId}-error`} style={{ color: 'red' }}>
           {error}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
