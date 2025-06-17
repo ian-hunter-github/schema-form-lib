@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { FieldProps, FormValue } from '../../types/schema';
 import FieldRenderer from '../FieldRenderer';
+import { capitalizeFirstLetter } from '../../utils/StringUtils';
 
 const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, depth = 0, parentId }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -28,7 +29,7 @@ const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
         onClick={() => setIsExpanded(!isExpanded)}
         style={{ display: 'flex', alignItems: 'center' }}
       >
-        {isExpanded ? '▼' : '▶'} {schema.title || name}
+        {isExpanded ? '▼' : '▶'} {capitalizeFirstLetter(schema.title || name)}
       </button>
       {isExpanded && (
         <div style={{ borderLeft: depth > 0 ? '1px solid #ccc' : 'none', paddingLeft: '8px' }}>

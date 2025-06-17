@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { FieldProps } from '../../types/schema';
+import { capitalizeFirstLetter } from '../../utils/StringUtils';
 
 const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema, onChange, error, parentId }) => {
 
@@ -36,7 +37,7 @@ const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema,
         data-testid={`${fieldId}-label`}
         className={schema.required ? 'label required' : 'label'}
       >
-        {schema.title || name}
+        {capitalizeFirstLetter(schema.title || name)}
       </label>
       {schema.description && (
         <div id={`${fieldId}-description`}>{schema.description}</div>

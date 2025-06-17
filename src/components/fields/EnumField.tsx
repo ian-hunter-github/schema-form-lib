@@ -1,5 +1,6 @@
 import React from 'react';
 import type { FieldProps } from '../../types/schema';
+import { capitalizeFirstLetter } from '../../utils/StringUtils';
 
 const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, parentId }) => {
 
@@ -24,7 +25,7 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error,
         data-testid={`${fieldId}-label`}
         className={schema.required ? 'label required' : 'label'}
       >
-        {schema.title || name}
+        {capitalizeFirstLetter(schema.title || name)}
       </label>
       
       {schema.description && (

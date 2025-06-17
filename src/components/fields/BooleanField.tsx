@@ -1,5 +1,6 @@
 import React from "react";
 import type { FieldProps } from "../../types/schema";
+import { capitalizeFirstLetter } from "../../utils/StringUtils";
 
 const BooleanField: React.FC<FieldProps> = ({
   name,
@@ -27,7 +28,7 @@ const BooleanField: React.FC<FieldProps> = ({
           onChange={(e) => onChange(e.target.checked)}
         />
         <label htmlFor={fieldId} data-testid={`${fieldId}-label`}>
-          {schema.title || name}
+          {capitalizeFirstLetter(schema.title || name)}
         </label>
       </div>
       {error && (
