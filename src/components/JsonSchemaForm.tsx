@@ -39,7 +39,7 @@ const JsonSchemaForm: React.FC<Props> = ({
             obj[nestedKey] = nestedState[nestedKey].value;
             return obj;
           }, {} as Record<string, JSONValue>),
-          required: field.required || false
+          required: false // Parent object itself is never required
         };
       } else if (field.type === "array") {
         acc[key] = {
@@ -66,26 +66,43 @@ const JsonSchemaForm: React.FC<Props> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [requiredFields] = useState<Record<string, boolean>>(
     Object.keys(initialState).reduce((acc, key) => {
-      acc[key] = initialState[key].required;
+      acc[key] = initialState[key].required || false;
       return acc;
     }, {} as Record<string, boolean>)
   );
 
-  const handleChange = (key: string, value: FormValue) => {
-    const errors = FormValidator.validateField(
-      schema,
-      key,
-      value
-    );
-    setErrors((prev) => {
-      const updated = { ...prev };
-      if (errors.length > 0) {
-        updated[key] = errors[0];
-      } else {
-        delete updated[key];
+  const handleChange = (key: string, value: FormValue, isBlur: boolean) => {
+    // Always validate required fields when empty, and validate on blur
+    if (isBlur || (requiredFields[key] && (value === "" || value === null || value === undefined))) {
+      // Handle nested paths (e.g. "person.firstName")
+      const keys = key.split('.');
+      let currentSchema = schema;
+      
+      // If nested path, get the nested schema for validation
+      if (keys.length > 1) {
+        for (let i = 0; i < keys.length - 1; i++) {
+          const k = keys[i];
+          if (currentSchema[k]?.type === 'object' && currentSchema[k]?.properties) {
+            currentSchema = currentSchema[k].properties!;
+          }
+        }
       }
-      return updated;
-    });
+
+      const errors = FormValidator.validateField(
+        currentSchema,
+        key, // Use full path for validation
+        value
+      );
+      setErrors((prev) => {
+        const updated = { ...prev };
+        if (errors.length > 0) {
+          updated[key] = errors[0];
+        } else {
+          delete updated[key];
+        }
+        return updated;
+      });
+    }
 
     setFormData((prev) => {
       // Handle nested paths (e.g. "person.address.street")
@@ -94,13 +111,16 @@ const JsonSchemaForm: React.FC<Props> = ({
         return { ...prev, [key]: value };
       }
 
-      // For nested paths, we need to deeply merge the changes
+      // For nested paths, preserve existing nested values while updating just the target field
       const newData = { ...prev };
       let current: Record<string, JSONValue> = newData;
       
       for (let i = 0; i < keys.length - 1; i++) {
         const k = keys[i];
         if (!current[k]) {
+          current[k] = {};
+        } else if (typeof current[k] !== 'object' || current[k] === null) {
+          // If existing value isn't an object, start fresh with empty object
           current[k] = {};
         }
         current = current[k] as Record<string, JSONValue>;
@@ -120,8 +140,8 @@ const JsonSchemaForm: React.FC<Props> = ({
   }
 
   function cleanValue(value: unknown): JSONValue {
-    if (value === null || typeof value !== 'object') {
-      return value as JSONValue;
+    if (value === null || value === undefined || typeof value !== 'object') {
+      return value === undefined ? null : value as JSONValue;
     }
 
     if (Array.isArray(value)) {
@@ -141,13 +161,17 @@ const JsonSchemaForm: React.FC<Props> = ({
         const cleaned = cleanValue((value as Record<string, unknown>)[key]);
         // Only include the value if it's not an empty object or array
         if (cleaned !== null && 
-            !(typeof cleaned === 'object' && Object.keys(cleaned).length === 0) &&
+            !(typeof cleaned === 'object' && cleaned !== null && Object.keys(cleaned).length === 0) &&
             !(Array.isArray(cleaned) && cleaned.length === 0)) {
           result[key] = cleaned;
         }
       }
     }
-    return result;
+    if (result && typeof result === 'object' && !Array.isArray(result)) {
+      const keys = Object.keys(result);
+      return keys.length > 0 ? result : null;
+    }
+    return null;
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -166,8 +190,11 @@ const JsonSchemaForm: React.FC<Props> = ({
 
     if (Object.keys(newErrors).length === 0 && onSubmit) {
       const cleanedData = cleanValue(formData);
-      if (Object.keys(cleanedData).length > 0) {
-        onSubmit(cleanedData as Record<string, JSONValue>);
+      if (cleanedData && typeof cleanedData === 'object' && !Array.isArray(cleanedData)) {
+        const keys = Object.keys(cleanedData);
+        if (keys.length > 0) {
+          onSubmit(cleanedData as Record<string, JSONValue>);
+        }
       }
     }
   };
@@ -190,11 +217,12 @@ const JsonSchemaForm: React.FC<Props> = ({
             name={key}
             value={formData[key]}
             schema={field}
-            onChange={(value) => handleChange(key, value)}
+            onChange={(value, isBlur = false) => handleChange(key, value, isBlur)}
             error={errors[key]}
             depth={currentDepth}
             parentId={parentId}
             required={requiredFields[key]}
+            domContextId={`${parentId}-${key}`}
           />
         </div>
       );

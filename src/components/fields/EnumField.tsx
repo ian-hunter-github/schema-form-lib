@@ -2,9 +2,9 @@ import React from 'react';
 import type { FieldProps } from '../../types/schema';
 import { capitalizeFirstLetter } from '../../utils/StringUtils';
 
-const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, parentId }) => {
+const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, domContextId }) => {
 
-    const fieldId = parentId ? parentId + "." + name : name;
+    const fieldId = domContextId ? domContextId + "." + name : name;
 
   if (!schema.enum) {
     return null;
@@ -31,7 +31,13 @@ const EnumField: React.FC<FieldProps> = ({ name, value, schema, onChange, error,
           const newValue = isMultiple 
             ? Array.from(e.target.selectedOptions, option => option.value)
             : e.target.value;
-          onChange(newValue);
+          onChange(newValue, false);
+        }}
+        onBlur={(e) => {
+          const newValue = isMultiple 
+            ? Array.from(e.target.selectedOptions, option => option.value)
+            : e.target.value;
+          onChange(newValue, true);
         }}
       >
         {schema.enum.map((option) => {

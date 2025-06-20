@@ -4,13 +4,13 @@ export interface JSONObject {
   [key: string]: JSONValue;
 }
 
-export type JSONValue = PrimitiveJSONValue | JSONValue[] | JSONObject;
+export type JSONValue = PrimitiveJSONValue | JSONValue[] | JSONObject | null | undefined;
 
 export interface FormObject {
   [key: string]: FormValue;
 }
 
-export type FormValue = PrimitiveJSONValue | FormValue[] | FormObject;
+export type FormValue = PrimitiveJSONValue | FormValue[] | FormObject | null | undefined;
 
 export type JSONSchema = {
   type: 'string' | 'number' | 'boolean' | 'array' | 'object';
@@ -36,11 +36,12 @@ export type FieldProps = {
   name: string;
   value: FormValue;
   schema: JSONSchema;
-  onChange: (value: FormValue) => void;
+  onChange: (value: FormValue, triggerValidation?: boolean) => void;
   error?: string;
-  depth?: number;
-  parentId: string;
+  domContextId: string;
   required?: boolean;
+  depth?: number;
+  parentId?: string;
 };
 
 export type InitialFieldState = {

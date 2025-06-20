@@ -3,7 +3,7 @@ import type { FieldProps, FormValue } from '../../types/schema';
 import FieldRenderer from '../FieldRenderer';
 import { capitalizeFirstLetter } from '../../utils/StringUtils';
 
-const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, depth = 0, parentId }) => {
+const ObjectField: React.FC<FieldProps & { depth?: number }> = ({ name, value, schema, onChange, error, depth = 0, domContextId }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const objectValue = value as Record<string, FormValue> || {};
 
@@ -11,14 +11,14 @@ const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
     return <div>Error: Object field missing properties</div>;
   }
 
-  const handleFieldChange = (fieldName: string, fieldValue: FormValue) => {
+  const handleFieldChange = (fieldName: string, fieldValue: FormValue, triggerValidation = false) => {
     onChange({
       ...objectValue,
       [fieldName]: fieldValue
-    });
+    }, triggerValidation);
   };
 
-  const thisId = parentId ? `${parentId}.${name}` : name;
+  const thisId = domContextId ? `${domContextId}.${name}` : name;
 
   return (
     <div id={thisId} data-testid={thisId} style={{ marginLeft: `${depth * 16}px` }}>
@@ -40,10 +40,10 @@ const ObjectField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
                 name={key}
                 value={objectValue[key]}
                 schema={fieldSchema}
-                onChange={(val) => handleFieldChange(key, val)}
+                onChange={(val, triggerValidation = false) => handleFieldChange(key, val, triggerValidation)}
                 error={error}
-                depth={depth + 1}
-                parentId={thisId}
+                domContextId={thisId}
+                required={fieldSchema.required}
               />
             );
           })}

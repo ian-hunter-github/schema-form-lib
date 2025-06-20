@@ -33,8 +33,22 @@ export class FormValidator {
       return errors;
     }
 
-    if (value === "" || value === undefined) {
+    // Check if field is required - either explicitly marked in its own schema
+    // or included in parent's required array
+    let isRequired = field.required === true;
+    if (!isRequired && path.includes('.')) {
+      const parentPath = path.split('.').slice(0, -1).join('.');
+      const parentSchema = parentPath ? this.getNestedSchema(schema, parentPath) : schema;
+      if (parentSchema?.required && Array.isArray(parentSchema.required)) {
+        isRequired = parentSchema.required.includes(fieldName);
+      }
+    }
+    
+    // Validate required fields
+    if (isRequired && (value === undefined || value === null || 
+        (typeof value === 'string' && value.trim() === ''))) {
       errors.push("This field is required.");
+      return errors; // Skip further validation for missing required fields
     }
 
     if (field.type === "object" && field.properties) {
@@ -99,6 +113,19 @@ export class FormValidator {
       const fullKey = prefix ? `${prefix}.${key}` : key;
       const field = properties[key];
       const fieldValue = value?.[key];
+      
+      // Check if field is required - either explicitly marked in its own schema
+      // or included in parent's required array
+      let isRequired = field.required === true;
+      if (!isRequired && fullKey.includes('.')) {
+        const parentPath = fullKey.split('.').slice(0, -1).join('.');
+        const parentSchema = parentPath ? this.getNestedSchema(properties, parentPath) : properties;
+        if (parentSchema?.required && Array.isArray(parentSchema.required)) {
+          isRequired = parentSchema.required.includes(key);
+        }
+      }
+      // Keep track of whether field is required without modifying schema
+      const fieldIsRequired = isRequired;
 
       if (field.type === "object" && field.properties) {
         const nestedErrors = this.validateObject(
@@ -112,12 +139,22 @@ export class FormValidator {
         const fieldSchema = this.getNestedSchema(properties, key);
         const fieldErrors = fieldSchema 
           ? this.validateField(
-              { [key]: fieldSchema } as JSONSchemaProperties,
+              { 
+                [key]: {
+                  ...fieldSchema,
+                  required: fieldIsRequired
+                } 
+              } as JSONSchemaProperties,
               fullKey,
               fieldValue,
               { visited, maxDepth, currentDepth: currentDepth + 1 }
             )
-          : this.validateField(properties, fullKey, fieldValue, { visited, maxDepth, currentDepth: currentDepth + 1 });
+          : this.validateField(
+              properties, 
+              fullKey, 
+              fieldValue, 
+              { visited, maxDepth, currentDepth: currentDepth + 1 }
+            );
         
         if (fieldErrors.length > 0) {
           errors[fullKey] = fieldErrors;

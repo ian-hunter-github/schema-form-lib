@@ -14,7 +14,7 @@ function App() {
       properties: {
         street: { type: 'string', required: true },
         city: { type: 'string' },
-        zipCode: { type: 'string', minLength: 5, maxLength: 10 },
+        zipCode: { type: 'string', minLength: 5, maxLength: 10, required: true },
         coords: {
           type: 'object',
           properties: {

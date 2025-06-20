@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import type { FieldProps } from '../../types/schema';
 import { capitalizeFirstLetter } from '../../utils/StringUtils';
 
-const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema, onChange, error, parentId }) => {
+const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema, onChange, error, domContextId }) => {
 
-  const fieldId = parentId ? parentId + "." + name : name;
+  const fieldId = domContextId ? domContextId + "." + name : name;
   
   const [items, setItems] = useState<string[]>(
     Array.isArray(value) ? value.map(String) : []
@@ -13,20 +13,20 @@ const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema,
   const handleAddItem = () => {
     const newItems = [...items, ''];
     setItems(newItems);
-    onChange(newItems);
+    onChange(newItems, false);
   };
 
   const handleRemoveItem = (index: number) => {
     const newItems = items.filter((_, i) => i !== index);
     setItems(newItems);
-    onChange(newItems);
+    onChange(newItems, false);
   };
 
   const handleItemChange = (index: number, newValue: string) => {
     const newItems = [...items];
     newItems[index] = newValue;
     setItems(newItems);
-    onChange(newItems);
+    onChange(newItems, false);
   };
 
   return (
@@ -50,6 +50,11 @@ const ArrayOfPrimitiveField: React.FC<FieldProps> = ({ name, value = [], schema,
             type="text"
             value={item}
             onChange={(e) => handleItemChange(index, e.target.value)}
+            onBlur={(e) => {
+              const newItems = [...items];
+              newItems[index] = e.target.value;
+              onChange(newItems, true);
+            }}
             disabled={schema.readOnly}
           />
           <button

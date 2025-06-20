@@ -8,10 +8,10 @@ const BooleanField: React.FC<FieldProps> = ({
   schema,
   onChange,
   error,
-  parentId,
+  domContextId,
 }) => {
 
-  const fieldId = parentId ? parentId + "." + name : name;
+  const fieldId = domContextId ? domContextId + "." + name : name;
 
   return (
     <div className="field-container">
@@ -22,7 +22,8 @@ const BooleanField: React.FC<FieldProps> = ({
           type="checkbox"
           checked={value as boolean}
           disabled={schema.readOnly}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e) => onChange(e.target.checked, false)}
+        onBlur={(e) => onChange(e.target.checked, true)}
         />
         <label 
           htmlFor={fieldId} 

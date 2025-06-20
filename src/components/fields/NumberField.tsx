@@ -2,8 +2,8 @@ import React from 'react';
 import type { FieldProps } from '../../types/schema';
 import { capitalizeFirstLetter } from '../../utils/StringUtils';
 
-const NumberField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, parentId }) => {
-  const fieldId = parentId ? parentId + '.' + name : name;
+const NumberField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, domContextId }) => {
+  const fieldId = domContextId ? domContextId + '.' + name : name;
   return (
     <div className="field-container">
       <input
@@ -12,7 +12,8 @@ const NumberField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
         type="number"
         value={value as number}
         disabled={schema.readOnly}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(Number(e.target.value), false)}
+        onBlur={(e) => onChange(Number(e.target.value), true)}
         placeholder=" "
       />
       <label 

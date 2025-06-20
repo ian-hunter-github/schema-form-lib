@@ -2,9 +2,9 @@ import React from 'react';
 import type { FieldProps } from '../../types/schema';
 import { capitalizeFirstLetter } from '../../utils/StringUtils';
 
-const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, parentId }) => {
+const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, error, domContextId }) => {
 
-  const fieldId = parentId ? parentId + '.' + name : name;
+  const fieldId = domContextId ? domContextId + '.' + name : name;
 
   return (
     <div className="field-container">
@@ -14,7 +14,8 @@ const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
         type="text"
         value={value as string}
         disabled={schema.readOnly}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value, false)}
+        onBlur={(e) => onChange(e.target.value, true)}
         placeholder=" "
       />
       <label 
@@ -30,7 +31,11 @@ const StringField: React.FC<FieldProps> = ({ name, value, schema, onChange, erro
         <div id={`${fieldId}-description`} data-testid={`${fieldId}-description`}>{schema.description}</div>
       )}
       {error && (
-        <div id={`${fieldId}-error`} data-testid={`${fieldId}-error`} style={{ color: 'red' }}>
+        <div 
+          id={`${fieldId}-error`} 
+          data-testid={`${fieldId}-error`} 
+          style={{ color: 'red' }}
+        >
           {error}
         </div>
       )}
