@@ -1,7 +1,6 @@
-import type { JSONSchemaProperties, JSONSchema, JSONValue, FormValue } from '../../types/schema';
+import type { JSONSchemaProperties, JSONSchema, JSONValue } from '../../types/schema';
 import { isJSONSchema } from './schemaUtils';
 import type { FormField } from './types';
-import { ValueConverter } from './valueHandling/ValueConverter';
 import { FieldCreatorFactory } from "./fieldCreation/FieldCreatorFactory";
 import { DynamicFieldResolver } from "./fieldManagement/DynamicFieldResolver";
 import { FieldUpdater } from "./fieldManagement/FieldUpdater";
@@ -25,9 +24,7 @@ export class FormModel {
   }
 
   public getField(path: string): FormField | undefined {
-    console.log('[FormModel.getField] Starting for path:', path);
     const field = DynamicFieldResolver.resolveField(this.fields, path);
-    console.log('[FormModel.getField] Result:', field ? 'found' : 'not found');
     return field;
   }
 
@@ -42,7 +39,6 @@ export class FormModel {
       // Try to create the field path dynamically
       const createdField = DynamicFieldResolver.resolveField(this.fields, path);
       if (!createdField) {
-        console.warn(`Could not create field at path: ${path}`);
         return;
       }
     }
@@ -56,11 +52,6 @@ export class FormModel {
     const isValid = Object.keys(errors).length === 0;
 
     FieldUpdater.applyValidationErrors(this.fields, errors);
-
-    console.log('Validation results:', {
-      isValid,
-      errors: Object.fromEntries(Object.entries(errors).filter(([, e]) => e.length > 0))
-    });
 
     this.notifyListeners();
     return isValid;
@@ -189,8 +180,4 @@ export class FormModel {
     return BufferingManager.getChangeStatistics(this.fields);
   }
 
-  // Keep the convertFormValue method for backward compatibility
-  private convertFormValue(value: FormValue): JSONValue {
-    return ValueConverter.convertFormValue(value);
-  }
 }

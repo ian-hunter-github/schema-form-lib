@@ -123,19 +123,11 @@ export class FormValidator {
       return { [prefix]: [VALIDATION_MESSAGES.OBJECT_REQUIRED] };
     }
 
-    console.debug('Validating object at path:', prefix);
-    console.debug('Object properties:', properties);
-    console.debug('Current value:', value);
 
     for (const [key, schema] of Object.entries(properties)) {
       const fullKey = prefix ? `${prefix}.${key}` : key;
       const fieldValue = value?.[key];
       
-      console.debug(`Validating field ${fullKey}:`, {
-        schema,
-        fieldValue,
-        existsInValue: key in value
-      });
       
       // Only validate if field exists in the value object
       if (key in value) {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { PathBuilder } from '../utils/PathBuilder';
+import { PathResolver } from '../utils/formModel/pathResolution/PathResolver';
 import { FormValidator } from '../utils/formModel/FormValidator/FormValidator';
 import type { JSONSchemaProperties, JSONValue, FormValue } from '../types/schema';
 
@@ -39,7 +39,7 @@ export const FormStateProvider: React.FC<FormStateProviderProps> = ({ children, 
   const getErrorsForPathAndChildren = (path: string) => {
     const errors: Record<string, string[]> = {};
     Object.entries(state.errors).forEach(([errorPath, errorMessages]) => {
-      if (PathBuilder.isChildPath(path, errorPath) || path === errorPath) {
+      if (PathResolver.isChildPath(path, errorPath) || path === errorPath) {
         errors[errorPath] = errorMessages;
       }
     });

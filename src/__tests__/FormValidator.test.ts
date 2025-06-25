@@ -262,7 +262,10 @@ describe("FormValidator", () => {
         errorCount: 0,
         required,
         dirty: false,
-        dirtyCount: 0
+        dirtyCount: 0,
+        pristineValue: value,
+        hasChanges: false,
+        lastModified: new Date()
       };
     }
 
@@ -274,8 +277,6 @@ describe("FormValidator", () => {
       ]);
 
       const errors = FormValidator.validateAll(fields);
-
-      console.log(errors);
       
       expect(errors["name"]).toContain(VALIDATION_MESSAGES.MIN_LENGTH(3));
       expect(errors["age"]).toContain(VALIDATION_MESSAGES.MIN_NUMBER(18));

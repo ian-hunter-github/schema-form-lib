@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useFormBuffer, useUnsavedChangesWarning, useFormKeyboardShortcuts } from '../hooks/useFormBuffer';
 import type { JSONSchemaProperties } from '../types/schema';
 
@@ -47,8 +47,7 @@ export function BufferedFormExample() {
     validate,
     getChangeStatistics
   } = useFormBuffer(schema, {
-    onUnsavedChangesWarning: (hasChanges) => {
-      console.log('Unsaved changes:', hasChanges);
+    onUnsavedChangesWarning: () => {
     }
   });
 

@@ -38,7 +38,7 @@ export function useFormBuffer(
   const { onUnsavedChangesWarning, autoSave = false, autoSaveDelay = 1000 } = options;
   
   // Create FormModel instance (only once)
-  const formModelRef = useRef<FormModel>();
+  const formModelRef = useRef<FormModel | null>(null);
   if (!formModelRef.current) {
     formModelRef.current = new FormModel(schema);
   }
@@ -49,7 +49,7 @@ export function useFormBuffer(
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(() => formModel.hasUnsavedChanges());
 
   // Auto-save timer ref
-  const autoSaveTimerRef = useRef<NodeJS.Timeout>();
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Update fields when FormModel changes
   useEffect(() => {
