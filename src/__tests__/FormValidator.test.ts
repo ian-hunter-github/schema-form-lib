@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { FormValidator } from "../utils/FormValidator";
-import { VALIDATION_MESSAGES } from "../utils/validationMessages";
+import { FormValidator } from "../utils/formModel/FormValidator/FormValidator";
+import { VALIDATION_MESSAGES } from "../utils/formModel/FormValidator/validationMessages";
 import type { JSONSchemaProperties, JSONSchema, JSONValue } from "../types/schema";
 import type { FormField } from "../utils/formModel/types";
 

@@ -5,7 +5,7 @@ import type {
   FormValue,
   InitialFieldState,
 } from "../types/schema";
-import { FormValidator } from "../utils/FormValidator";
+import { FormValidator } from "../utils/formModel/FormValidator/FormValidator";
 import FieldRenderer from "./FieldRenderer";
 
 type Props = {

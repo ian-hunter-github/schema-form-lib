@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { PathBuilder } from '../utils/PathBuilder';
-import { FormValidator } from '../utils/FormValidator';
+import { FormValidator } from '../utils/formModel/FormValidator/FormValidator';
 import type { JSONSchemaProperties, JSONValue, FormValue } from '../types/schema';
 
 export type FormState = {

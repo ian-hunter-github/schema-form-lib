@@ -3,8 +3,8 @@ import type {
   JSONSchemaProperties,
   JSONValue,
   FormValue,
-} from "../types/schema";
-import type { FormField } from "./formModel/types";
+} from "../../../types/schema";
+import type { FormField } from "../types";
 import { VALIDATION_MESSAGES } from "./validationMessages";
 
 export class FormValidator {
