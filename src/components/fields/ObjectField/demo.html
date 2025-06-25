@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ObjectField Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .demo-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .demo-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .demo-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ObjectField Component Demo</h1>
+    
+    <div class="demo-container">
+        <div class="demo-title">ObjectField Features</div>
+        <div class="demo-description">
+            The ObjectField component provides an accordion-style interface for nested object properties with the following features:
+        </div>
+        <ul>
+            <li><strong>Accordion Layout:</strong> Collapsible/expandable sections for better organization</li>
+            <li><strong>Recursive Nesting:</strong> Supports objects within objects to any depth</li>
+            <li><strong>Visual Indicators:</strong> Shows dirty state, validation errors, and required fields</li>
+            <li><strong>Mixed Field Types:</strong> Supports string, number, boolean, enum, and array fields within objects</li>
+            <li><strong>FormModel Integration:</strong> Works with the new FormModel system for state management</li>
+        </ul>
+    </div>
+
+    <div class="demo-container">
+        <div class="demo-title">Usage Example</div>
+        <div class="demo-description">
+            To use the ObjectField component with the FormModel system:
+        </div>
+        <pre><code>
+import { useFormBuffer } from '../hooks/useFormBuffer';
+import ObjectField from './components/fields/ObjectField';
+
+const schema = {
+  user: {
+    type: 'object',
+    properties: {
+      profile: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', title: 'Full Name' },
+          email: { type: 'string', title: 'Email' }
+        }
+      },
+      preferences: {
+        type: 'object',
+        properties: {
+          theme: { type: 'string', title: 'Theme' },
+          notifications: { type: 'boolean', title: 'Notifications' }
+        }
+      }
+    }
+  }
+};
+
+function MyForm() {
+  const { formModel, fields } = useFormBuffer(schema);
+  const userField = formModel.getField('user');
+  
+  return (
+    &lt;ObjectField
+      field={userField}
+      onChange={(value) => formModel.setValue('user', value)}
+      formModel={formModel}
+    /&gt;
+  );
+}
+        </code></pre>
+    </div>
+
+    <div class="demo-container">
+        <div class="demo-title">Key Features Demonstrated</div>
+        <div class="demo-description">
+            The ObjectField component demonstrates several key capabilities:
+        </div>
+        <ul>
+            <li><strong>Accordion Interface:</strong> Click headers to expand/collapse sections</li>
+            <li><strong>Nested Objects:</strong> Objects can contain other objects recursively</li>
+            <li><strong>State Tracking:</strong> Visual indicators for modified fields</li>
+            <li><strong>Validation:</strong> Error display and required field indicators</li>
+            <li><strong>Responsive Design:</strong> Clean, accessible interface</li>
+        </ul>
+    </div>
+
+    <div class="demo-container">
+        <div class="demo-title">Testing</div>
+        <div class="demo-description">
+            The ObjectField component includes comprehensive tests covering:
+        </div>
+        <ul>
+            <li>Basic rendering and prop handling</li>
+            <li>Accordion expand/collapse functionality</li>
+            <li>Nested field rendering and recursion</li>
+            <li>Error handling and validation display</li>
+            <li>State management integration</li>
+            <li>Accessibility and DOM structure</li>
+        </ul>
+        <p>Run tests with: <code>npm test -- ObjectField.test.tsx</code></p>
+    </div>
+
+    <div class="demo-container">
+        <div class="demo-title">Storybook Integration</div>
+        <div class="demo-description">
+            View interactive examples in Storybook:
+        </div>
+        <ul>
+            <li>Default ObjectField</li>
+            <li>With nested fields</li>
+            <li>Required fields</li>
+            <li>With validation errors</li>
+            <li>Dirty/modified state</li>
+            <li>Complex nested structures</li>
+            <li>Mixed field types</li>
+        </ul>
+        <p>Start Storybook with: <code>npm run storybook</code></p>
+    </div>
+</body>
+</html>
