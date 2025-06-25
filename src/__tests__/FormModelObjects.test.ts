@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { FormModel } from '../utils/FormModel';
 import type { JSONSchemaProperties } from '../types/schema';
+import { VALIDATION_MESSAGES } from '../utils/validationMessages';
 
 describe('FormModel - Objects', () => {
   it('should handle nested objects', () => {
@@ -107,7 +108,7 @@ describe('FormModel - Objects', () => {
     model.setValue('user.age', 15);
     const isValid = model.validate();
     expect(isValid).toBe(false);
-    expect(model.getField('user.name')?.errors).toContain('Must be at least 3 characters');
-    expect(model.getField('user.age')?.errors).toContain('Must be at least 18');
+    expect(model.getField('user.name')?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(3));
+    expect(model.getField('user.age')?.errors).toContain(VALIDATION_MESSAGES.MIN_NUMBER(18));
   });
 });

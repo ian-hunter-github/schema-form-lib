@@ -13,7 +13,7 @@ export interface FormObject {
 export type FormValue = PrimitiveJSONValue | FormValue[] | FormObject | null | undefined;
 
 export type JSONSchema = {
-  type: 'string' | 'number' | 'boolean' | 'array' | 'object';
+  type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object';
   title?: string;
   description?: string;
   enum?: string[];
@@ -22,10 +22,15 @@ export type JSONSchema = {
   maximum?: number;
   minLength?: number;
   maxLength?: number;
+  pattern?: string;
   readOnly?: boolean;
   items?: JSONSchema;
   properties?: JSONSchemaProperties;
   required?: boolean;
+  minItems?: number;
+  maxItems?: number;
+  uniqueItems?: boolean;
+  additionalItems?: boolean | JSONSchema;
 };
 
 export type JSONSchemaProperties = {

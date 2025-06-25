@@ -4,8 +4,210 @@ import type {
   JSONValue,
   FormValue,
 } from "../types/schema";
+import type { FormField } from "./formModel/types";
+import { VALIDATION_MESSAGES } from "./validationMessages";
 
 export class FormValidator {
+  /**
+   * Validates all fields in a form model
+   * @param fields Map of form fields to validate
+   * @returns Record mapping field paths to error arrays
+   */
+  static validateAll(fields: Map<string, FormField>): Record<string, string[]> {
+    const errors: Record<string, string[]> = {};
+    const processedFields = new Set<string>();
+
+    for (const [path, field] of fields) {
+      if (processedFields.has(path)) continue;
+
+      // Skip validation for readOnly fields
+      if (field.schema.readOnly) {
+        processedFields.add(path);
+        continue;
+      }
+
+      // Validate each field independently with its own visited set
+      const fieldErrors = this.validateFieldInternal(
+        field.schema,
+        path,
+        field.value,
+        new Set<string>(), // Fresh visited set for each field
+        20 // maxDepth
+      );
+      if (fieldErrors.length > 0) {
+        errors[path] = fieldErrors;
+      }
+      processedFields.add(path);
+    }
+
+    return errors;
+  }
+
+  private static validateFieldInternal(
+    schema: JSONSchema,
+    path: string,
+    value: FormValue,
+    visited: Set<string>,
+    maxDepth: number,
+    currentDepth = 0
+  ): string[] {
+    if (currentDepth > maxDepth) {
+      return [VALIDATION_MESSAGES.MAX_DEPTH_EXCEEDED(maxDepth)];
+    }
+    if (visited.has(path)) {
+      return [VALIDATION_MESSAGES.CIRCULAR_REFERENCE(path)];
+    }
+
+    const errors: string[] = [];
+
+    // Check required fields first - either explicit required or minLength=1 for strings
+    const isRequired = schema.required || 
+                      (schema.type === "string" && schema.minLength === 1);
+
+    if (isRequired) {
+      if (value === undefined || value === null || 
+          (typeof value === 'string' && value.trim() === '') ||
+          (Array.isArray(value) && value.length === 0) ||
+          (typeof value === 'object' && Object.keys(value).length === 0)) {
+        errors.push(VALIDATION_MESSAGES.REQUIRED);
+      }
+    }
+
+    // Skip further validation if value is empty (but still check required above)
+    if (value === undefined || value === null || 
+        (typeof value === 'string' && value.trim() === '') ||
+        (typeof value === 'object' && Object.keys(value).length === 0)) {
+      return errors;
+    }
+
+    // Type-specific validation
+    if (schema.type === "string" && typeof value === "string") {
+      if (schema.minLength !== undefined && value.length < schema.minLength) {
+        errors.push(VALIDATION_MESSAGES.MIN_LENGTH(schema.minLength));
+      }
+      if (schema.maxLength !== undefined && value.length > schema.maxLength) {
+        errors.push(VALIDATION_MESSAGES.MAX_LENGTH(schema.maxLength));
+      }
+    } else if (schema.type === "number") {
+      const num = Number(value);
+      if (isNaN(num)) {
+        errors.push(VALIDATION_MESSAGES.NUMBER_REQUIRED);
+      } else {
+        if (schema.minimum !== undefined && num < schema.minimum) {
+          errors.push(VALIDATION_MESSAGES.MIN_NUMBER(schema.minimum));
+        }
+        if (schema.maximum !== undefined && num > schema.maximum) {
+          errors.push(VALIDATION_MESSAGES.MAX_NUMBER(schema.maximum));
+        }
+      }
+    }
+
+    visited.add(path);
+    return errors;
+  }
+
+  private static validateObjectInternal(
+    properties: JSONSchemaProperties,
+    value: Record<string, JSONValue>,
+    prefix = "",
+    visited: Set<string>,
+    maxDepth: number,
+    currentDepth = 0
+  ): Record<string, string[]> {
+    if (currentDepth > maxDepth) {
+      return { [prefix]: [`Maximum validation depth (${maxDepth}) exceeded`] };
+    }
+    const errors: Record<string, string[]> = {};
+    
+    if (!value || typeof value !== 'object') {
+      return { [prefix]: [VALIDATION_MESSAGES.OBJECT_REQUIRED] };
+    }
+
+    console.debug('Validating object at path:', prefix);
+    console.debug('Object properties:', properties);
+    console.debug('Current value:', value);
+
+    for (const [key, schema] of Object.entries(properties)) {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      const fieldValue = value?.[key];
+      
+      console.debug(`Validating field ${fullKey}:`, {
+        schema,
+        fieldValue,
+        existsInValue: key in value
+      });
+      
+      // Only validate if field exists in the value object
+      if (key in value) {
+        const fieldErrors = this.validateFieldInternal(
+          schema,
+          fullKey,
+          fieldValue,
+          visited,
+          maxDepth,
+          currentDepth + 1
+        );
+        
+        if (fieldErrors.length > 0) {
+          errors[fullKey] = fieldErrors;
+        }
+      }
+
+      // Handle nested objects
+      if (schema.type === "object" && schema.properties) {
+        const nestedErrors = this.validateObjectInternal(
+          schema.properties,
+          fieldValue as Record<string, JSONValue> || {},
+          fullKey,
+          visited,
+          maxDepth,
+          currentDepth + 1
+        );
+        Object.assign(errors, nestedErrors);
+      }
+      
+      // Handle nested arrays
+      if (schema.type === "array" && Array.isArray(fieldValue) && schema.items) {
+        for (let i = 0; i < fieldValue.length; i++) {
+          const itemPath = `${fullKey}.${i}`;
+          const itemValue = fieldValue[i];
+          const itemSchema = schema.items as JSONSchema;
+          
+          if (!visited.has(itemPath)) {
+            const itemErrors = this.validateFieldInternal(
+              itemSchema,
+              itemPath,
+              itemValue,
+              visited,
+              maxDepth,
+              currentDepth + 1
+            );
+            
+            if (itemErrors.length > 0) {
+              errors[itemPath] = itemErrors;
+            }
+            
+            // Recursively validate nested structures in array items
+            if (itemSchema.type === "object" && itemSchema.properties) {
+              const nestedObjectErrors = this.validateObjectInternal(
+                itemSchema.properties,
+                itemValue as Record<string, JSONValue> || {},
+                itemPath,
+                visited,
+                maxDepth,
+                currentDepth + 1
+              );
+              Object.assign(errors, nestedObjectErrors);
+            }
+          }
+        }
+      }
+    }
+
+    return errors;
+  }
+
+  // Keep existing public methods for backward compatibility
   static validateField(
     schema: JSONSchemaProperties,
     path: string,
@@ -16,76 +218,18 @@ export class FormValidator {
       currentDepth?: number;
     } = {}
   ): string[] {
-    const { visited = new Set(), maxDepth = 20, currentDepth = 0 } = options;
+    // Get the full nested schema for the path
+    const fieldSchema = this.getNestedSchema(schema, path);
+    if (!fieldSchema) return [];
     
-    if (currentDepth > maxDepth) {
-      return [`Maximum validation depth (${maxDepth}) exceeded`];
-    }
-    if (visited.has(path)) {
-      return [`Circular reference detected at path: ${path}`];
-    }
-    visited.add(path);
-    const errors: string[] = [];
-    const fieldName = path.split('.').pop() || '';
-    const field = schema[fieldName] || this.getNestedSchema(schema, path);
-
-    if (!field || field.readOnly) {
-      return errors;
-    }
-
-    // Check if field is required - either explicitly marked in its own schema
-    // or included in parent's required array
-    let isRequired = field.required === true;
-    if (!isRequired && path.includes('.')) {
-      const parentPath = path.split('.').slice(0, -1).join('.');
-      const parentSchema = parentPath ? this.getNestedSchema(schema, parentPath) : schema;
-      if (parentSchema?.required && Array.isArray(parentSchema.required)) {
-        isRequired = parentSchema.required.includes(fieldName);
-      }
-    }
-    
-    // Validate required fields
-    if (isRequired && (value === undefined || value === null || 
-        (typeof value === 'string' && value.trim() === ''))) {
-      errors.push("This field is required.");
-      return errors; // Skip further validation for missing required fields
-    }
-
-    if (field.type === "object" && field.properties) {
-      const objectErrors = this.validateObject(
-        field.properties,
-        value as Record<string, JSONValue>,
-        path
-      );
-      // Collect all nested errors
-      for (const errs of Object.values(objectErrors)) {
-        errors.push(...errs);
-      }
-    }
-
-    if (field.type === "string" && typeof value === "string") {
-      if (field.minLength && value.length < field.minLength) {
-        errors.push(`Must be at least ${field.minLength} characters.`);
-      }
-      if (field.maxLength && value.length > field.maxLength) {
-        errors.push(`Must be no more than ${field.maxLength} characters.`);
-      }
-    }
-
-    if (field.type === "number") {
-      const num = Number(value);
-      if (isNaN(num)) {
-        errors.push("Must be a number.");
-      }
-      if (field.minimum !== undefined && num < field.minimum) {
-        errors.push(`Must be at least ${field.minimum}.`);
-      }
-      if (field.maximum !== undefined && num > field.maximum) {
-        errors.push(`Must be no more than ${field.maximum}.`);
-      }
-    }
-
-    return errors;
+    return this.validateFieldInternal(
+      fieldSchema,
+      path,
+      value,
+      options.visited || new Set(),
+      options.maxDepth || 20,
+      options.currentDepth || 0
+    );
   }
 
   static validateObject(
@@ -98,71 +242,14 @@ export class FormValidator {
       currentDepth?: number;
     } = {}
   ): Record<string, string[]> {
-    const { visited = new Set(), maxDepth = 20, currentDepth = 0 } = options;
-    
-    if (currentDepth > maxDepth) {
-      return { [prefix]: [`Maximum validation depth (${maxDepth}) exceeded`] };
-    }
-    const errors: Record<string, string[]> = {};
-    
-    if (!value || typeof value !== 'object') {
-      return { [prefix]: ['Must be an object'] };
-    }
-
-    Object.keys(properties).forEach((key) => {
-      const fullKey = prefix ? `${prefix}.${key}` : key;
-      const field = properties[key];
-      const fieldValue = value?.[key];
-      
-      // Check if field is required - either explicitly marked in its own schema
-      // or included in parent's required array
-      let isRequired = field.required === true;
-      if (!isRequired && fullKey.includes('.')) {
-        const parentPath = fullKey.split('.').slice(0, -1).join('.');
-        const parentSchema = parentPath ? this.getNestedSchema(properties, parentPath) : properties;
-        if (parentSchema?.required && Array.isArray(parentSchema.required)) {
-          isRequired = parentSchema.required.includes(key);
-        }
-      }
-      // Keep track of whether field is required without modifying schema
-      const fieldIsRequired = isRequired;
-
-      if (field.type === "object" && field.properties) {
-        const nestedErrors = this.validateObject(
-          field.properties,
-          fieldValue as Record<string, JSONValue> || {},
-          fullKey,
-          { visited, maxDepth, currentDepth: currentDepth + 1 }
-        );
-        Object.assign(errors, nestedErrors);
-      } else {
-        const fieldSchema = this.getNestedSchema(properties, key);
-        const fieldErrors = fieldSchema 
-          ? this.validateField(
-              { 
-                [key]: {
-                  ...fieldSchema,
-                  required: fieldIsRequired
-                } 
-              } as JSONSchemaProperties,
-              fullKey,
-              fieldValue,
-              { visited, maxDepth, currentDepth: currentDepth + 1 }
-            )
-          : this.validateField(
-              properties, 
-              fullKey, 
-              fieldValue, 
-              { visited, maxDepth, currentDepth: currentDepth + 1 }
-            );
-        
-        if (fieldErrors.length > 0) {
-          errors[fullKey] = fieldErrors;
-        }
-      }
-    });
-
-    return errors;
+    return this.validateObjectInternal(
+      properties,
+      value,
+      prefix,
+      options.visited || new Set(),
+      options.maxDepth || 20,
+      options.currentDepth || 0
+    );
   }
 
   static validateForm(
@@ -173,26 +260,35 @@ export class FormValidator {
     } = {}
   ): Record<string, string[]> {
     const errors: Record<string, string[]> = {};
-    
-    Object.keys(formData).forEach(key => {
-      const value = formData[key];
+    const visited = new Set<string>();
+    const maxDepth = options.maxDepth || 20;
+
+    for (const [key, value] of Object.entries(formData)) {
       const fieldSchema = this.getNestedSchema(schema, key);
-      
-      if (fieldSchema?.type === "object" && fieldSchema.properties) {
-        const objectErrors = this.validateObject(
+      if (!fieldSchema) continue;
+
+      if (fieldSchema.type === "object" && fieldSchema.properties) {
+        const objectErrors = this.validateObjectInternal(
           fieldSchema.properties,
           value as Record<string, JSONValue>,
           key,
-          { maxDepth: options.maxDepth }
+          visited,
+          maxDepth
         );
         Object.assign(errors, objectErrors);
       } else {
-        const fieldErrors = this.validateField(schema, key, value, { maxDepth: options.maxDepth });
+        const fieldErrors = this.validateFieldInternal(
+          fieldSchema,
+          key,
+          value,
+          visited,
+          maxDepth
+        );
         if (fieldErrors.length > 0) {
           errors[key] = fieldErrors;
         }
       }
-    });
+    }
 
     return errors;
   }

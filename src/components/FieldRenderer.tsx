@@ -8,7 +8,7 @@ const FieldRenderer: React.FC<FieldProps> = (props) => {
     ? EnumField
     : props.schema.properties
     ? fieldComponents.object
-    : fieldComponents[props.schema.type] ||
+    : fieldComponents[props.schema.type === 'integer' ? 'number' : props.schema.type] ||
       (() => (
         <div id={`error-${props.name}`} style={{ color: "red" }}>
           Unsupported field type: {props.schema.type}
