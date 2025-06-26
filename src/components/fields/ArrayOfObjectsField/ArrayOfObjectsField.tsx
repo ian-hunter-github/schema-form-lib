@@ -3,6 +3,8 @@ import type { FormField } from '../../../utils/formModel/types';
 import type { FormModel } from '../../../utils/formModel/FormModel';
 import type { JSONValue } from '../../../types/schema';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
+import { useThemeTokens, useVariants } from '../../../theme';
+import { createStyles, mergeStyles, conditionalStyle } from '../../../theme/utils';
 import FieldRenderer from '../../FieldRenderer';
 
 export interface ArrayOfObjectsFieldProps {
@@ -18,6 +20,11 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
+  
+  // Get theme tokens and variants
+  const { colors, spacing, typography, shadows, components } = useThemeTokens();
+  const { variants } = useVariants();
+  const styles = createStyles({ colors, spacing, typography, shadows, components, name: 'default', overrides: {} }, variants);
 
   // Get items directly from FormModel
   const items = Array.isArray(field.value) ? field.value : [];
@@ -83,46 +90,38 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
     return (
       <div 
         key={itemIndex} 
-        className="array-object-item"
-        style={{
-          border: '1px solid #dee2e6',
-          borderRadius: '4px',
-          marginBottom: '12px',
-          backgroundColor: itemField?.hasChanges ? '#fff3cd' : '#f8f9fa'
-        }}
+        style={mergeStyles(
+          styles.arrayItem,
+          conditionalStyle(itemField?.hasChanges || false, styles.fieldInputDirty)
+        )}
       >
         {/* Item Header */}
         <div 
-          className="array-object-item-header"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            padding: '12px',
-            cursor: 'pointer',
-            borderBottom: isExpanded ? '1px solid #dee2e6' : 'none'
-          }}
+          style={mergeStyles(
+            styles.arrayHeader,
+            { borderBottom: isExpanded ? `1px solid ${colors.border.primary}` : 'none' }
+          )}
           onClick={() => toggleItemExpansion(itemIndex)}
         >
           <span 
             style={{ 
-              marginRight: '8px',
+              marginRight: spacing.xs,
               transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
               transition: 'transform 0.2s ease'
             }}
           >
             ▶
           </span>
-          <span style={{ flex: 1, fontWeight: 'bold' }}>
+          <span style={{ flex: 1, fontWeight: typography.field.label.fontWeight }}>
             Item {itemIndex + 1}
           </span>
           
           {itemField?.dirty && (
             <div 
-              style={{ 
-                fontSize: '0.8em', 
-                color: '#666',
-                marginRight: '12px'
-              }}
+              style={mergeStyles(
+                styles.fieldHelper,
+                { marginRight: spacing.sm }
+              )}
             >
               Modified
             </div>
@@ -135,15 +134,11 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
               handleRemoveItem(itemIndex);
             }}
             disabled={field.schema.readOnly}
-            style={{
-              padding: '4px 8px',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: field.schema.readOnly ? 'not-allowed' : 'pointer',
-              fontSize: '0.8em'
-            }}
+            style={mergeStyles(
+              styles.button,
+              styles.buttonDanger,
+              { fontSize: typography.field.helper.fontSize }
+            )}
             data-testid={`${fieldId}.${itemIndex}-remove`}
           >
             Remove
@@ -152,19 +147,13 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
 
         {/* Item Content */}
         {isExpanded && (
-          <div 
-            className="array-object-item-content"
-            style={{
-              padding: '12px',
-              paddingTop: '0'
-            }}
-          >
+          <div style={styles.arrayContent}>
             {propertyKeys.map(propertyKey => {
               const nestedField = getNestedField(itemIndex, propertyKey);
               if (!nestedField) return null;
 
               return (
-                <div key={propertyKey} style={{ marginBottom: '12px' }}>
+                <div key={propertyKey} style={{ marginBottom: spacing.form.field }}>
                   <FieldRenderer
                     field={nestedField}
                     formModel={formModel}
@@ -177,7 +166,10 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
             })}
             
             {propertyKeys.length === 0 && (
-              <div style={{ color: '#666', fontStyle: 'italic' }}>
+              <div style={mergeStyles(
+                styles.fieldHelper,
+                { fontStyle: 'italic' }
+              )}>
                 No properties defined for this object
               </div>
             )}
@@ -188,45 +180,51 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
   };
 
   return (
-    <div id={fieldId} data-testid={fieldId} className="field-container array-of-objects-field">
+    <div id={fieldId} data-testid={fieldId} style={styles.arrayContainer}>
       <label 
         htmlFor={fieldId} 
         id={`${fieldId}-label`}
         data-testid={`${fieldId}-label`}
-        className={field.required ? 'label required' : 'label'}
-        style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}
+        style={mergeStyles(
+          styles.fieldLabel,
+          { 
+            fontWeight: typography.field.label.fontWeight,
+            marginBottom: spacing.xs,
+            display: 'block'
+          }
+        )}
       >
         {capitalizeFirstLetter(field.schema.title || displayName)}
+        {field.required && <span style={{ color: colors.semantic.error }}> *</span>}
       </label>
 
       {field.schema.description && (
         <div 
           id={`${fieldId}-description`} 
           data-testid={`${fieldId}-description`}
-          style={{ 
-            marginBottom: '12px',
-            color: '#666',
-            fontSize: '0.9em'
-          }}
+          style={mergeStyles(
+            styles.fieldDescription,
+            { marginBottom: spacing.sm }
+          )}
         >
           {field.schema.description}
         </div>
       )}
 
       {/* Array Items */}
-      <div className="array-objects-container">
+      <div>
         {items.map((_, index) => renderObjectItem(index))}
         
         {items.length === 0 && (
           <div 
             style={{ 
-              color: '#666', 
+              color: colors.text.tertiary,
               fontStyle: 'italic',
-              padding: '20px',
-              textAlign: 'center',
-              border: '2px dashed #dee2e6',
-              borderRadius: '4px',
-              marginBottom: '12px'
+              padding: spacing.lg,
+              textAlign: 'center' as const,
+              border: `2px dashed ${colors.border.primary}`,
+              borderRadius: '0.375rem',
+              marginBottom: spacing.sm
             }}
           >
             No items added yet
@@ -241,15 +239,10 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
         type="button"
         onClick={handleAddItem}
         disabled={field.schema.readOnly}
-        style={{
-          padding: '10px 16px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: field.schema.readOnly ? 'not-allowed' : 'pointer',
-          fontWeight: 'bold'
-        }}
+        style={mergeStyles(
+          styles.button,
+          styles.buttonPrimary
+        )}
       >
         Add Item
       </button>
@@ -259,7 +252,7 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
         <div 
           id={`${fieldId}-error`} 
           data-testid={`${fieldId}-error`} 
-          style={{ color: 'red', marginTop: '8px' }}
+          style={mergeStyles(styles.fieldError, { marginTop: spacing.xs })}
         >
           {errorMessage}
         </div>
@@ -270,7 +263,7 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
         <div 
           id={`${fieldId}-dirty-indicator`} 
           data-testid={`${fieldId}-dirty-indicator`}
-          style={{ fontSize: '0.8em', color: '#666', marginTop: '4px' }}
+          style={mergeStyles(styles.fieldHelper, { marginTop: spacing.xs })}
         >
           Modified
         </div>

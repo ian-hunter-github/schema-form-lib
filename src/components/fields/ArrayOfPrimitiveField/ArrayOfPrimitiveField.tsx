@@ -2,6 +2,8 @@ import React from 'react';
 import type { FormField } from '../../../utils/formModel/types';
 import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
+import { useThemeTokens, useVariants } from '../../../theme';
+import { createStyles, mergeStyles, conditionalStyle } from '../../../theme/utils';
 
 export interface ArrayOfPrimitiveFieldProps {
   field: FormField;
@@ -14,6 +16,11 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
+  
+  // Get theme tokens and variants
+  const { colors, spacing, typography, shadows, components } = useThemeTokens();
+  const { variants } = useVariants();
+  const styles = createStyles({ colors, spacing, typography, shadows, components, name: 'default', overrides: {} }, variants);
 
   // Get items directly from FormModel
   const items = Array.isArray(field.value) ? (field.value as string[]).map(String) : [];
@@ -39,27 +46,33 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
   };
 
   return (
-    <div id={fieldId} data-testid={fieldId} className="field-container">
+    <div id={fieldId} data-testid={fieldId} style={styles.arrayContainer}>
       <label 
         htmlFor={fieldId} 
         id={`${fieldId}-label`}
         data-testid={`${fieldId}-label`}
-        className={field.required ? 'label required' : 'label'}
+        style={styles.fieldLabel}
       >
         {capitalizeFirstLetter(field.schema.title || displayName)}
+        {field.required && <span style={{ color: colors.semantic.error }}> *</span>}
       </label>
 
       {field.schema.description && (
         <div 
           id={`${fieldId}-description`} 
           data-testid={`${fieldId}-description`}
+          style={styles.fieldDescription}
         >
           {field.schema.description}
         </div>
       )}
 
       {items.map((item, index) => (
-        <div key={index} className="array-item" style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+        <div key={index} style={{ 
+          display: 'flex', 
+          gap: spacing.field.gap, 
+          marginBottom: spacing.array.item 
+        }}>
           <input
             id={`${fieldId}.${index}`}
             data-testid={`${fieldId}.${index}`}
@@ -68,11 +81,11 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
             onChange={(e) => handleItemChange(index, e.target.value)}
             onBlur={(e) => handleItemBlur(index, e.target.value)}
             disabled={field.schema.readOnly}
-            style={{
-              flex: 1,
-              backgroundColor: field.hasChanges ? '#fff3cd' : undefined,
-              ...field.hasChanges && { borderColor: '#ffc107' }
-            }}
+            style={mergeStyles(
+              styles.fieldInput,
+              conditionalStyle(field.hasChanges, styles.fieldInputDirty),
+              { flex: 1 }
+            )}
           />
           <button
             id={`${fieldId}.${index}-remove`}
@@ -80,14 +93,11 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
             type="button"
             onClick={() => handleRemoveItem(index)}
             disabled={field.schema.readOnly}
-            style={{
-              padding: '4px 8px',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: field.schema.readOnly ? 'not-allowed' : 'pointer'
-            }}
+            style={mergeStyles(
+              styles.button,
+              styles.buttonDanger,
+              { fontSize: typography.field.helper.fontSize }
+            )}
           >
             Remove
           </button>
@@ -100,15 +110,11 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
         type="button"
         onClick={handleAddItem}
         disabled={field.schema.readOnly}
-        style={{
-          padding: '8px 16px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: field.schema.readOnly ? 'not-allowed' : 'pointer',
-          marginTop: '8px'
-        }}
+        style={mergeStyles(
+          styles.button,
+          styles.buttonPrimary,
+          { marginTop: spacing.sm }
+        )}
       >
         Add Item
       </button>
@@ -117,7 +123,7 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
         <div 
           id={`${fieldId}-error`} 
           data-testid={`${fieldId}-error`} 
-          style={{ color: 'red', marginTop: '8px' }}
+          style={mergeStyles(styles.fieldError, { marginTop: spacing.xs })}
         >
           {errorMessage}
         </div>
@@ -127,7 +133,7 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
         <div 
           id={`${fieldId}-dirty-indicator`} 
           data-testid={`${fieldId}-dirty-indicator`}
-          style={{ fontSize: '0.8em', color: '#666', marginTop: '4px' }}
+          style={mergeStyles(styles.fieldHelper, { marginTop: spacing.xs })}
         >
           Modified
         </div>

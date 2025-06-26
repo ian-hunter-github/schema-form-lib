@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import type { FormField } from '../../../utils/formModel/types';
 import type { FormModel } from '../../../utils/formModel/FormModel';
 import type { JSONValue } from '../../../types/schema';
+import type { LayoutConfig, JSONSchemaWithLayout } from '../../../types/layout';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
-import FieldRenderer from '../../FieldRenderer';
+import { useThemeTokens, useVariants } from '../../../theme';
+import { createStyles, mergeStyles, conditionalStyle } from '../../../theme/utils';
+import LayoutContainer from '../../layout/LayoutContainer';
 
 export interface ObjectFieldProps {
   field: FormField;
@@ -22,6 +25,11 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
+  
+  // Get theme tokens and variants
+  const { colors, spacing, typography, shadows, components } = useThemeTokens();
+  const { variants } = useVariants();
+  const styles = createStyles({ colors, spacing, typography, shadows, components, name: 'default', overrides: {} }, variants);
 
   // Get the object properties from the schema
   const properties = field.schema.properties || {};
@@ -35,51 +43,56 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
   };
 
   // Helper function to handle nested field changes
-  const handleNestedChange = (propertyKey: string, value: JSONValue, shouldValidate?: boolean) => {
-    const nestedPath = field.path ? `${field.path}.${propertyKey}` : propertyKey;
-    formModel.setValue(nestedPath, value);
-    // Propagate the change up to parent with validation flag
+  const handleNestedChange = (path: string, value: JSONValue) => {
+    formModel.setValue(path, value);
+    // Propagate the change up to parent
     if (onChange) {
-      onChange(field.value, shouldValidate);
+      onChange(field.value);
     }
   };
 
-  // Helper function to render a nested field
-  const renderNestedField = (propertyKey: string) => {
-    const nestedField = getNestedField(propertyKey);
-    if (!nestedField) return null;
+  // Get nested fields for layout container
+  const getNestedFields = (): FormField[] => {
+    const nestedFields: FormField[] = [];
+    for (const propertyKey of propertyKeys) {
+      const nestedField = getNestedField(propertyKey);
+      if (nestedField) {
+        nestedFields.push(nestedField);
+      }
+    }
+    return nestedFields;
+  };
 
-    return (
-      <div key={propertyKey} style={{ marginBottom: '10px' }}>
-        <FieldRenderer
-          field={nestedField}
-          formModel={formModel}
-          onChange={(value: JSONValue, shouldValidate?: boolean) => handleNestedChange(propertyKey, value, shouldValidate)}
-        />
-      </div>
-    );
+  // Get layout configuration from schema
+  const getObjectLayoutConfig = (): LayoutConfig => {
+    const schema = field.schema as JSONSchemaWithLayout;
+    const layoutConfig = schema['x-layout'];
+    
+    if (layoutConfig) {
+      return {
+        strategy: 'grid-12', // Default for objects
+        ...layoutConfig
+      };
+    }
+    
+    // Default layout for objects
+    return { strategy: 'vertical' };
   };
 
   return (
-    <div className="field-container object-field">
+    <div style={styles.fieldContainer}>
       {/* Accordion Header */}
       <div 
-        className="object-field-header"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: '10px',
-          backgroundColor: field.hasChanges ? '#fff3cd' : '#f8f9fa',
-          border: `1px solid ${field.hasChanges ? '#ffc107' : '#dee2e6'}`,
-          borderRadius: '4px',
-          cursor: 'pointer',
-          marginBottom: isExpanded ? '10px' : '0'
-        }}
+        style={mergeStyles(
+          styles.arrayHeader,
+          conditionalStyle(field.hasChanges, styles.fieldInputDirty),
+          { marginBottom: isExpanded ? spacing.sm : 0 }
+        )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <span 
           style={{ 
-            marginRight: '8px',
+            marginRight: spacing.xs,
             transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s ease'
           }}
@@ -90,26 +103,28 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
           htmlFor={fieldId}
           id={`${fieldId}-label`}
           data-testid={`${fieldId}-label`}
-          className={field.required ? 'label required' : 'label'}
-          style={{ 
-            fontWeight: 'bold',
-            margin: 0,
-            cursor: 'pointer',
-            flex: 1
-          }}
+          style={mergeStyles(
+            styles.fieldLabel,
+            { 
+              fontWeight: typography.field.label.fontWeight,
+              margin: 0,
+              cursor: 'pointer',
+              flex: 1
+            }
+          )}
         >
           {capitalizeFirstLetter(field.schema.title || displayName)}
+          {field.required && <span style={{ color: colors.semantic.error }}> *</span>}
         </label>
         
         {field.dirty && (
           <div 
             id={`${fieldId}-dirty-indicator`}
             data-testid={`${fieldId}-dirty-indicator`}
-            style={{ 
-              fontSize: '0.8em', 
-              color: '#666',
-              marginLeft: '10px'
-            }}
+            style={mergeStyles(
+              styles.fieldHelper,
+              { marginLeft: spacing.sm }
+            )}
           >
             Modified
           </div>
@@ -119,34 +134,38 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
       {/* Accordion Content */}
       {isExpanded && (
         <div 
-          className="object-field-content"
           style={{
-            paddingLeft: '20px',
-            borderLeft: '2px solid #dee2e6',
-            marginLeft: '10px'
+            paddingLeft: spacing.lg,
+            borderLeft: `2px solid ${colors.border.primary}`,
+            marginLeft: spacing.sm
           }}
         >
           {field.schema.description && (
             <div 
               id={`${fieldId}-description`}
               data-testid={`${fieldId}-description`}
-              style={{ 
-                marginBottom: '10px',
-                color: '#666',
-                fontSize: '0.9em'
-              }}
+              style={mergeStyles(
+                styles.fieldDescription,
+                { marginBottom: spacing.sm }
+              )}
             >
               {field.schema.description}
             </div>
           )}
 
-          {/* Render nested fields */}
-          {propertyKeys.map(propertyKey => 
-            renderNestedField(propertyKey)
-          )}
-
-          {propertyKeys.length === 0 && (
-            <div style={{ color: '#666', fontStyle: 'italic' }}>
+          {/* Render nested fields using LayoutContainer */}
+          {propertyKeys.length > 0 ? (
+            <LayoutContainer
+              fields={getNestedFields()}
+              formModel={formModel}
+              layoutConfig={getObjectLayoutConfig()}
+              onChange={handleNestedChange}
+            />
+          ) : (
+            <div style={mergeStyles(
+              styles.fieldHelper,
+              { fontStyle: 'italic' }
+            )}>
               No properties defined for this object
             </div>
           )}
@@ -158,11 +177,10 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
         <div 
           id={`${fieldId}-error`}
           data-testid={`${fieldId}-error`}
-          style={{ 
-            color: 'red',
-            marginTop: '5px',
-            fontSize: '0.9em'
-          }}
+          style={mergeStyles(
+            styles.fieldError,
+            { marginTop: spacing.xs }
+          )}
         >
           {errorMessage}
         </div>

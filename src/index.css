@@ -66,3 +66,366 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Layout System Styles */
+
+/* Grid Layout Classes */
+.layout-grid {
+  display: grid;
+  width: 100%;
+}
+
+.layout-grid-12 {
+  grid-template-columns: repeat(12, 1fr);
+}
+
+/* Field Column Span Classes */
+.field-col-1 { grid-column: span 1; }
+.field-col-2 { grid-column: span 2; }
+.field-col-3 { grid-column: span 3; }
+.field-col-4 { grid-column: span 4; }
+.field-col-5 { grid-column: span 5; }
+.field-col-6 { grid-column: span 6; }
+.field-col-7 { grid-column: span 7; }
+.field-col-8 { grid-column: span 8; }
+.field-col-9 { grid-column: span 9; }
+.field-col-10 { grid-column: span 10; }
+.field-col-11 { grid-column: span 11; }
+.field-col-12 { grid-column: span 12; }
+
+/* Layout Container Base Styles */
+.layout-vertical,
+.layout-flow,
+.layout-grid,
+.layout-fallback {
+  width: 100%;
+}
+
+.layout-vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-flow {
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+/* Field Wrapper Styles */
+.field-wrapper {
+  min-width: 0; /* Prevent overflow in flex/grid containers */
+  width: 100%;
+}
+
+/* Grid-12 Strategy Specific Styles */
+.layout-grid-12 .field-wrapper {
+  position: relative;
+}
+
+/* Floating Label Styles for Grid-12 */
+.layout-grid-12 .floating-label-container {
+  position: relative;
+  width: 100%;
+}
+
+.layout-grid-12 .floating-label-input {
+  width: 100%;
+  padding: 12px 8px 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background: transparent;
+  transition: border-color 0.2s ease;
+}
+
+.layout-grid-12 .floating-label-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.layout-grid-12 .floating-label {
+  position: absolute;
+  left: 8px;
+  top: 12px;
+  font-size: 16px;
+  color: #666;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background: white;
+  padding: 0 4px;
+}
+
+.layout-grid-12 .floating-label-input:focus + .floating-label,
+.layout-grid-12 .floating-label-input:not(:placeholder-shown) + .floating-label,
+.layout-grid-12 .floating-label.active {
+  top: -8px;
+  font-size: 12px;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.layout-grid-12 .floating-label-input.has-error {
+  border-color: #dc3545;
+}
+
+.layout-grid-12 .floating-label-input.has-error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+.layout-grid-12 .floating-label-input.has-error + .floating-label {
+  color: #dc3545;
+}
+
+/* Change indicators for grid-12 layout */
+.layout-grid-12 .floating-label-input.has-changes,
+.layout-grid-12 .floating-label-select.has-changes {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.layout-grid-12 .floating-label-input.has-changes:focus,
+.layout-grid-12 .floating-label-select.has-changes:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.layout-grid-12 .boolean-field-container.has-changes {
+  background-color: rgba(0, 123, 255, 0.05);
+  border-radius: 4px;
+  padding: 4px;
+  border: 1px solid rgba(0, 123, 255, 0.3);
+}
+
+/* Select and Textarea Floating Labels */
+.layout-grid-12 .floating-label-select,
+.layout-grid-12 .floating-label-textarea {
+  width: 100%;
+  padding: 12px 8px 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.layout-grid-12 .floating-label-select:focus,
+.layout-grid-12 .floating-label-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.layout-grid-12 .floating-label-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Checkbox and Boolean Field Styles for Grid-12 */
+.layout-grid-12 .boolean-field-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.layout-grid-12 .boolean-field-checkbox {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.layout-grid-12 .boolean-field-label {
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Error Message Styles */
+.layout-grid-12 .field-error {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Description Styles */
+.layout-grid-12 .field-description {
+  color: #666;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  /* Mobile: Force single column for grid layouts */
+  .layout-grid-12 {
+    grid-template-columns: 1fr;
+  }
+  
+  .field-col-1, .field-col-2, .field-col-3, 
+  .field-col-4, .field-col-5, .field-col-6,
+  .field-col-7, .field-col-8, .field-col-9,
+  .field-col-10, .field-col-11, .field-col-12 {
+    grid-column: span 1;
+  }
+  
+  /* Mobile: Stack flow layout fields */
+  .layout-row {
+    flex-direction: column;
+  }
+  
+  .layout-row .field-wrapper {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet: Adjust grid spans for better fit */
+  .field-col-1, .field-col-2 { 
+    grid-column: span 3; 
+  }
+  .field-col-3, .field-col-4 { 
+    grid-column: span 6; 
+  }
+  .field-col-5, .field-col-6, .field-col-7, .field-col-8 { 
+    grid-column: span 12; 
+  }
+}
+
+/* Utility Classes */
+.layout-gap-xs { gap: 0.25rem; }
+.layout-gap-sm { gap: 0.5rem; }
+.layout-gap-md { gap: 1rem; }
+.layout-gap-lg { gap: 1.5rem; }
+.layout-gap-xl { gap: 2rem; }
+
+/* Field Layout Utilities */
+.field-break-before {
+  grid-column: 1 / -1;
+}
+
+.field-break-after {
+  grid-column-end: -1;
+}
+
+.field-span-full {
+  grid-column: 1 / -1;
+}
+
+/* Accessibility and Focus Management */
+.layout-grid .field-wrapper:focus-within,
+.layout-flow .field-wrapper:focus-within {
+  z-index: 1;
+}
+
+/* Debug Styles for Grid Layout */
+.layout-debug {
+  position: relative;
+  background-image: 
+    linear-gradient(to right, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: calc(100% / 12) 100%;
+  border: 2px solid rgba(255, 0, 0, 0.3);
+  padding: 8px;
+}
+
+.layout-debug::before {
+  content: "DEBUG: 12-Column Grid";
+  position: absolute;
+  top: -24px;
+  left: 0;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 3px;
+  z-index: 1000;
+}
+
+.layout-debug .field-wrapper {
+  border: 1px solid rgba(0, 150, 255, 0.5);
+  background: rgba(0, 150, 255, 0.05);
+  position: relative;
+  min-height: 40px;
+}
+
+.layout-debug .field-wrapper::before {
+  content: "span " attr(style);
+  position: absolute;
+  top: -18px;
+  left: 0;
+  background: rgba(0, 150, 255, 0.8);
+  color: white;
+  padding: 1px 4px;
+  font-size: 10px;
+  border-radius: 2px;
+  z-index: 100;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Grid column indicators */
+.layout-debug::after {
+  content: "1 2 3 4 5 6 7 8 9 10 11 12";
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: inherit;
+  font-size: 10px;
+  color: rgba(255, 0, 0, 0.7);
+  text-align: center;
+  font-weight: bold;
+  z-index: 1000;
+}
+
+/* Individual column numbers */
+.layout-debug::after {
+  counter-reset: column-counter;
+}
+
+/* Print Styles */
+@media print {
+  .layout-grid,
+  .layout-flow {
+    display: block;
+  }
+  
+  .field-wrapper {
+    break-inside: avoid;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Hide debug styles in print */
+  .layout-debug {
+    background-image: none;
+    border: none;
+    padding: 0;
+  }
+  
+  .layout-debug::before,
+  .layout-debug::after,
+  .layout-debug .field-wrapper::before {
+    display: none;
+  }
+  
+  .layout-debug .field-wrapper {
+    border: none;
+    background: none;
+  }
+}

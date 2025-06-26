@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import type { JSONValue } from "../types/schema";
 import type { FormModel } from "../utils/formModel/FormModel";
 import type { FormField } from "../utils/formModel/types";
-import FieldRenderer from "./FieldRenderer";
+import type { LayoutConfig } from "../types/layout";
+import LayoutContainer from "./layout/LayoutContainer";
 
 interface FormRendererProps {
   formModel: FormModel;
   onSubmit?: (data: Record<string, JSONValue>) => void;
+  layoutConfig?: LayoutConfig;
 }
 
-const FormRenderer: React.FC<FormRendererProps> = ({ formModel, onSubmit }) => {
+const FormRenderer: React.FC<FormRendererProps> = ({ formModel, onSubmit, layoutConfig = { strategy: 'vertical' } }) => {
   const [fields, setFields] = useState<Map<string, FormField>>(formModel.getFields());
 
   useEffect(() => {
@@ -75,15 +77,12 @@ const FormRenderer: React.FC<FormRendererProps> = ({ formModel, onSubmit }) => {
 
   return (
     <form data-testid="form-renderer" onSubmit={handleSubmit}>
-      {rootFields.map((field) => (
-        <div key={field.path}>
-          <FieldRenderer
-            field={field}
-            formModel={formModel}
-            onChange={(value) => handleFieldChange(field.path, value)}
-          />
-        </div>
-      ))}
+      <LayoutContainer
+        fields={rootFields}
+        formModel={formModel}
+        layoutConfig={layoutConfig}
+        onChange={handleFieldChange}
+      />
       <button type="submit" data-testid="submit-button">
         Submit
       </button>

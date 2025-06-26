@@ -2,6 +2,9 @@ import React from 'react';
 import type { FormField } from '../../../utils/formModel/types';
 import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
+import { useThemeTokens, useVariants } from '../../../theme';
+import { createStyles, mergeStyles, conditionalStyle } from '../../../theme/utils';
+import { useLayoutContext } from '../../../contexts/LayoutContext';
 
 export interface NumberFieldProps {
   field: FormField;
@@ -14,36 +17,113 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, onChange }) => {
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
+  const fieldValue = field.value === 0 ? '0' : (field.value as number) || '';
+  
+  // Get theme tokens and variants
+  const { colors, spacing, typography, shadows, components } = useThemeTokens();
+  const { variants } = useVariants();
+  const styles = createStyles({ colors, spacing, typography, shadows, components, name: 'default', overrides: {} }, variants);
+  
+  // Get layout context to determine if we should use floating labels
+  const { isGrid12 } = useLayoutContext();
+  
+  const fieldTitle = capitalizeFirstLetter(field.schema.title || displayName);
+  
+  // Grid-12 layout with floating labels
+  if (isGrid12) {
+    const inputClassName = `floating-label-input${hasErrors ? ' has-error' : ''}${field.hasChanges ? ' has-changes' : ''}`;
+    const labelClassName = `floating-label${fieldValue ? ' active' : ''}`;
+    
+    return (
+      <div className="floating-label-container">
+        <input
+          id={fieldId}
+          data-testid={fieldId}
+          type="number"
+          value={fieldValue}
+          disabled={field.schema.readOnly}
+          onChange={(e) => onChange(Number(e.target.value), false)}
+          onBlur={(e) => onChange(Number(e.target.value), true)}
+          placeholder=" "
+          className={inputClassName}
+        />
+        <label 
+          htmlFor={fieldId} 
+          id={`${fieldId}-label`}
+          data-testid={`${fieldId}-label`}
+          className={labelClassName}
+        >
+          {fieldTitle}
+          {field.required && <span style={{ color: '#dc3545' }}> *</span>}
+        </label>
 
+        {field.schema.description && (
+          <div 
+            id={`${fieldId}-description`} 
+            data-testid={`${fieldId}-description`}
+            className="field-description"
+          >
+            {field.schema.description}
+          </div>
+        )}
+        
+        {hasErrors && (
+          <div 
+            id={`${fieldId}-error`} 
+            data-testid={`${fieldId}-error`} 
+            className="field-error"
+          >
+            {errorMessage}
+          </div>
+        )}
+        
+        {field.dirty && (
+          <div 
+            id={`${fieldId}-dirty-indicator`} 
+            data-testid={`${fieldId}-dirty-indicator`}
+            className="field-description"
+            style={{ color: '#007bff', fontWeight: 'bold' }}
+          >
+            Modified
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Default layout (non-grid-12)
   return (
-    <div className="field-container">
+    <div style={styles.fieldContainer}>
       <input
         id={fieldId}
         data-testid={fieldId}
         type="number"
-        value={field.value === 0 ? '0' : (field.value as number) || ''}
+        value={fieldValue}
         disabled={field.schema.readOnly}
         onChange={(e) => onChange(Number(e.target.value), false)}
         onBlur={(e) => onChange(Number(e.target.value), true)}
         placeholder=" "
-        style={{
-          backgroundColor: field.hasChanges ? '#fff3cd' : undefined,
-          ...field.hasChanges && { borderColor: '#ffc107' }
-        }}
+        style={mergeStyles(
+          styles.fieldInput,
+          conditionalStyle(hasErrors, styles.fieldInputError),
+          conditionalStyle(field.hasChanges, styles.fieldInputDirty)
+        )}
       />
       <label 
         htmlFor={fieldId} 
         id={`${fieldId}-label`}
         data-testid={`${fieldId}-label`}
-        className={field.required ? 'label required' : 'label'}
+        style={styles.fieldLabel}
       >
-        {capitalizeFirstLetter(field.schema.title || displayName)}
+        {fieldTitle}
+        {field.required && <span style={{ color: colors.semantic.error }}> *</span>}
       </label>
 
       {field.schema.description && (
         <div 
           id={`${fieldId}-description`} 
           data-testid={`${fieldId}-description`}
+          style={styles.fieldDescription}
         >
           {field.schema.description}
         </div>
@@ -53,7 +133,7 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, onChange }) => {
         <div 
           id={`${fieldId}-error`} 
           data-testid={`${fieldId}-error`} 
-          style={{ color: 'red' }}
+          style={styles.fieldError}
         >
           {errorMessage}
         </div>
@@ -63,7 +143,7 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, onChange }) => {
         <div 
           id={`${fieldId}-dirty-indicator`} 
           data-testid={`${fieldId}-dirty-indicator`}
-          style={{ fontSize: '0.8em', color: '#666' }}
+          style={styles.fieldHelper}
         >
           Modified
         </div>

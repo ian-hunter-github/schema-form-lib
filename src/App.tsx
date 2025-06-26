@@ -1,11 +1,49 @@
 import React, { useState } from 'react';
 import UnifiedFormRenderer from './components/UnifiedFormRenderer';
 import { BufferedFormExample } from './examples/BufferedFormExample';
+import LayoutDemo from './examples/LayoutDemo';
 import type { JSONSchemaProperties, JSONValue } from './types/schema';
+import { ThemeProvider, useVariants } from './theme';
 import './App.css';
 
+// Density selector component
+const DensitySelector: React.FC = () => {
+  const { variants, updateVariant } = useVariants();
+  
+  return (
+    <div style={{ marginBottom: '20px' }}>
+      <h3>Density Settings</h3>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+        {(['compact', 'normal', 'comfortable'] as const).map((density) => (
+          <button
+            key={density}
+            onClick={() => updateVariant('density', density)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: variants.density === density ? '#007bff' : '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              textTransform: 'capitalize'
+            }}
+          >
+            {density}
+          </button>
+        ))}
+      </div>
+      <p style={{ fontSize: '14px', color: '#666', margin: 0 }}>
+        Current density: <strong>{variants.density}</strong> - 
+        {variants.density === 'compact' && ' Reduced spacing for dense layouts'}
+        {variants.density === 'normal' && ' Default spacing'}
+        {variants.density === 'comfortable' && ' Increased spacing for better accessibility'}
+      </p>
+    </div>
+  );
+};
+
 function App() {
-  const [currentExample, setCurrentExample] = useState<'unified' | 'buffered'>('unified');
+  const [currentExample, setCurrentExample] = useState<'unified' | 'buffered' | 'layout'>('unified');
 
   const schema: JSONSchemaProperties = {
     name: { 
@@ -154,8 +192,11 @@ function App() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <ThemeProvider>
+      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Unified Schema Form Architecture</h1>
+      
+      <DensitySelector />
       
       <div style={{ marginBottom: '20px' }}>
         <h2>Choose Example:</h2>
@@ -185,6 +226,19 @@ function App() {
             }}
           >
             Buffered Form Example
+          </button>
+          <button
+            onClick={() => setCurrentExample('layout')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: currentExample === 'layout' ? '#007bff' : '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Layout Strategy Demo
           </button>
         </div>
       </div>
@@ -246,6 +300,32 @@ function App() {
         </div>
       )}
 
+      {currentExample === 'layout' && (
+        <div>
+          <h2>Form Layout Strategy Demo</h2>
+          <p>
+            This demonstrates the new flexible layout system with:
+          </p>
+          <ul>
+            <li><strong>Multiple Layout Strategies:</strong> Vertical, Intelligent Flow, 12-Column Grid, Responsive Adaptive</li>
+            <li><strong>Intelligent Field Sizing:</strong> Automatic width calculation based on field type and content</li>
+            <li><strong>Responsive Design:</strong> Adapts to different screen sizes automatically</li>
+            <li><strong>Nested Object Layouts:</strong> Different layout strategies for nested objects</li>
+            <li><strong>Schema-Driven Configuration:</strong> Layout defined in JSON Schema with x-layout extensions</li>
+            <li><strong>CSS Grid & Flexbox:</strong> Modern CSS layout techniques for optimal performance</li>
+          </ul>
+          
+          <div style={{ 
+            border: '2px solid #ff9800', 
+            borderRadius: '8px', 
+            padding: '20px',
+            backgroundColor: '#f8f9fa'
+          }}>
+            <LayoutDemo />
+          </div>
+        </div>
+      )}
+
       <div style={{ 
         marginTop: '40px',
         padding: '20px',
@@ -279,6 +359,7 @@ function App() {
         </div>
       </div>
     </div>
+    </ThemeProvider>
   );
 }
 
