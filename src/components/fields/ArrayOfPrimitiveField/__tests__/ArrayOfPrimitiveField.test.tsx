@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ArrayOfPrimitiveField from '../ArrayOfPrimitiveField';
 import type { FormField } from '../../../../utils/formModel/types';
 import type { JSONSchema } from '../../../../types/schema';
+import type { FormModel } from '../../../../utils/formModel/FormModel';
 
 // Helper function to create a mock FormField
 const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
@@ -32,15 +33,22 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
 
 describe('ArrayOfPrimitiveField', () => {
   const mockOnChange = vi.fn();
+  const mockFormModel = {
+    addValue: vi.fn(),
+    deleteValue: vi.fn(),
+    setValue: vi.fn(),
+    validate: vi.fn(),
+  } as unknown as FormModel;
 
   beforeEach(() => {
     mockOnChange.mockClear();
+    vi.clearAllMocks();
   });
 
   it('renders with basic props', () => {
     const field = createMockFormField();
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField')).toBeInTheDocument();
     expect(screen.getByTestId('testField-label')).toBeInTheDocument();
@@ -52,7 +60,7 @@ describe('ArrayOfPrimitiveField', () => {
       schema: { type: 'array', title: 'Custom Title', items: { type: 'string' } }
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByText('Custom Title')).toBeInTheDocument();
   });
@@ -62,7 +70,7 @@ describe('ArrayOfPrimitiveField', () => {
       value: ['item1', 'item2', 'item3']
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField.0')).toBeInTheDocument();
     expect(screen.getByTestId('testField.1')).toBeInTheDocument();
@@ -76,12 +84,12 @@ describe('ArrayOfPrimitiveField', () => {
   it('adds new item when add button is clicked', () => {
     const field = createMockFormField();
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const addButton = screen.getByTestId('testField-add');
     fireEvent.click(addButton);
     
-    expect(mockOnChange).toHaveBeenCalledWith([''], false);
+    expect(mockFormModel.addValue).toHaveBeenCalledWith('testField', '');
   });
 
   it('removes item when remove button is clicked', () => {
@@ -89,12 +97,12 @@ describe('ArrayOfPrimitiveField', () => {
       value: ['item1', 'item2']
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const removeButton = screen.getByTestId('testField.0-remove');
     fireEvent.click(removeButton);
     
-    expect(mockOnChange).toHaveBeenCalledWith(['item2'], false);
+    expect(mockFormModel.deleteValue).toHaveBeenCalledWith('testField.0');
   });
 
   it('updates item value when input changes', () => {
@@ -102,12 +110,12 @@ describe('ArrayOfPrimitiveField', () => {
       value: ['item1']
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField.0');
     fireEvent.change(input, { target: { value: 'updated item' } });
     
-    expect(mockOnChange).toHaveBeenCalledWith(['updated item'], false);
+    expect(mockFormModel.setValue).toHaveBeenCalledWith('testField.0', 'updated item');
   });
 
   it('triggers validation on blur', () => {
@@ -115,18 +123,19 @@ describe('ArrayOfPrimitiveField', () => {
       value: ['item1']
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField.0');
     fireEvent.blur(input, { target: { value: 'blurred item' } });
     
-    expect(mockOnChange).toHaveBeenCalledWith(['blurred item'], true);
+    expect(mockFormModel.setValue).toHaveBeenCalledWith('testField.0', 'blurred item');
+    expect(mockFormModel.validate).toHaveBeenCalled();
   });
 
   it('shows required indicator when field is required', () => {
     const field = createMockFormField({ required: true });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const label = screen.getByTestId('testField-label');
     expect(label).toHaveClass('label required');
@@ -138,7 +147,7 @@ describe('ArrayOfPrimitiveField', () => {
       errorCount: 1
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField-error')).toBeInTheDocument();
     expect(screen.getByText('Array must have at least one item')).toBeInTheDocument();
@@ -147,7 +156,7 @@ describe('ArrayOfPrimitiveField', () => {
   it('shows dirty indicator when field is dirty', () => {
     const field = createMockFormField({ dirty: true });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField-dirty-indicator')).toBeInTheDocument();
     expect(screen.getByText('Modified')).toBeInTheDocument();
@@ -159,7 +168,7 @@ describe('ArrayOfPrimitiveField', () => {
       schema: { type: 'array', readOnly: true, items: { type: 'string' } }
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField.0') as HTMLInputElement;
     const addButton = screen.getByTestId('testField-add') as HTMLButtonElement;
@@ -170,22 +179,11 @@ describe('ArrayOfPrimitiveField', () => {
     expect(removeButton.disabled).toBe(true);
   });
 
-  it('uses domContextId when provided', () => {
-    const field = createMockFormField({
-      value: ['item1']
-    });
-    
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} domContextId="form1" />);
-    
-    expect(screen.getByTestId('form1.testField')).toBeInTheDocument();
-    expect(screen.getByTestId('form1.testField.0')).toBeInTheDocument();
-    expect(screen.getByTestId('form1.testField-add')).toBeInTheDocument();
-  });
 
   it('handles empty array gracefully', () => {
     const field = createMockFormField({ value: [] });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField-add')).toBeInTheDocument();
     expect(screen.queryByTestId('testField.0')).not.toBeInTheDocument();
@@ -194,7 +192,7 @@ describe('ArrayOfPrimitiveField', () => {
   it('handles null/undefined values gracefully', () => {
     const field = createMockFormField({ value: null });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField-add')).toBeInTheDocument();
     expect(screen.queryByTestId('testField.0')).not.toBeInTheDocument();

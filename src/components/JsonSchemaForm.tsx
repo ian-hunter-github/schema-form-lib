@@ -222,7 +222,6 @@ const JsonSchemaForm: React.FC<Props> = ({
             depth={currentDepth}
             parentId={parentId}
             required={requiredFields[key]}
-            domContextId={`${parentId}-${key}`}
           />
         </div>
       );

@@ -43,7 +43,6 @@ export type FieldProps = {
   schema: JSONSchema;
   onChange: (value: FormValue, triggerValidation?: boolean) => void;
   error?: string;
-  domContextId: string;
   required?: boolean;
   depth?: number;
   parentId?: string;

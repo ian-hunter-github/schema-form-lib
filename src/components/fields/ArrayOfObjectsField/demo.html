@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArrayOfObjectsField Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .field-container {
+            margin-bottom: 20px;
+        }
+        
+        .label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .label.required::after {
+            content: " *";
+            color: red;
+        }
+        
+        .array-object-item {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            background-color: #f8f9fa;
+        }
+        
+        .array-object-item-header {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .array-object-item-content {
+            padding: 12px;
+            padding-top: 0;
+        }
+        
+        .array-objects-container {
+            margin-bottom: 12px;
+        }
+        
+        button {
+            padding: 10px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .remove-btn {
+            background-color: #dc3545;
+            padding: 4px 8px;
+            font-size: 0.8em;
+        }
+        
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .empty-state {
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        
+        .schema-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 30px;
+        }
+        
+        .schema-display h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        pre {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>ArrayOfObjectsField Demo</h1>
+        
+        <div class="field-container">
+            <label class="label required">Team Members</label>
+            <div style="margin-bottom: 12px; color: #666; font-size: 0.9em;">
+                Manage your team members with their contact information
+            </div>
+            
+            <div class="array-objects-container">
+                <div class="empty-state">
+                    No items added yet
+                </div>
+            </div>
+            
+            <button onclick="addTeamMember()">Add Item</button>
+        </div>
+        
+        <div class="schema-display">
+            <h3>JSON Schema Structure</h3>
+            <pre><code>{
+  "type": "array",
+  "title": "Team Members",
+  "description": "Manage your team members with their contact information",
+  "items": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "title": "Full Name",
+        "description": "The person's full name"
+      },
+      "email": {
+        "type": "string",
+        "title": "Email Address",
+        "description": "Contact email address"
+      },
+      "role": {
+        "type": "string",
+        "title": "Role",
+        "description": "Job title or role"
+      },
+      "active": {
+        "type": "boolean",
+        "title": "Active Status",
+        "description": "Whether the person is currently active"
+      }
+    }
+  }
+}</code></pre>
+        </div>
+        
+        <div class="schema-display">
+            <h3>Key Features Demonstrated</h3>
+            <ul>
+                <li><strong>Expandable/Collapsible Items:</strong> Each array item can be expanded to show its properties</li>
+                <li><strong>Add/Remove Operations:</strong> Dynamic addition and removal of array items</li>
+                <li><strong>Nested Object Properties:</strong> Each item contains multiple typed properties</li>
+                <li><strong>Default Value Generation:</strong> New items are created with appropriate default values</li>
+                <li><strong>Visual State Indicators:</strong> Shows dirty state, validation errors, and required fields</li>
+                <li><strong>Responsive Design:</strong> Clean, accessible UI that works across devices</li>
+            </ul>
+        </div>
+        
+        <div class="schema-display">
+            <h3>Integration with Form Model</h3>
+            <p>This component integrates seamlessly with the existing form model system:</p>
+            <ul>
+                <li><strong>Path Resolution:</strong> Uses dot notation for nested field paths (e.g., "teamMembers.0.name")</li>
+                <li><strong>Validation Support:</strong> Leverages the form model's validation system</li>
+                <li><strong>Change Tracking:</strong> Tracks dirty state and modifications at both array and item level</li>
+                <li><strong>Field Rendering:</strong> Uses the existing FieldRenderer for nested properties</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        let itemCount = 0;
+        
+        function addTeamMember() {
+            const container = document.querySelector('.array-objects-container');
+            const emptyState = container.querySelector('.empty-state');
+            
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const itemHtml = `
+                <div class="array-object-item">
+                    <div class="array-object-item-header" onclick="toggleItem(this)">
+                        <span style="margin-right: 8px; transform: rotate(0deg); transition: transform 0.2s ease;">▶</span>
+                        <span style="flex: 1; font-weight: bold;">Item ${itemCount + 1}</span>
+                        <button class="remove-btn" onclick="removeItem(this, event)">Remove</button>
+                    </div>
+                    <div class="array-object-item-content" style="display: none;">
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px;">Full Name</label>
+                            <input type="text" placeholder="Enter full name" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px;">Email Address</label>
+                            <input type="email" placeholder="Enter email address" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px;">Role</label>
+                            <input type="text" placeholder="Enter role or job title" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: flex; align-items: center; font-weight: bold;">
+                                <input type="checkbox" style="margin-right: 8px;">
+                                Active Status
+                            </label>
+                            <div style="font-size: 0.9em; color: #666; margin-top: 4px;">Whether the person is currently active</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', itemHtml);
+            itemCount++;
+        }
+        
+        function toggleItem(header) {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('span');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+                header.style.borderBottom = '1px solid #dee2e6';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+                header.style.borderBottom = 'none';
+            }
+        }
+        
+        function removeItem(button, event) {
+            event.stopPropagation();
+            const item = button.closest('.array-object-item');
+            const container = item.parentElement;
+            
+            item.remove();
+            
+            // Update item numbers
+            const items = container.querySelectorAll('.array-object-item');
+            items.forEach((item, index) => {
+                const label = item.querySelector('.array-object-item-header span:nth-child(2)');
+                label.textContent = `Item ${index + 1}`;
+            });
+            
+            // Show empty state if no items
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state">No items added yet</div>';
+            }
+        }
+    </script>
+</body>
+</html>

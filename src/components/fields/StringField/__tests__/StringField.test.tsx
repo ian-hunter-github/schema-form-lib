@@ -209,13 +209,13 @@ describe('StringField', () => {
     expect(input.disabled).toBe(false);
   });
 
-  it('uses domContextId when provided', () => {
+  it('uses field path as DOM ID', () => {
     const field = createMockFormField();
     
-    render(<StringField field={field} onChange={mockOnChange} domContextId="form1" />);
+    render(<StringField field={field} onChange={mockOnChange} />);
     
-    expect(screen.getByTestId('form1.testField')).toBeInTheDocument();
-    expect(screen.getByTestId('form1.testField-label')).toBeInTheDocument();
+    expect(screen.getByTestId('testField')).toBeInTheDocument();
+    expect(screen.getByTestId('testField-label')).toBeInTheDocument();
   });
 
   it('handles nested field paths correctly', () => {
@@ -250,17 +250,17 @@ describe('StringField', () => {
       lastModified: new Date()
     });
     
-    render(<StringField field={field} onChange={mockOnChange} domContextId="userForm" />);
+    render(<StringField field={field} onChange={mockOnChange} />);
     
     // Check all elements are present
-    expect(screen.getByTestId('userForm.user.email')).toBeInTheDocument();
+    expect(screen.getByTestId('user.email')).toBeInTheDocument();
     expect(screen.getByDisplayValue('test@example.com')).toBeInTheDocument();
     expect(screen.getByText('Email Address')).toBeInTheDocument();
     expect(screen.getByText('Enter your email address')).toBeInTheDocument();
     expect(screen.getByText('Invalid email format')).toBeInTheDocument();
     expect(screen.getByText('Modified')).toBeInTheDocument();
     
-    const label = screen.getByTestId('userForm.user.email-label');
+    const label = screen.getByTestId('user.email-label');
     expect(label).toHaveClass('label required');
   });
 

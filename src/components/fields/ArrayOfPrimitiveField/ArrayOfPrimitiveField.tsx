@@ -1,47 +1,41 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { FormField } from '../../../utils/formModel/types';
+import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 
 export interface ArrayOfPrimitiveFieldProps {
   field: FormField;
-  onChange: (value: string[], triggerValidation?: boolean) => void;
-  domContextId?: string;
+  onChange: (value: string[], shouldValidate?: boolean) => void;
+  formModel: FormModel;
 }
 
-const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, onChange, domContextId }) => {
-  const fieldId = domContextId ? `${domContextId}.${field.path}` : field.path;
+const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, formModel }) => {
+  const fieldId = field.path;
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
 
-  const [items, setItems] = useState<string[]>(
-    Array.isArray(field.value) ? (field.value as string[]).map(String) : []
-  );
+  // Get items directly from FormModel
+  const items = Array.isArray(field.value) ? (field.value as string[]).map(String) : [];
 
   const handleAddItem = () => {
-    const newItems = [...items, ''];
-    setItems(newItems);
-    onChange(newItems, false);
+    formModel.addValue(field.path, '');
   };
 
   const handleRemoveItem = (index: number) => {
-    const newItems = items.filter((_, i) => i !== index);
-    setItems(newItems);
-    onChange(newItems, false);
+    const elementPath = `${field.path}.${index}`;
+    formModel.deleteValue(elementPath);
   };
 
   const handleItemChange = (index: number, newValue: string) => {
-    const newItems = [...items];
-    newItems[index] = newValue;
-    setItems(newItems);
-    onChange(newItems, false);
+    const elementPath = `${field.path}.${index}`;
+    formModel.setValue(elementPath, newValue);
   };
 
   const handleItemBlur = (index: number, newValue: string) => {
-    const newItems = [...items];
-    newItems[index] = newValue;
-    setItems(newItems);
-    onChange(newItems, true);
+    const elementPath = `${field.path}.${index}`;
+    formModel.setValue(elementPath, newValue);
+    formModel.validate();
   };
 
   return (

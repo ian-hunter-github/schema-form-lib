@@ -48,10 +48,6 @@ const meta: Meta<typeof StringField> = {
       description: 'Callback function called when field value changes',
       action: 'onChange',
     },
-    domContextId: {
-      description: 'Optional DOM context ID for field identification',
-      control: { type: 'text' },
-    },
   },
 };
 
@@ -172,8 +168,8 @@ export const NoDescription: Story = {
   },
 };
 
-// Field with DOM context ID
-export const WithDomContext: Story = {
+// Field with nested path
+export const WithNestedPath: Story = {
   args: {
     field: createMockFormField({
       path: 'user.email',
@@ -183,7 +179,6 @@ export const WithDomContext: Story = {
         description: 'Enter your email address',
       },
     }),
-    domContextId: 'userForm',
     onChange: (value: string, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -212,7 +207,6 @@ export const Complex: Story = {
       hasChanges: true,
       lastModified: new Date(),
     }),
-    domContextId: 'profileForm',
     onChange: (value: string, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },

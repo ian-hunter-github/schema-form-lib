@@ -96,6 +96,10 @@ describe('ObjectField', () => {
     
     render(<ObjectField field={field} onChange={mockOnChange} formModel={formModel} />);
     
+    // Click to expand the accordion to see the description
+    const header = screen.getByText('TestObject').closest('div');
+    fireEvent.click(header!);
+    
     expect(screen.getByTestId('testObject-description')).toBeInTheDocument();
     expect(screen.getByText('This is a test object with nested fields')).toBeInTheDocument();
   });
@@ -148,6 +152,9 @@ describe('ObjectField', () => {
     const header = screen.getByText('Test Object').closest('div');
     expect(header).toBeInTheDocument();
     
+    // Click to expand
+    fireEvent.click(header!);
+    
     // Initially expanded, content should be visible
     expect(screen.getByText('No properties defined for this object')).toBeInTheDocument();
     
@@ -192,6 +199,10 @@ describe('ObjectField', () => {
     
     render(<ObjectField field={field} onChange={mockOnChange} formModel={formModel} />);
     
+    // Click to expand the accordion to trigger nested field rendering
+    const header = screen.getByText('Test Object').closest('div');
+    fireEvent.click(header!);
+    
     // Should render nested fields
     expect(formModel.getField).toHaveBeenCalledWith('testObject.name');
     expect(formModel.getField).toHaveBeenCalledWith('testObject.age');
@@ -231,17 +242,13 @@ describe('ObjectField', () => {
     
     render(<ObjectField field={field} onChange={mockOnChange} formModel={formModel} />);
     
+    // Click to expand the accordion to trigger nested field rendering
+    const header = screen.getByText('TestObject').closest('div');
+    fireEvent.click(header!);
+    
     expect(formModel.getField).toHaveBeenCalledWith('testObject.profile');
   });
 
-  it('uses domContextId when provided', () => {
-    const field = createMockFormField();
-    const formModel = createMockFormModel();
-    
-    render(<ObjectField field={field} onChange={mockOnChange} domContextId="form1" formModel={formModel} />);
-    
-    expect(screen.getByTestId('form1.testObject-label')).toBeInTheDocument();
-  });
 
   it('applies yellow background styling when field has changes', () => {
     const field = createMockFormField({ hasChanges: true });
@@ -275,6 +282,10 @@ describe('ObjectField', () => {
     const formModel = createMockFormModel();
     
     render(<ObjectField field={field} onChange={mockOnChange} formModel={formModel} />);
+    
+    // Click to expand the accordion to see the "No properties" message
+    const header = screen.getByText('TestObject').closest('div');
+    fireEvent.click(header!);
     
     expect(screen.getByText('No properties defined for this object')).toBeInTheDocument();
   });
@@ -350,7 +361,11 @@ describe('ObjectField', () => {
       'user.preferences': preferencesField
     });
     
-    render(<ObjectField field={field} onChange={mockOnChange} domContextId="mainForm" formModel={formModel} />);
+    render(<ObjectField field={field} onChange={mockOnChange} formModel={formModel} />);
+    
+    // Click to expand the accordion to see the description
+    const header = screen.getByText('User Information').closest('div');
+    fireEvent.click(header!);
     
     // Check all elements are present
     expect(screen.getByText('User Information')).toBeInTheDocument();
@@ -358,7 +373,7 @@ describe('ObjectField', () => {
     expect(screen.getByText('User validation failed')).toBeInTheDocument();
     expect(screen.getByText('Modified')).toBeInTheDocument();
     
-    const label = screen.getByTestId('mainForm.user-label');
+    const label = screen.getByTestId('user-label');
     expect(label).toHaveClass('label required');
     
     // Check nested fields are requested

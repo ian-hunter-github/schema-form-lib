@@ -218,14 +218,6 @@ describe('BooleanField', () => {
     expect(checkbox.disabled).toBe(false);
   });
 
-  it('uses domContextId when provided', () => {
-    const field = createMockFormField();
-    
-    render(<BooleanField field={field} onChange={mockOnChange} domContextId="form1" />);
-    
-    expect(screen.getByTestId('form1.testField')).toBeInTheDocument();
-    expect(screen.getByTestId('form1.testField-label')).toBeInTheDocument();
-  });
 
   it('handles nested field paths correctly', () => {
     const field = createMockFormField({
@@ -259,10 +251,10 @@ describe('BooleanField', () => {
       lastModified: new Date()
     });
     
-    render(<BooleanField field={field} onChange={mockOnChange} domContextId="userForm" />);
+    render(<BooleanField field={field} onChange={mockOnChange} />);
     
     // Check all elements are present
-    const checkbox = screen.getByTestId('userForm.user.isActive') as HTMLInputElement;
+    const checkbox = screen.getByTestId('user.isActive') as HTMLInputElement;
     expect(checkbox).toBeInTheDocument();
     expect(checkbox.checked).toBe(true);
     expect(screen.getByText('Active Status')).toBeInTheDocument();
@@ -270,7 +262,7 @@ describe('BooleanField', () => {
     expect(screen.getByText('Account must be verified first')).toBeInTheDocument();
     expect(screen.getByText('Modified')).toBeInTheDocument();
     
-    const label = screen.getByTestId('userForm.user.isActive-label');
+    const label = screen.getByTestId('user.isActive-label');
     expect(label).toHaveClass('label required');
   });
 

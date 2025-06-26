@@ -1,15 +1,16 @@
 import React from 'react';
 import type { FormField } from '../../../utils/formModel/types';
+import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 
 export interface StringFieldProps {
   field: FormField;
-  onChange: (value: string, triggerValidation?: boolean) => void;
-  domContextId?: string;
+  onChange: (value: string, shouldValidate?: boolean) => void;
+  formModel: FormModel;
 }
 
-const StringField: React.FC<StringFieldProps> = ({ field, onChange, domContextId }) => {
-  const fieldId = domContextId ? `${domContextId}.${field.path}` : field.path;
+const StringField: React.FC<StringFieldProps> = ({ field, onChange }) => {
+  const fieldId = field.path;
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;

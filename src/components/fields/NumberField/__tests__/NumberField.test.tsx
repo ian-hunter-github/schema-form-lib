@@ -242,14 +242,6 @@ describe('NumberField', () => {
     expect(input.disabled).toBe(false);
   });
 
-  it('uses domContextId when provided', () => {
-    const field = createMockFormField();
-    
-    render(<NumberField field={field} onChange={mockOnChange} domContextId="form1" />);
-    
-    expect(screen.getByTestId('form1.testField')).toBeInTheDocument();
-    expect(screen.getByTestId('form1.testField-label')).toBeInTheDocument();
-  });
 
   it('handles nested field paths correctly', () => {
     const field = createMockFormField({
@@ -284,10 +276,10 @@ describe('NumberField', () => {
       lastModified: new Date()
     });
     
-    render(<NumberField field={field} onChange={mockOnChange} domContextId="productForm" />);
+    render(<NumberField field={field} onChange={mockOnChange} />);
     
     // Check all elements are present
-    const input = screen.getByTestId('productForm.product.price') as HTMLInputElement;
+    const input = screen.getByTestId('product.price') as HTMLInputElement;
     expect(input).toBeInTheDocument();
     expect(input.value).toBe('29.99');
     expect(screen.getByText('Product Price')).toBeInTheDocument();
@@ -295,7 +287,7 @@ describe('NumberField', () => {
     expect(screen.getByText('Price must be greater than $10')).toBeInTheDocument();
     expect(screen.getByText('Modified')).toBeInTheDocument();
     
-    const label = screen.getByTestId('productForm.product.price-label');
+    const label = screen.getByTestId('product.price-label');
     expect(label).toHaveClass('label required');
   });
 

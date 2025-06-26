@@ -287,14 +287,6 @@ describe('EnumField', () => {
     expect(select.disabled).toBe(false);
   });
 
-  it('uses domContextId when provided', () => {
-    const field = createMockFormField();
-    
-    render(<EnumField field={field} onChange={mockOnChange} domContextId="form1" />);
-    
-    expect(screen.getByTestId('form1.testField')).toBeInTheDocument();
-    expect(screen.getByTestId('form1.testField-label')).toBeInTheDocument();
-  });
 
   it('handles nested field paths correctly', () => {
     const field = createMockFormField({

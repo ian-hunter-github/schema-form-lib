@@ -1,15 +1,16 @@
 import React from 'react';
 import type { FormField } from '../../../utils/formModel/types';
+import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 
 export interface NumberFieldProps {
   field: FormField;
-  onChange: (value: number, triggerValidation?: boolean) => void;
-  domContextId?: string;
+  onChange: (value: number, shouldValidate?: boolean) => void;
+  formModel: FormModel;
 }
 
-const NumberField: React.FC<NumberFieldProps> = ({ field, onChange, domContextId }) => {
-  const fieldId = domContextId ? `${domContextId}.${field.path}` : field.path;
+const NumberField: React.FC<NumberFieldProps> = ({ field, onChange }) => {
+  const fieldId = field.path;
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;

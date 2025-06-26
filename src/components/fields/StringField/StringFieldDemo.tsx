@@ -147,7 +147,7 @@ const StringFieldDemo: React.FC = () => {
       </div>
 
       <div style={{ marginBottom: '30px' }}>
-        <h2>Field with DOM Context</h2>
+        <h2>Field with Nested Path</h2>
         <StringField
           field={createMockFormField({
             path: 'user.email',
@@ -157,9 +157,8 @@ const StringFieldDemo: React.FC = () => {
               description: 'Enter your email address',
             },
           })}
-          domContextId="demoForm"
           onChange={(value, triggerValidation) => 
-            console.log('Context field changed:', { value, triggerValidation })
+            console.log('Nested path field changed:', { value, triggerValidation })
           }
         />
       </div>

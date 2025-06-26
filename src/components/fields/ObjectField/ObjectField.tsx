@@ -1,28 +1,24 @@
 import React, { useState } from 'react';
 import type { FormField } from '../../../utils/formModel/types';
+import type { FormModel } from '../../../utils/formModel/FormModel';
+import type { JSONValue } from '../../../types/schema';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
-import StringField from '../StringField';
-import NumberField from '../NumberField';
-import BooleanField from '../BooleanField';
-import EnumField from '../EnumField';
-import ArrayOfPrimitiveField from '../ArrayOfPrimitiveField';
+import FieldRenderer from '../../FieldRenderer';
 
 export interface ObjectFieldProps {
   field: FormField;
-  onChange: (value: Record<string, any>, triggerValidation?: boolean) => void;
-  domContextId?: string;
-  formModel?: any; // We'll need access to the FormModel to get nested fields
+  onChange: (value: JSONValue, shouldValidate?: boolean) => void;
+  formModel: FormModel;
 }
 
 const ObjectField: React.FC<ObjectFieldProps> = ({ 
   field, 
   onChange, 
-  domContextId,
   formModel 
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   
-  const fieldId = domContextId ? `${domContextId}.${field.path}` : field.path;
+  const fieldId = field.path;
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
@@ -39,70 +35,26 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
   };
 
   // Helper function to handle nested field changes
-  const handleNestedChange = (propertyKey: string, value: any, triggerValidation?: boolean) => {
-    if (!formModel) return;
+  const handleNestedChange = (propertyKey: string, value: JSONValue, shouldValidate?: boolean) => {
     const nestedPath = field.path ? `${field.path}.${propertyKey}` : propertyKey;
     formModel.setValue(nestedPath, value);
+    // Propagate the change up to parent with validation flag
+    if (onChange) {
+      onChange(field.value, shouldValidate);
+    }
   };
 
   // Helper function to render a nested field
-  const renderNestedField = (propertyKey: string, propertySchema: any) => {
+  const renderNestedField = (propertyKey: string) => {
     const nestedField = getNestedField(propertyKey);
     if (!nestedField) return null;
 
-    const nestedFieldId = `${fieldId}.${propertyKey}`;
-    
-    // Determine the field component to use
-    let FieldComponent;
-    
-    if (propertySchema.enum) {
-      FieldComponent = EnumField;
-    } else if (propertySchema.type === 'object' && propertySchema.properties) {
-      // Recursive case - render another ObjectField
-      return (
-        <ObjectField
-          key={propertyKey}
-          field={nestedField}
-          onChange={(value, triggerValidation) => handleNestedChange(propertyKey, value, triggerValidation)}
-          domContextId={nestedFieldId}
-          formModel={formModel}
-        />
-      );
-    } else if (propertySchema.type === 'array') {
-      FieldComponent = ArrayOfPrimitiveField;
-    } else {
-      const fieldType = propertySchema.type === 'integer' ? 'number' : propertySchema.type;
-      switch (fieldType) {
-        case 'string':
-          FieldComponent = StringField;
-          break;
-        case 'number':
-          FieldComponent = NumberField;
-          break;
-        case 'boolean':
-          FieldComponent = BooleanField;
-          break;
-        default:
-          FieldComponent = null;
-      }
-    }
-
-    if (!FieldComponent) {
-      return (
-        <div key={propertyKey} style={{ color: 'red' }}>
-          Unsupported field type: {propertySchema.type}
-        </div>
-      );
-    }
-
     return (
       <div key={propertyKey} style={{ marginBottom: '10px' }}>
-        <FieldComponent
+        <FieldRenderer
           field={nestedField}
-          onChange={(value: any, triggerValidation?: boolean) => 
-            handleNestedChange(propertyKey, value, triggerValidation)
-          }
-          domContextId={nestedFieldId}
+          formModel={formModel}
+          onChange={(value: JSONValue, shouldValidate?: boolean) => handleNestedChange(propertyKey, value, shouldValidate)}
         />
       </div>
     );
@@ -190,7 +142,7 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
 
           {/* Render nested fields */}
           {propertyKeys.map(propertyKey => 
-            renderNestedField(propertyKey, properties[propertyKey])
+            renderNestedField(propertyKey)
           )}
 
           {propertyKeys.length === 0 && (
