@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import BooleanField from '../BooleanField';
 import type { FormField } from '../../../../utils/formModel/types';
+import type { FormModel } from '../../../../utils/formModel/FormModel';
 import type { JSONSchema } from '../../../../types/schema';
 
 // Helper function to create mock FormField
@@ -27,6 +28,26 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
   };
 };
 
+// Mock FormModel for stories
+const createMockFormModel = (): FormModel => ({
+  addValue: (path: string, value: unknown) => {
+    console.log('FormModel addValue:', { path, value });
+  },
+  deleteValue: (path: string) => {
+    console.log('FormModel deleteValue:', { path });
+  },
+  setValue: (path: string, value: unknown) => {
+    console.log('FormModel setValue:', { path, value });
+  },
+  validate: () => {
+    console.log('FormModel validate called');
+  },
+  getField: (path: string) => {
+    console.log('FormModel getField:', { path });
+    return undefined;
+  }
+} as unknown as FormModel);
+
 const meta: Meta<typeof BooleanField> = {
   title: 'Components/Fields/BooleanField',
   component: BooleanField,
@@ -48,9 +69,9 @@ const meta: Meta<typeof BooleanField> = {
       description: 'Callback function called when field value changes',
       action: 'onChange',
     },
-    domContextId: {
-      description: 'Optional DOM context ID for field identification',
-      control: { type: 'text' },
+    formModel: {
+      description: 'The form model instance',
+      control: false,
     },
   },
 };
@@ -62,6 +83,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     field: createMockFormField(),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -75,6 +97,7 @@ export const Checked: Story = {
       value: true,
       pristineValue: true,
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -92,6 +115,7 @@ export const Required: Story = {
         description: 'This field is required',
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -111,6 +135,7 @@ export const WithErrors: Story = {
         description: 'I agree to the terms and conditions',
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -132,6 +157,7 @@ export const Dirty: Story = {
         description: 'This field has been modified',
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -150,6 +176,7 @@ export const ReadOnly: Story = {
         readOnly: true,
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -165,6 +192,7 @@ export const NoDescription: Story = {
         title: 'Simple Field',
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -182,7 +210,7 @@ export const WithDomContext: Story = {
         description: 'Check to activate user account',
       },
     }),
-    domContextId: 'userForm',
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -209,7 +237,7 @@ export const Complex: Story = {
       hasChanges: true,
       lastModified: new Date(),
     }),
-    domContextId: 'profileForm',
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -234,6 +262,7 @@ export const MultipleErrors: Story = {
         description: 'I have read and agree to all terms',
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -252,6 +281,7 @@ export const NestedPath: Story = {
         description: 'Receive promotional emails and special offers',
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -271,7 +301,7 @@ export const PrivacySettings: Story = {
       },
       required: false,
     }),
-    domContextId: 'privacyForm',
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -291,6 +321,7 @@ export const Subscription: Story = {
         description: 'Automatically renew subscription when it expires',
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: boolean, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },

@@ -1,12 +1,11 @@
 import React from 'react';
 import type { FormField } from '../../utils/formModel/types';
 import type { FormModel } from '../../utils/formModel/FormModel';
-import type { LayoutConfig } from '../../types/layout';
+import type { LayoutConfig, FieldLayoutConfig } from '../../types/layout';
 import type { JSONValue } from '../../types/schema';
 import { useLayout } from '../../hooks/useLayout';
 import { 
   groupFieldsIntoRows, 
-  getFieldColumnClass, 
   getLayoutGap,
   calculateFieldWidth,
   getResponsiveColumns,
@@ -61,12 +60,13 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
   // Grid layouts (grid-12 and grid-custom)
   if (isGrid) {
     const debugClass = resolvedConfig.debug ? 'layout-debug' : '';
+    const gapClass = `layout-gap-${resolvedConfig.gap || 'md'}`;
     const rows = groupFieldsIntoRows(fields, resolvedConfig, breakpoint);
     
     return (
       <LayoutProvider strategy={resolvedConfig.strategy} debug={resolvedConfig.debug}>
         <div 
-          className={`layout-grid layout-grid-12 ${debugClass} ${className}`}
+          className={`layout-grid layout-grid-12 ${gapClass} ${debugClass} ${className}`}
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(12, 1fr)',
@@ -74,7 +74,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
             width: '100%'
           }}
         >
-          {rows.map((row, rowIndex) => {
+          {rows.map((row) => {
             // Adjust field widths to fill remaining space (no gaps on the right)
             const adjustedFields = adjustRowFieldWidths(row, breakpoint);
             
@@ -126,7 +126,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
           >
             {row.map((field) => {
               const fieldWidth = calculateFieldWidth(field);
-              const schema = field.schema as any;
+              const schema = field.schema as { 'x-layout'?: FieldLayoutConfig };
               const fieldLayout = schema['x-layout'];
               const responsiveWidth = getResponsiveColumns(fieldLayout, breakpoint, fieldWidth);
               

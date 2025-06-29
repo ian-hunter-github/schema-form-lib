@@ -1,15 +1,15 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import ArrayOfObjectsField from '../ArrayOfObjectsField';
 import type { FormField } from '../../../../utils/formModel/types';
 import type { FormModel } from '../../../../utils/formModel/FormModel';
 import type { JSONSchema } from '../../../../types/schema';
 
 // Mock FormModel for Storybook
-const createMockFormModel = (initialData: any[] = []): FormModel => {
-  let data = [...initialData];
+const createMockFormModel = (initialData: unknown[] = []): FormModel => {
+  const data = [...initialData];
   
   return {
-    addValue: (path: string, value: any) => {
+    addValue: (path: string, value: unknown) => {
       console.log('addValue called:', path, value);
       data.push(value);
     },
@@ -21,19 +21,18 @@ const createMockFormModel = (initialData: any[] = []): FormModel => {
         data.splice(index, 1);
       }
     },
-    setValue: (path: string, value: any) => {
+    setValue: (path: string, value: unknown) => {
       console.log('setValue called:', path, value);
     },
     validate: () => {
       console.log('validate called');
     },
     getField: (path: string) => {
-      console.log('getField called:', path);
       
       // Handle array item paths
       const arrayItemMatch = path.match(/^(.+)\.(\d+)$/);
       if (arrayItemMatch) {
-        const [, arrayPath, indexStr] = arrayItemMatch;
+        const [, , indexStr] = arrayItemMatch;
         const index = parseInt(indexStr, 10);
         if (index < data.length) {
           return {
@@ -55,10 +54,12 @@ const createMockFormModel = (initialData: any[] = []): FormModel => {
       // Handle nested property paths
       const nestedMatch = path.match(/^(.+)\.(\d+)\.(.+)$/);
       if (nestedMatch) {
-        const [, arrayPath, indexStr, property] = nestedMatch;
+        const [, , indexStr, property] = nestedMatch;
         const index = parseInt(indexStr, 10);
         if (index < data.length && data[index] && typeof data[index] === 'object') {
-          const value = (data[index] as any)[property];
+          const value = typeof data[index] === 'object' && data[index] !== null 
+            ? (data[index] as Record<string, unknown>)[property]
+            : undefined;
           return {
             path,
             value,
@@ -198,7 +199,7 @@ export const Empty: Story = {
       lastModified: new Date()
     } as FormField,
     formModel: createMockFormModel([]),
-    onChange: (value: any, shouldValidate?: boolean) => {
+    onChange: (value: unknown, shouldValidate?: boolean) => {
       console.log('Field changed:', { value, shouldValidate });
     }
   }
@@ -229,7 +230,7 @@ export const WithItems: Story = {
       { name: 'Jane Smith', age: 25, email: 'jane@example.com', active: false },
       { name: 'Bob Johnson', age: 35, email: 'bob@example.com', active: true }
     ]),
-    onChange: (value: any, shouldValidate?: boolean) => {
+    onChange: (value: unknown, shouldValidate?: boolean) => {
       console.log('Field changed:', { value, shouldValidate });
     }
   }
@@ -256,7 +257,7 @@ export const WithErrors: Story = {
     formModel: createMockFormModel([
       { name: '', age: -5, email: 'invalid-email', active: true }
     ]),
-    onChange: (value: any, shouldValidate?: boolean) => {
+    onChange: (value: unknown, shouldValidate?: boolean) => {
       console.log('Field changed:', { value, shouldValidate });
     }
   }
@@ -291,7 +292,7 @@ export const ReadOnly: Story = {
       { name: 'John Doe', age: 30, email: 'john@example.com', active: true },
       { name: 'Jane Smith', age: 25, email: 'jane@example.com', active: false }
     ]),
-    onChange: (value: any, shouldValidate?: boolean) => {
+    onChange: (value: unknown, shouldValidate?: boolean) => {
       console.log('Field changed:', { value, shouldValidate });
     }
   }
@@ -348,7 +349,7 @@ export const ComplexSchema: Story = {
         isPrimary: false
       }
     ]),
-    onChange: (value: any, shouldValidate?: boolean) => {
+    onChange: (value: unknown, shouldValidate?: boolean) => {
       console.log('Field changed:', { value, shouldValidate });
     }
   }
@@ -374,7 +375,7 @@ export const Required: Story = {
       lastModified: new Date()
     } as FormField,
     formModel: createMockFormModel([]),
-    onChange: (value: any, shouldValidate?: boolean) => {
+    onChange: (value: unknown, shouldValidate?: boolean) => {
       console.log('Field changed:', { value, shouldValidate });
     }
   }

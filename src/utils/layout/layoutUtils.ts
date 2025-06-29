@@ -112,11 +112,11 @@ export const shouldBreakRow = (
   // Force break if next field has breakBefore
   if (nextLayout?.breakBefore) return true;
   
-  const currentWidth = calculateFieldWidth(currentField);
+  // const currentWidth = calculateFieldWidth(currentField);
   const nextWidth = calculateFieldWidth(nextField);
   
   // Get responsive widths
-  const responsiveCurrentWidth = getResponsiveColumns(currentLayout, breakpoint, currentWidth);
+  // const responsiveCurrentWidth = getResponsiveColumns(currentLayout, breakpoint, currentWidth);
   const responsiveNextWidth = getResponsiveColumns(nextLayout, breakpoint, nextWidth);
   
   // Break if adding next field would exceed 12 columns

@@ -49,10 +49,6 @@ const meta: Meta<typeof EnumField> = {
       description: 'Callback function called when field value changes',
       action: 'onChange',
     },
-    domContextId: {
-      description: 'Optional DOM context ID for field identification',
-      control: { type: 'text' },
-    },
   },
 };
 
@@ -210,7 +206,6 @@ export const WithDomContext: Story = {
         enum: ['admin', 'user', 'guest'],
       },
     }),
-    domContextId: 'userForm',
     onChange: (value: string | string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -238,7 +233,6 @@ export const Complex: Story = {
       hasChanges: true,
       lastModified: new Date(),
     }),
-    domContextId: 'projectForm',
     onChange: (value: string | string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -302,7 +296,6 @@ export const CountrySelection: Story = {
         enum: ['US', 'CA', 'UK', 'DE', 'FR', 'JP', 'AU'],
       },
     }),
-    domContextId: 'addressForm',
     onChange: (value: string | string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },

@@ -77,6 +77,8 @@ button:focus-visible {
 
 .layout-grid-12 {
   grid-template-columns: repeat(12, 1fr);
+  /* Ensure gap is always applied - fallback for when inline styles don't work */
+  gap: 1rem;
 }
 
 /* Field Column Span Classes */
@@ -184,24 +186,24 @@ button:focus-visible {
   color: #dc3545;
 }
 
-/* Change indicators for grid-12 layout */
+/* Change indicators for grid-12 layout - using theme colors */
 .layout-grid-12 .floating-label-input.has-changes,
 .layout-grid-12 .floating-label-select.has-changes {
-  border-color: #007bff;
-  background-color: rgba(0, 123, 255, 0.05);
+  border-color: #ffc107;
+  background-color: #fff3cd;
 }
 
 .layout-grid-12 .floating-label-input.has-changes:focus,
 .layout-grid-12 .floating-label-select.has-changes:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #ffc107;
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.25);
 }
 
 .layout-grid-12 .boolean-field-container.has-changes {
-  background-color: rgba(0, 123, 255, 0.05);
+  background-color: #fff3cd;
   border-radius: 4px;
   padding: 4px;
-  border: 1px solid rgba(0, 123, 255, 0.3);
+  border: 1px solid #ffc107;
 }
 
 /* Select and Textarea Floating Labels */
@@ -304,11 +306,18 @@ button:focus-visible {
 }
 
 /* Utility Classes */
-.layout-gap-xs { gap: 0.25rem; }
-.layout-gap-sm { gap: 0.5rem; }
-.layout-gap-md { gap: 1rem; }
-.layout-gap-lg { gap: 1.5rem; }
-.layout-gap-xl { gap: 2rem; }
+.layout-gap-xs { gap: 0.25rem !important; }
+.layout-gap-sm { gap: 0.5rem !important; }
+.layout-gap-md { gap: 1rem !important; }
+.layout-gap-lg { gap: 1.5rem !important; }
+.layout-gap-xl { gap: 2rem !important; }
+
+/* Grid-specific gap utilities */
+.layout-grid-12.layout-gap-xs { gap: 0.25rem !important; }
+.layout-grid-12.layout-gap-sm { gap: 0.5rem !important; }
+.layout-grid-12.layout-gap-md { gap: 1rem !important; }
+.layout-grid-12.layout-gap-lg { gap: 1.5rem !important; }
+.layout-grid-12.layout-gap-xl { gap: 2rem !important; }
 
 /* Field Layout Utilities */
 .field-break-before {

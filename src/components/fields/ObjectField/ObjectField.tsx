@@ -4,9 +4,15 @@ import type { FormModel } from '../../../utils/formModel/FormModel';
 import type { JSONValue } from '../../../types/schema';
 import type { LayoutConfig, JSONSchemaWithLayout } from '../../../types/layout';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
-import { useThemeTokens, useVariants } from '../../../theme';
-import { createStyles, mergeStyles, conditionalStyle } from '../../../theme/utils';
 import LayoutContainer from '../../layout/LayoutContainer';
+import {
+  SimpleFieldContainer,
+  SimpleArrayHeader,
+  SimpleFieldLabel,
+  SimpleFieldDescription,
+  SimpleFieldError,
+  SimpleFieldHelper,
+} from '../../../theme/simpleStyled';
 
 export interface ObjectFieldProps {
   field: FormField;
@@ -25,11 +31,6 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
-  
-  // Get theme tokens and variants
-  const { colors, spacing, typography, shadows, components } = useThemeTokens();
-  const { variants } = useVariants();
-  const styles = createStyles({ colors, spacing, typography, shadows, components, name: 'default', overrides: {} }, variants);
 
   // Get the object properties from the schema
   const properties = field.schema.properties || {};
@@ -80,77 +81,64 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
   };
 
   return (
-    <div style={styles.fieldContainer}>
+    <SimpleFieldContainer>
       {/* Accordion Header */}
-      <div 
-        style={mergeStyles(
-          styles.arrayHeader,
-          conditionalStyle(field.hasChanges, styles.fieldInputDirty),
-          { marginBottom: isExpanded ? spacing.sm : 0 }
-        )}
+      <SimpleArrayHeader 
+        hasBottomBorder={isExpanded}
         onClick={() => setIsExpanded(!isExpanded)}
+        style={{ marginBottom: isExpanded ? '0.5rem' : 0 }}
       >
         <span 
           style={{ 
-            marginRight: spacing.xs,
+            marginRight: '0.25rem',
             transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s ease'
           }}
         >
           ▶
         </span>
-        <label 
+        <SimpleFieldLabel 
           htmlFor={fieldId}
           id={`${fieldId}-label`}
           data-testid={`${fieldId}-label`}
-          style={mergeStyles(
-            styles.fieldLabel,
-            { 
-              fontWeight: typography.field.label.fontWeight,
-              margin: 0,
-              cursor: 'pointer',
-              flex: 1
-            }
-          )}
+          required={field.required}
+          style={{ 
+            margin: 0,
+            cursor: 'pointer',
+            flex: 1
+          }}
         >
-          {capitalizeFirstLetter(field.schema.title || displayName)}
-          {field.required && <span style={{ color: colors.semantic.error }}> *</span>}
-        </label>
+          {capitalizeFirstLetter(field.schema.title || displayName)}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
+        </SimpleFieldLabel>
         
         {field.dirty && (
-          <div 
+          <SimpleFieldHelper 
             id={`${fieldId}-dirty-indicator`}
             data-testid={`${fieldId}-dirty-indicator`}
-            style={mergeStyles(
-              styles.fieldHelper,
-              { marginLeft: spacing.sm }
-            )}
+            style={{ marginLeft: '0.5rem' }}
           >
             Modified
-          </div>
+          </SimpleFieldHelper>
         )}
-      </div>
+      </SimpleArrayHeader>
 
       {/* Accordion Content */}
       {isExpanded && (
         <div 
           style={{
-            paddingLeft: spacing.lg,
-            borderLeft: `2px solid ${colors.border.primary}`,
-            marginLeft: spacing.sm
+            paddingLeft: '1.5rem',
+            borderLeft: '2px solid #e5e7eb',
+            marginLeft: '0.5rem'
           }}
         >
           {field.schema.description && (
-            <div 
+            <SimpleFieldDescription 
               id={`${fieldId}-description`}
               data-testid={`${fieldId}-description`}
-              style={mergeStyles(
-                styles.fieldDescription,
-                { marginBottom: spacing.sm }
-              )}
+              style={{ marginBottom: '0.5rem' }}
             >
               {field.schema.description}
-            </div>
+            </SimpleFieldDescription>
           )}
 
           {/* Render nested fields using LayoutContainer */}
@@ -162,30 +150,23 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
               onChange={handleNestedChange}
             />
           ) : (
-            <div style={mergeStyles(
-              styles.fieldHelper,
-              { fontStyle: 'italic' }
-            )}>
+            <SimpleFieldHelper style={{ fontStyle: 'italic' }}>
               No properties defined for this object
-            </div>
+            </SimpleFieldHelper>
           )}
         </div>
       )}
 
       {/* Error display */}
       {hasErrors && (
-        <div 
+        <SimpleFieldError 
           id={`${fieldId}-error`}
           data-testid={`${fieldId}-error`}
-          style={mergeStyles(
-            styles.fieldError,
-            { marginTop: spacing.xs }
-          )}
         >
           {errorMessage}
-        </div>
+        </SimpleFieldError>
       )}
-    </div>
+    </SimpleFieldContainer>
   );
 };
 

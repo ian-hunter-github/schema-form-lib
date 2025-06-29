@@ -1,5 +1,4 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ArrayOfObjectsField from '../ArrayOfObjectsField';
 import type { FormField } from '../../../../utils/formModel/types';
@@ -186,7 +185,7 @@ describe('ArrayOfObjectsField', () => {
       />
     );
 
-    const itemHeader = screen.getByText('Item 1').closest('.array-object-item-header');
+    const itemHeader = screen.getByText('Item 1').closest('div');
     expect(itemHeader).toBeInTheDocument();
 
     // Initially collapsed - no mock fields should be visible
@@ -298,7 +297,7 @@ describe('ArrayOfObjectsField', () => {
     );
 
     // Expand the item first
-    const itemHeader = screen.getByText('Item 1').closest('.array-object-item-header');
+    const itemHeader = screen.getByText('Item 1').closest('div');
     fireEvent.click(itemHeader!);
 
     // Find and interact with the nested field

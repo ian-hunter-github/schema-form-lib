@@ -7,19 +7,17 @@ import type {
 } from "../types/schema";
 import { FormValidator } from "../utils/formModel/FormValidator/FormValidator";
 import FieldRenderer from "./FieldRenderer";
+import type { FormModel } from "../utils/formModel/FormModel";
 
 type Props = {
   schema: JSONSchemaProperties;
   onSubmit?: (data: Record<string, JSONValue>) => void;
-  depth?: number;
   parentId: string;
 };
 
 const JsonSchemaForm: React.FC<Props> = ({
   schema,
   onSubmit,
-  depth = 0,
-  parentId = "",
 }) => {
 
   const buildInitialState = (
@@ -201,27 +199,38 @@ const JsonSchemaForm: React.FC<Props> = ({
 
   const renderFields = (
     schema: JSONSchemaProperties,
-    prefix = "",
-    currentDepth = 0
+    prefix = ""
   ) => {
     return Object.keys(schema).map((key) => {
       const fullKey = prefix ? `${prefix}.${key}` : key;
       const field = schema[key];
-      if (field.type === "object" && field.properties) {
-        currentDepth += 1;
-      }
 
       return (
         <div key={fullKey}>
           <FieldRenderer
-            name={key}
-            value={formData[key]}
-            schema={field}
+            field={{
+              path: fullKey,
+              value: formData[key],
+              pristineValue: formData[key],
+              schema: field,
+              errors: errors[key] ? [errors[key]] : [],
+              errorCount: errors[key] ? 1 : 0,
+              required: requiredFields[key],
+              dirty: false,
+              dirtyCount: 0,
+              hasChanges: false,
+              lastModified: new Date()
+            }}
+            formModel={{
+              getField: () => undefined,
+              getFields: () => new Map(),
+              setValue: () => {},
+              validate: () => true,
+              addListener: () => {},
+              removeListener: () => {},
+              // Minimal mock implementation - actual FormModel not needed here
+            } as unknown as FormModel}
             onChange={(value, isBlur = false) => handleChange(key, value, isBlur)}
-            error={errors[key]}
-            depth={currentDepth}
-            parentId={parentId}
-            required={requiredFields[key]}
           />
         </div>
       );
@@ -230,7 +239,7 @@ const JsonSchemaForm: React.FC<Props> = ({
 
   return (
     <form id="form" data-testid="form" onSubmit={handleSubmit}>
-      {renderFields(schema, "", depth)}
+      {renderFields(schema, "")}
       <button type="submit">Submit</button>
     </form>
   );

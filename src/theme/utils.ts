@@ -168,6 +168,123 @@ export const createStyles = (theme: Theme, variants?: VariantConfig) => {
     color: theme.colors.text.primary,
     cursor: 'pointer',
   },
+
+  // Grid-12 layout specific styles
+  grid12FloatingContainer: {
+    position: 'relative' as const,
+    width: '100%',
+  },
+
+  grid12FloatingInput: {
+    width: '100%',
+    padding: '12px 8px 4px 8px',
+    border: `1px solid ${theme.colors.border.primary}`,
+    borderRadius: '4px',
+    fontSize: '16px',
+    backgroundColor: 'transparent',
+    transition: 'border-color 0.2s ease',
+    color: theme.colors.text.primary,
+  },
+
+  grid12FloatingInputFocus: {
+    outline: 'none',
+    borderColor: theme.colors.primary[500],
+    boxShadow: `0 0 0 2px ${theme.colors.primary[500]}40`, // 25% opacity
+  },
+
+  grid12FloatingInputError: {
+    borderColor: theme.colors.semantic.error,
+    boxShadow: `0 0 0 2px ${theme.colors.semantic.error}40`, // 25% opacity
+  },
+
+  grid12FloatingInputDirty: {
+    borderColor: theme.colors.state.dirtyBorder,
+    backgroundColor: theme.colors.state.dirty,
+  },
+
+  grid12FloatingLabel: {
+    position: 'absolute' as const,
+    left: '8px',
+    top: '12px',
+    fontSize: '16px',
+    color: theme.colors.text.secondary,
+    pointerEvents: 'none' as const,
+    transition: 'all 0.2s ease',
+    backgroundColor: theme.colors.background.primary,
+    padding: '0 4px',
+  },
+
+  grid12FloatingLabelActive: {
+    top: '-8px',
+    fontSize: '12px',
+    color: theme.colors.primary[500],
+    fontWeight: 500,
+  },
+
+  grid12FloatingLabelError: {
+    color: theme.colors.semantic.error,
+  },
+
+  grid12FloatingSelect: {
+    width: '100%',
+    padding: '12px 8px 4px 8px',
+    border: `1px solid ${theme.colors.border.primary}`,
+    borderRadius: '4px',
+    fontSize: '16px',
+    backgroundColor: theme.colors.background.primary,
+    transition: 'border-color 0.2s ease',
+    color: theme.colors.text.primary,
+  },
+
+  grid12BooleanContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 0',
+  },
+
+  grid12BooleanContainerDirty: {
+    backgroundColor: theme.colors.state.dirty,
+    borderRadius: '4px',
+    padding: '4px',
+    border: `1px solid ${theme.colors.state.dirtyBorder}`,
+  },
+
+  grid12BooleanCheckbox: {
+    width: '18px',
+    height: '18px',
+    margin: 0,
+    accentColor: theme.colors.primary[500],
+  },
+
+  grid12BooleanLabel: {
+    fontSize: '16px',
+    color: theme.colors.text.primary,
+    cursor: 'pointer',
+    userSelect: 'none' as const,
+  },
+
+  grid12FieldDescription: {
+    color: theme.colors.text.secondary,
+    fontSize: '12px',
+    marginTop: '4px',
+    display: 'block',
+  },
+
+  grid12FieldError: {
+    color: theme.colors.semantic.error,
+    fontSize: '12px',
+    marginTop: '4px',
+    display: 'block',
+  },
+
+  grid12DirtyIndicator: {
+    color: theme.colors.state.dirtyBorder,
+    fontSize: '12px',
+    marginTop: '4px',
+    fontWeight: 'bold',
+    display: 'block',
+  },
   };
 };
 

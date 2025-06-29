@@ -1,5 +1,4 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ArrayOfPrimitiveField from '../ArrayOfPrimitiveField';
 import type { FormField } from '../../../../utils/formModel/types';
@@ -138,7 +137,8 @@ describe('ArrayOfPrimitiveField', () => {
     render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const label = screen.getByTestId('testField-label');
-    expect(label).toHaveClass('label required');
+    expect(label).toBeInTheDocument();
+    expect(label.textContent).toContain('*');
   });
 
   it('displays error message when field has errors', () => {

@@ -3,9 +3,18 @@ import type { FormField } from '../../../utils/formModel/types';
 import type { FormModel } from '../../../utils/formModel/FormModel';
 import type { JSONValue } from '../../../types/schema';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
-import { useThemeTokens, useVariants } from '../../../theme';
-import { createStyles, mergeStyles, conditionalStyle } from '../../../theme/utils';
 import FieldRenderer from '../../FieldRenderer';
+import {
+  SimpleArrayContainer,
+  SimpleFieldLabel,
+  SimpleFieldDescription,
+  SimpleArrayItem,
+  SimpleArrayHeader,
+  SimpleArrayContent,
+  SimpleButton,
+  SimpleFieldError,
+  SimpleFieldHelper,
+} from '../../../theme/simpleStyled';
 
 export interface ArrayOfObjectsFieldProps {
   field: FormField;
@@ -20,11 +29,6 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
   const displayName = field.path.split('.').pop() || field.path;
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
-  
-  // Get theme tokens and variants
-  const { colors, spacing, typography, shadows, components } = useThemeTokens();
-  const { variants } = useVariants();
-  const styles = createStyles({ colors, spacing, typography, shadows, components, name: 'default', overrides: {} }, variants);
 
   // Get items directly from FormModel
   const items = Array.isArray(field.value) ? field.value : [];
@@ -88,72 +92,58 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
     const propertyKeys = Object.keys(properties);
 
     return (
-      <div 
+      <SimpleArrayItem 
         key={itemIndex} 
-        style={mergeStyles(
-          styles.arrayItem,
-          conditionalStyle(itemField?.hasChanges || false, styles.fieldInputDirty)
-        )}
+        isDirty={itemField?.hasChanges || false}
       >
         {/* Item Header */}
-        <div 
-          style={mergeStyles(
-            styles.arrayHeader,
-            { borderBottom: isExpanded ? `1px solid ${colors.border.primary}` : 'none' }
-          )}
+        <SimpleArrayHeader 
+          hasBottomBorder={isExpanded}
           onClick={() => toggleItemExpansion(itemIndex)}
         >
           <span 
             style={{ 
-              marginRight: spacing.xs,
+              marginRight: '0.25rem',
               transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
               transition: 'transform 0.2s ease'
             }}
           >
             ▶
           </span>
-          <span style={{ flex: 1, fontWeight: typography.field.label.fontWeight }}>
+          <span style={{ flex: 1, fontWeight: '500' }}>
             Item {itemIndex + 1}
           </span>
           
           {itemField?.dirty && (
-            <div 
-              style={mergeStyles(
-                styles.fieldHelper,
-                { marginRight: spacing.sm }
-              )}
-            >
+            <SimpleFieldHelper style={{ marginRight: '0.5rem' }}>
               Modified
-            </div>
+            </SimpleFieldHelper>
           )}
           
-          <button
+          <SimpleButton
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               handleRemoveItem(itemIndex);
             }}
             disabled={field.schema.readOnly}
-            style={mergeStyles(
-              styles.button,
-              styles.buttonDanger,
-              { fontSize: typography.field.helper.fontSize }
-            )}
+            variant="danger"
+            size="sm"
             data-testid={`${fieldId}.${itemIndex}-remove`}
           >
             Remove
-          </button>
-        </div>
+          </SimpleButton>
+        </SimpleArrayHeader>
 
         {/* Item Content */}
         {isExpanded && (
-          <div style={styles.arrayContent}>
+          <SimpleArrayContent>
             {propertyKeys.map(propertyKey => {
               const nestedField = getNestedField(itemIndex, propertyKey);
               if (!nestedField) return null;
 
               return (
-                <div key={propertyKey} style={{ marginBottom: spacing.form.field }}>
+                <div key={propertyKey} style={{ marginBottom: '1rem' }}>
                   <FieldRenderer
                     field={nestedField}
                     formModel={formModel}
@@ -166,49 +156,40 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
             })}
             
             {propertyKeys.length === 0 && (
-              <div style={mergeStyles(
-                styles.fieldHelper,
-                { fontStyle: 'italic' }
-              )}>
+              <SimpleFieldHelper style={{ fontStyle: 'italic' }}>
                 No properties defined for this object
-              </div>
+              </SimpleFieldHelper>
             )}
-          </div>
+          </SimpleArrayContent>
         )}
-      </div>
+      </SimpleArrayItem>
     );
   };
 
   return (
-    <div id={fieldId} data-testid={fieldId} style={styles.arrayContainer}>
-      <label 
+    <SimpleArrayContainer id={fieldId} data-testid={fieldId}>
+      <SimpleFieldLabel 
         htmlFor={fieldId} 
         id={`${fieldId}-label`}
         data-testid={`${fieldId}-label`}
-        style={mergeStyles(
-          styles.fieldLabel,
-          { 
-            fontWeight: typography.field.label.fontWeight,
-            marginBottom: spacing.xs,
-            display: 'block'
-          }
-        )}
+        required={field.required}
+        style={{ 
+          fontWeight: '500',
+          marginBottom: '0.25rem',
+          display: 'block'
+        }}
       >
         {capitalizeFirstLetter(field.schema.title || displayName)}
-        {field.required && <span style={{ color: colors.semantic.error }}> *</span>}
-      </label>
+      </SimpleFieldLabel>
 
       {field.schema.description && (
-        <div 
+        <SimpleFieldDescription 
           id={`${fieldId}-description`} 
           data-testid={`${fieldId}-description`}
-          style={mergeStyles(
-            styles.fieldDescription,
-            { marginBottom: spacing.sm }
-          )}
+          style={{ marginBottom: '0.5rem' }}
         >
           {field.schema.description}
-        </div>
+        </SimpleFieldDescription>
       )}
 
       {/* Array Items */}
@@ -218,13 +199,13 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
         {items.length === 0 && (
           <div 
             style={{ 
-              color: colors.text.tertiary,
+              color: '#6b7280',
               fontStyle: 'italic',
-              padding: spacing.lg,
+              padding: '1.5rem',
               textAlign: 'center' as const,
-              border: `2px dashed ${colors.border.primary}`,
+              border: '2px dashed #e5e7eb',
               borderRadius: '0.375rem',
-              marginBottom: spacing.sm
+              marginBottom: '0.5rem'
             }}
           >
             No items added yet
@@ -233,42 +214,37 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
       </div>
 
       {/* Add Button */}
-      <button
+      <SimpleButton
         id={`${fieldId}-add`}
         data-testid={`${fieldId}-add`}
         type="button"
         onClick={handleAddItem}
         disabled={field.schema.readOnly}
-        style={mergeStyles(
-          styles.button,
-          styles.buttonPrimary
-        )}
+        variant="primary"
       >
         Add Item
-      </button>
+      </SimpleButton>
 
       {/* Error Display */}
       {hasErrors && (
-        <div 
+        <SimpleFieldError 
           id={`${fieldId}-error`} 
-          data-testid={`${fieldId}-error`} 
-          style={mergeStyles(styles.fieldError, { marginTop: spacing.xs })}
+          data-testid={`${fieldId}-error`}
         >
           {errorMessage}
-        </div>
+        </SimpleFieldError>
       )}
       
       {/* Dirty Indicator */}
       {field.dirty && (
-        <div 
+        <SimpleFieldHelper 
           id={`${fieldId}-dirty-indicator`} 
           data-testid={`${fieldId}-dirty-indicator`}
-          style={mergeStyles(styles.fieldHelper, { marginTop: spacing.xs })}
         >
           Modified
-        </div>
+        </SimpleFieldHelper>
       )}
-    </div>
+    </SimpleArrayContainer>
   );
 };
 

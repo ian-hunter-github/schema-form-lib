@@ -1,27 +1,68 @@
 import styled from '@emotion/styled';
-import type { Theme } from './themes/default';
+import { defaultTheme } from './themes/default';
+import type { VariantConfig } from './variants/types';
 
-// Helper to access theme properties safely
-const getTheme = (props: { theme: Theme }) => props.theme;
+// Use the actual defaultTheme type for better compatibility
+type Theme = typeof defaultTheme;
 
-// Common styled components that can be reused
-export const StyledFieldContainer = styled.div<{ hasError?: boolean; isDirty?: boolean }>`
-  margin-bottom: ${props => getTheme(props).spacing.form.field};
+// Helper to access theme properties safely with type assertion
+const getTheme = (props: { theme?: unknown }) => (props.theme || defaultTheme) as Theme;
+
+// Helper to get density styles
+const getDensityStyles = (density: VariantConfig['density'], theme: Theme) => {
+  return theme.components.density[density || 'normal'];
+};
+
+// Enhanced field container with layout support
+export const StyledFieldContainer = styled.div<{ 
+  hasError?: boolean; 
+  isDirty?: boolean;
+  density?: VariantConfig['density'];
+  layout?: 'default' | 'floating';
+}>`
+  margin-bottom: ${props => {
+    const densityStyles = getDensityStyles(props.density, getTheme(props));
+    return densityStyles.components.fieldContainer.marginBottom;
+  }};
   position: relative;
+  width: 100%;
+  
+  ${props => props.layout === 'floating' && `
+    position: relative;
+  `}
 `;
 
-export const StyledFieldInput = styled.input<{ hasError?: boolean; isDirty?: boolean }>`
-  padding: ${props => getTheme(props).spacing.field.padding};
-  font-size: ${props => getTheme(props).typography.field.input.fontSize};
-  font-weight: ${props => getTheme(props).typography.field.input.fontWeight};
-  line-height: ${props => getTheme(props).typography.field.input.lineHeight};
+// Enhanced field input with variant support
+export const StyledFieldInput = styled.input<{ 
+  hasError?: boolean; 
+  isDirty?: boolean;
+  density?: VariantConfig['density'];
+  variant?: 'default' | 'floating';
+}>`
+  width: 100%;
   border: 1px solid ${props => getTheme(props).colors.border.primary};
-  border-radius: 0.375rem;
-  background-color: ${props => getTheme(props).colors.background.primary};
+  border-radius: ${props => props.variant === 'floating' ? '4px' : '0.375rem'};
+  background-color: ${props => props.variant === 'floating' ? 'transparent' : getTheme(props).colors.background.primary};
   color: ${props => getTheme(props).colors.text.primary};
   transition: all 0.2s ease;
-  box-shadow: ${props => getTheme(props).shadows.field.default};
-  width: 100%;
+  
+  /* Density-based padding */
+  padding: ${props => {
+    const densityStyles = getDensityStyles(props.density, getTheme(props));
+    return props.variant === 'floating' 
+      ? '12px 8px 4px 8px' 
+      : densityStyles.components.fieldInput.padding;
+  }};
+  
+  /* Typography */
+  font-size: ${props => props.variant === 'floating' ? '16px' : getTheme(props).typography.field.input.fontSize};
+  font-weight: ${props => getTheme(props).typography.field.input.fontWeight};
+  line-height: ${props => getTheme(props).typography.field.input.lineHeight};
+  
+  /* Default shadow for non-floating variant */
+  ${props => props.variant !== 'floating' && `
+    box-shadow: ${getTheme(props).shadows.field.default};
+  `}
   
   &:hover {
     border-color: ${props => getTheme(props).colors.primary[500]};
@@ -30,7 +71,10 @@ export const StyledFieldInput = styled.input<{ hasError?: boolean; isDirty?: boo
   &:focus {
     outline: none;
     border-color: ${props => getTheme(props).colors.primary[500]};
-    box-shadow: ${props => getTheme(props).shadows.field.focus};
+    box-shadow: ${props => props.variant === 'floating' 
+      ? `0 0 0 2px ${getTheme(props).colors.primary[500]}40`
+      : getTheme(props).shadows.field.focus
+    };
   }
   
   &:disabled {
@@ -41,7 +85,10 @@ export const StyledFieldInput = styled.input<{ hasError?: boolean; isDirty?: boo
   
   ${props => props.hasError && `
     border-color: ${getTheme(props).colors.semantic.error};
-    box-shadow: ${getTheme(props).shadows.field.error};
+    box-shadow: ${props.variant === 'floating' 
+      ? `0 0 0 2px ${getTheme(props).colors.semantic.error}40`
+      : getTheme(props).shadows.field.error
+    };
   `}
   
   ${props => props.isDirty && `
@@ -50,13 +97,22 @@ export const StyledFieldInput = styled.input<{ hasError?: boolean; isDirty?: boo
   `}
 `;
 
-export const StyledFieldLabel = styled.label<{ required?: boolean; floating?: boolean; active?: boolean }>`
+// Enhanced field label with floating support
+export const StyledFieldLabel = styled.label<{ 
+  required?: boolean; 
+  floating?: boolean; 
+  active?: boolean;
+  hasError?: boolean;
+}>`
   font-size: ${props => getTheme(props).typography.field.label.fontSize};
   font-weight: ${props => getTheme(props).typography.field.label.fontWeight};
   line-height: ${props => getTheme(props).typography.field.label.lineHeight};
   color: ${props => getTheme(props).colors.text.secondary};
-  margin-bottom: ${props => getTheme(props).spacing.xs};
   display: block;
+  
+  ${props => !props.floating && `
+    margin-bottom: ${getTheme(props).spacing.xs};
+  `}
   
   ${props => props.required && `
     &::after {
@@ -67,18 +123,25 @@ export const StyledFieldLabel = styled.label<{ required?: boolean; floating?: bo
   
   ${props => props.floating && `
     position: absolute;
-    top: ${getTheme(props).spacing.field.padding};
-    left: ${getTheme(props).spacing.field.padding};
-    background: ${getTheme(props).colors.background.primary};
-    padding: 0 ${getTheme(props).spacing.xs};
-    transition: all 0.2s ease;
+    left: 8px;
+    top: 12px;
+    font-size: 16px;
+    color: ${getTheme(props).colors.text.secondary};
     pointer-events: none;
+    transition: all 0.2s ease;
+    background: ${getTheme(props).colors.background.primary};
+    padding: 0 4px;
   `}
   
   ${props => props.floating && props.active && `
-    top: -0.5rem;
-    font-size: ${getTheme(props).typography.field.helper.fontSize};
+    top: -8px;
+    font-size: 12px;
     color: ${getTheme(props).colors.primary[500]};
+    font-weight: 500;
+  `}
+  
+  ${props => props.floating && props.hasError && `
+    color: ${getTheme(props).colors.semantic.error};
   `}
 `;
 

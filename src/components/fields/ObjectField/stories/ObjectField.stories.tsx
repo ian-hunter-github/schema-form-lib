@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import ObjectField from '../ObjectField';
 import type { FormField } from '../../../../utils/formModel/types';
-import type { JSONSchema } from '../../../../types/schema';
+import type { FormModel } from '../../../../utils/formModel/FormModel';
+import type { JSONSchema, JSONValue } from '../../../../types/schema';
 
 // Helper function to create mock FormField
 const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
@@ -34,12 +35,45 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
 };
 
 // Mock FormModel for stories
-const createMockFormModel = (fields: Record<string, FormField> = {}) => ({
-  getField: (path: string) => fields[path],
-  setValue: (path: string, value: any) => {
-    console.log('FormModel setValue:', { path, value });
-  },
-});
+const createMockFormModel = (fields: Record<string, FormField> = {}): FormModel => {
+  const mockModel = {
+    fields: new Map(Object.entries(fields)),
+    listeners: new Set(),
+    buildForm: () => {},
+    getField: (path: string) => fields[path],
+    getFields: () => new Map(Object.entries(fields)),
+    setValue: (path: string, value: JSONValue) => {
+      console.log('FormModel setValue:', { path, value });
+    },
+    validate: () => true,
+    addValue: (arrayPath: string) => `${arrayPath}[0]`,
+    deleteValue: () => 0,
+    addListener: () => {},
+    removeListener: () => {},
+    notifyListeners: () => {},
+    moveArrayItem: () => {},
+    insertArrayItem: (arrayPath: string, index: number) => `${arrayPath}[${index}]`,
+    getArrayLength: () => 0,
+    resetForm: () => {},
+    clearErrors: () => {},
+    revertField: () => true,
+    revertBranch: () => true,
+    revertAll: () => {},
+    hasUnsavedChanges: () => false,
+    getChangedFields: () => [],
+    getChangedPaths: () => [],
+    createSnapshot: () => new Map(),
+    restoreFromSnapshot: () => {},
+    setPristineValues: () => {},
+    getChangeStatistics: () => ({
+      totalFields: 0,
+      changedFields: 0,
+      dirtyFields: 0,
+      hasUnsavedChanges: false,
+    }),
+  };
+  return mockModel as unknown as FormModel;
+};
 
 const meta: Meta<typeof ObjectField> = {
   title: 'Components/Fields/ObjectField',
@@ -62,10 +96,6 @@ const meta: Meta<typeof ObjectField> = {
       description: 'Callback function called when nested field values change',
       action: 'onChange',
     },
-    domContextId: {
-      description: 'Optional DOM context ID for field identification',
-      control: { type: 'text' },
-    },
     formModel: {
       description: 'FormModel instance for accessing nested fields',
       control: false,
@@ -80,8 +110,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     field: createMockFormField(),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel(),
   },
@@ -91,8 +121,8 @@ export const Default: Story = {
 export const WithNestedFields: Story = {
   args: {
     field: createMockFormField(),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel({
       'userProfile.name': createMockFormField({
@@ -134,8 +164,8 @@ export const Required: Story = {
         }
       },
     }),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel(),
   },
@@ -157,8 +187,8 @@ export const WithErrors: Story = {
         }
       },
     }),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel(),
   },
@@ -181,8 +211,8 @@ export const Dirty: Story = {
         }
       },
     }),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel(),
   },
@@ -216,8 +246,8 @@ export const NestedObjects: Story = {
         }
       },
     }),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel({
       'userProfile.profile': createMockFormField({
@@ -257,8 +287,8 @@ export const EmptyObject: Story = {
         properties: {}
       },
     }),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel(),
   },
@@ -276,8 +306,8 @@ export const NoDescription: Story = {
         }
       },
     }),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel(),
   },
@@ -298,9 +328,8 @@ export const WithDomContext: Story = {
         }
       },
     }),
-    domContextId: 'mainForm',
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel(),
   },
@@ -347,9 +376,8 @@ export const ComplexNested: Story = {
       dirty: true,
       hasChanges: true,
     }),
-    domContextId: 'companyForm',
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel({
       'company.basic': createMockFormField({
@@ -424,8 +452,8 @@ export const MixedFieldTypes: Story = {
         }
       },
     }),
-    onChange: (value: Record<string, any>, triggerValidation?: boolean) => {
-      console.log('Object field changed:', { value, triggerValidation });
+    onChange: (value: JSONValue, shouldValidate?: boolean) => {
+      console.log('Object field changed:', { value, shouldValidate });
     },
     formModel: createMockFormModel({
       'userProfile.name': createMockFormField({

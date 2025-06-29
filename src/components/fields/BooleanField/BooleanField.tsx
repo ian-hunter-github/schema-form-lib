@@ -2,9 +2,19 @@ import React from 'react';
 import type { FormField } from '../../../utils/formModel/types';
 import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
-import { useThemeTokens, useVariants } from '../../../theme';
-import { createStyles, mergeStyles, conditionalStyle } from '../../../theme/utils';
 import { useLayoutContext } from '../../../contexts/LayoutContext';
+import {
+  SimpleFieldContainer,
+  SimpleFieldDescription,
+  SimpleFieldError,
+  SimpleFieldHelper,
+  SimpleCheckboxWrapper,
+  SimpleCheckboxInput,
+  SimpleCheckboxLabel,
+  SimpleGrid12BooleanContainer,
+  SimpleGrid12BooleanCheckbox,
+  SimpleGrid12BooleanLabel,
+} from '../../../theme/simpleStyled';
 
 export interface BooleanFieldProps {
   field: FormField;
@@ -18,11 +28,6 @@ const BooleanField: React.FC<BooleanFieldProps> = ({ field, onChange }) => {
   const hasErrors = field.errors.length > 0;
   const errorMessage = hasErrors ? field.errors[0] : undefined;
   
-  // Get theme tokens and variants
-  const { colors, spacing, typography, shadows, components } = useThemeTokens();
-  const { variants } = useVariants();
-  const styles = createStyles({ colors, spacing, typography, shadows, components, name: 'default', overrides: {} }, variants);
-  
   // Get layout context to determine if we should use grid-12 styling
   const { isGrid12 } = useLayoutContext();
   
@@ -30,72 +35,63 @@ const BooleanField: React.FC<BooleanFieldProps> = ({ field, onChange }) => {
   
   // Grid-12 layout with special boolean styling
   if (isGrid12) {
-    const containerClassName = `boolean-field-container${field.hasChanges ? ' has-changes' : ''}`;
-    
     return (
-      <div className={containerClassName}>
-        <input
-          id={fieldId}
-          data-testid={fieldId}
-          type="checkbox"
-          checked={(field.value as boolean) || false}
-          disabled={field.schema.readOnly}
-          onChange={(e) => onChange(e.target.checked, false)}
-          onBlur={(e) => onChange(e.target.checked, true)}
-          className="boolean-field-checkbox"
-        />
-        <label 
-          htmlFor={fieldId} 
-          id={`${fieldId}-label`}
-          data-testid={`${fieldId}-label`}
-          className="boolean-field-label"
-        >
-          {fieldTitle}
-          {field.required && <span style={{ color: '#dc3545' }}> *</span>}
-        </label>
+      <SimpleFieldContainer>
+        <SimpleGrid12BooleanContainer isDirty={field.hasChanges}>
+          <SimpleGrid12BooleanCheckbox
+            id={fieldId}
+            data-testid={fieldId}
+            type="checkbox"
+            checked={(field.value as boolean) || false}
+            disabled={field.schema.readOnly}
+            onChange={(e) => onChange(e.target.checked, false)}
+            onBlur={(e) => onChange(e.target.checked, true)}
+          />
+          <SimpleGrid12BooleanLabel 
+            htmlFor={fieldId} 
+            id={`${fieldId}-label`}
+            data-testid={`${fieldId}-label`}
+            required={field.required}
+          >
+            {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
+          </SimpleGrid12BooleanLabel>
+        </SimpleGrid12BooleanContainer>
 
         {field.schema.description && (
-          <div 
+          <SimpleFieldDescription 
             id={`${fieldId}-description`} 
             data-testid={`${fieldId}-description`}
-            className="field-description"
           >
             {field.schema.description}
-          </div>
+          </SimpleFieldDescription>
         )}
         
         {hasErrors && (
-          <div 
+          <SimpleFieldError 
             id={`${fieldId}-error`} 
-            data-testid={`${fieldId}-error`} 
-            className="field-error"
+            data-testid={`${fieldId}-error`}
           >
             {errorMessage}
-          </div>
+          </SimpleFieldError>
         )}
         
         {field.dirty && (
-          <div 
+          <SimpleFieldHelper 
             id={`${fieldId}-dirty-indicator`} 
             data-testid={`${fieldId}-dirty-indicator`}
-            className="field-description"
-            style={{ color: '#007bff', fontWeight: 'bold' }}
           >
             Modified
-          </div>
+          </SimpleFieldHelper>
         )}
-      </div>
+      </SimpleFieldContainer>
     );
   }
 
   // Default layout (non-grid-12)
   return (
-    <div style={styles.fieldContainer}>
-      <div style={mergeStyles(
-        styles.checkboxWrapper,
-        conditionalStyle(field.hasChanges, { backgroundColor: colors.state.dirty })
-      )}>
-        <input
+    <SimpleFieldContainer>
+      <SimpleCheckboxWrapper isDirty={field.hasChanges}>
+        <SimpleCheckboxInput
           id={fieldId}
           data-testid={fieldId}
           type="checkbox"
@@ -103,49 +99,44 @@ const BooleanField: React.FC<BooleanFieldProps> = ({ field, onChange }) => {
           disabled={field.schema.readOnly}
           onChange={(e) => onChange(e.target.checked, false)}
           onBlur={(e) => onChange(e.target.checked, true)}
-          style={styles.checkboxInput}
         />
-        <label 
+        <SimpleCheckboxLabel 
           htmlFor={fieldId} 
           id={`${fieldId}-label`}
           data-testid={`${fieldId}-label`}
-          style={styles.checkboxLabel}
+          required={field.required}
         >
-          {fieldTitle}
-          {field.required && <span style={{ color: colors.semantic.error }}> *</span>}
-        </label>
-      </div>
+          {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
+        </SimpleCheckboxLabel>
+      </SimpleCheckboxWrapper>
 
       {field.schema.description && (
-        <div 
+        <SimpleFieldDescription 
           id={`${fieldId}-description`} 
           data-testid={`${fieldId}-description`}
-          style={styles.fieldDescription}
         >
           {field.schema.description}
-        </div>
+        </SimpleFieldDescription>
       )}
       
       {hasErrors && (
-        <div 
+        <SimpleFieldError 
           id={`${fieldId}-error`} 
-          data-testid={`${fieldId}-error`} 
-          style={styles.fieldError}
+          data-testid={`${fieldId}-error`}
         >
           {errorMessage}
-        </div>
+        </SimpleFieldError>
       )}
       
       {field.dirty && (
-        <div 
+        <SimpleFieldHelper 
           id={`${fieldId}-dirty-indicator`} 
           data-testid={`${fieldId}-dirty-indicator`}
-          style={styles.fieldHelper}
         >
           Modified
-        </div>
+        </SimpleFieldHelper>
       )}
-    </div>
+    </SimpleFieldContainer>
   );
 };
 

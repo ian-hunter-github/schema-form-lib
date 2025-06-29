@@ -1,13 +1,26 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import FormRenderer from '../FormRenderer';
 import { FormModel } from '../../utils/formModel/FormModel';
 import type { JSONSchema } from '../../types/schema';
 
 // Mock the field components to avoid complex dependencies
+interface BaseFieldProps<T> {
+  field: {
+    path: string;
+    value: T;
+    errors: string[];
+  };
+  onChange: (value: T) => void;
+}
+
+type StringFieldProps = BaseFieldProps<string | undefined>;
+type NumberFieldProps = BaseFieldProps<number | undefined>;
+type BooleanFieldProps = BaseFieldProps<boolean | undefined>;
+type ObjectFieldProps = Omit<BaseFieldProps<object | undefined>, 'onChange'>;
+
 vi.mock('../fields/StringField', () => ({
-  default: ({ field, onChange }: any) => (
+  default: ({ field, onChange }: StringFieldProps) => (
     <div data-testid={`string-field-${field.path}`}>
       <input
         data-testid={`${field.path}-input`}
@@ -22,7 +35,7 @@ vi.mock('../fields/StringField', () => ({
 }));
 
 vi.mock('../fields/NumberField', () => ({
-  default: ({ field, onChange }: any) => (
+  default: ({ field, onChange }: NumberFieldProps) => (
     <div data-testid={`number-field-${field.path}`}>
       <input
         type="number"
@@ -38,7 +51,7 @@ vi.mock('../fields/NumberField', () => ({
 }));
 
 vi.mock('../fields/BooleanField', () => ({
-  default: ({ field, onChange }: any) => (
+  default: ({ field, onChange }: BooleanFieldProps) => (
     <div data-testid={`boolean-field-${field.path}`}>
       <input
         type="checkbox"
@@ -54,7 +67,7 @@ vi.mock('../fields/BooleanField', () => ({
 }));
 
 vi.mock('../fields/ObjectField', () => ({
-  default: ({ field, formModel }: any) => (
+  default: ({ field }: ObjectFieldProps) => (
     <div data-testid={`object-field-${field.path}`}>
       <div>Object: {field.path}</div>
       {field.errors.length > 0 && (
@@ -260,8 +273,10 @@ describe('FormRenderer', () => {
       const input = screen.getByTestId('name-input');
       expect(input).toHaveValue('');
 
-      // Update the FormModel directly
-      mockFormModel.setValue('name', 'Updated Name');
+      // Update the FormModel directly - wrap in act() to handle state updates
+      await act(async () => {
+        mockFormModel.setValue('name', 'Updated Name');
+      });
 
       // The component should re-render with the new value
       await waitFor(() => {
@@ -356,7 +371,7 @@ describe('FormRenderer', () => {
       expect(() => fireEvent.click(submitButton)).not.toThrow();
     });
 
-    it('should handle nested object paths correctly', () => {
+    it('should handle nested object paths correctly', async () => {
       const schema: JSONSchema = {
         type: 'object',
         properties: {
@@ -371,12 +386,17 @@ describe('FormRenderer', () => {
 
       mockFormModel = new FormModel(schema);
       
-      // Set a nested value
-      mockFormModel.setValue('person.name', 'John');
+      // Set a nested value - wrap in act() to handle state updates
+      await act(async () => {
+        mockFormModel.setValue('person.name', 'John');
+      });
       
       vi.spyOn(mockFormModel, 'validate').mockReturnValue(true);
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      // Wrap render in act() to handle lazy loading of ObjectField
+      await act(async () => {
+        render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      });
 
       const submitButton = screen.getByTestId('submit-button');
       fireEvent.click(submitButton);

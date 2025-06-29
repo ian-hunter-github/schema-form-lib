@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import ArrayOfPrimitiveField from '../ArrayOfPrimitiveField';
 import type { FormField } from '../../../../utils/formModel/types';
+import type { FormModel } from '../../../../utils/formModel/FormModel';
 import type { JSONSchema } from '../../../../types/schema';
 
 // Helper function to create mock FormField
@@ -28,6 +29,26 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
   };
 };
 
+// Mock FormModel for stories
+const createMockFormModel = (): FormModel => ({
+  addValue: (path: string, value: unknown) => {
+    console.log('FormModel addValue:', { path, value });
+  },
+  deleteValue: (path: string) => {
+    console.log('FormModel deleteValue:', { path });
+  },
+  setValue: (path: string, value: unknown) => {
+    console.log('FormModel setValue:', { path, value });
+  },
+  validate: () => {
+    console.log('FormModel validate called');
+  },
+  getField: (path: string) => {
+    console.log('FormModel getField:', { path });
+    return undefined;
+  }
+} as unknown as FormModel);
+
 const meta: Meta<typeof ArrayOfPrimitiveField> = {
   title: 'Components/Fields/ArrayOfPrimitiveField',
   component: ArrayOfPrimitiveField,
@@ -49,9 +70,9 @@ const meta: Meta<typeof ArrayOfPrimitiveField> = {
       description: 'Callback function called when field value changes',
       action: 'onChange',
     },
-    domContextId: {
-      description: 'Optional DOM context ID for field identification',
-      control: { type: 'text' },
+    formModel: {
+      description: 'The form model instance',
+      control: false,
     },
   },
 };
@@ -63,6 +84,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     field: createMockFormField(),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -76,6 +98,7 @@ export const WithItems: Story = {
       value: ['Item 1', 'Item 2', 'Item 3'],
       pristineValue: ['Item 1', 'Item 2', 'Item 3'],
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -94,6 +117,7 @@ export const Required: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -115,6 +139,7 @@ export const WithErrors: Story = {
         minItems: 1,
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -137,6 +162,7 @@ export const Dirty: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -156,6 +182,7 @@ export const ReadOnly: Story = {
         readOnly: true,
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -173,6 +200,7 @@ export const NoDescription: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -192,7 +220,7 @@ export const WithDomContext: Story = {
         items: { type: 'string' },
       },
     }),
-    domContextId: 'userForm',
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -222,7 +250,7 @@ export const Complex: Story = {
       hasChanges: true,
       lastModified: new Date(),
     }),
-    domContextId: 'projectForm',
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -249,6 +277,7 @@ export const MultipleErrors: Story = {
         minItems: 2,
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -268,6 +297,7 @@ export const NestedPath: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -287,6 +317,7 @@ export const Tags: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -306,6 +337,7 @@ export const EmailList: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -325,6 +357,7 @@ export const EmptyArray: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -344,6 +377,7 @@ export const SingleItem: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -366,6 +400,7 @@ export const ManyItems: Story = {
         items: { type: 'string' },
       },
     }),
+    formModel: createMockFormModel(),
     onChange: (value: string[], triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },

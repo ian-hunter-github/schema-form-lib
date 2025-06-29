@@ -3,6 +3,42 @@ import StringField from './StringField';
 import type { FormField } from '../../../utils/formModel/types';
 import type { JSONSchema } from '../../../types/schema';
 
+// Mock FormModel for demo
+const createMockFormModel = () => ({
+  fields: new Map(),
+  listeners: new Set(),
+  buildForm: () => {},
+  getField: () => undefined,
+  getFields: () => new Map(),
+  setValue: () => {},
+  validate: () => true,
+  addValue: () => '',
+  deleteValue: () => 0,
+  addListener: () => {},
+  removeListener: () => {},
+  notifyListeners: () => {},
+  moveArrayItem: () => {},
+  insertArrayItem: () => '',
+  getArrayLength: () => 0,
+  resetForm: () => {},
+  clearErrors: () => {},
+  revertField: () => true,
+  revertBranch: () => true,
+  revertAll: () => {},
+  hasUnsavedChanges: () => false,
+  getChangedFields: () => [],
+  getChangedPaths: () => [],
+  createSnapshot: () => new Map(),
+  restoreFromSnapshot: () => {},
+  setPristineValues: () => {},
+  getChangeStatistics: () => ({
+    totalFields: 0,
+    changedFields: 0,
+    dirtyFields: 0,
+    hasUnsavedChanges: false,
+  }),
+});
+
 // Helper function to create mock FormField
 const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
   const defaultSchema: JSONSchema = {
@@ -28,6 +64,7 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
 };
 
 const StringFieldDemo: React.FC = () => {
+  const mockFormModel = createMockFormModel() as any;
   const [basicField, setBasicField] = useState(createMockFormField());
   const [requiredField, setRequiredField] = useState(createMockFormField({
     path: 'requiredField',
@@ -103,6 +140,7 @@ const StringFieldDemo: React.FC = () => {
           onChange={(value, triggerValidation) => 
             handleFieldChange(setBasicField, value, triggerValidation)
           }
+          formModel={mockFormModel}
         />
       </div>
 
@@ -113,6 +151,7 @@ const StringFieldDemo: React.FC = () => {
           onChange={(value, triggerValidation) => 
             handleFieldChange(setRequiredField, value, triggerValidation)
           }
+          formModel={mockFormModel}
         />
       </div>
 
@@ -123,6 +162,7 @@ const StringFieldDemo: React.FC = () => {
           onChange={(value, triggerValidation) => 
             handleFieldChange(setErrorField, value, triggerValidation)
           }
+          formModel={mockFormModel}
         />
       </div>
 
@@ -133,6 +173,7 @@ const StringFieldDemo: React.FC = () => {
           onChange={(value, triggerValidation) => 
             handleFieldChange(setDirtyField, value, triggerValidation)
           }
+          formModel={mockFormModel}
         />
       </div>
 
@@ -143,6 +184,7 @@ const StringFieldDemo: React.FC = () => {
           onChange={(value, triggerValidation) => 
             console.log('Read-only field change attempted:', { value, triggerValidation })
           }
+          formModel={mockFormModel}
         />
       </div>
 
@@ -160,6 +202,7 @@ const StringFieldDemo: React.FC = () => {
           onChange={(value, triggerValidation) => 
             console.log('Nested path field changed:', { value, triggerValidation })
           }
+          formModel={mockFormModel}
         />
       </div>
 

@@ -1,6 +1,5 @@
 import React from "react";
 import type { JSONSchema, JSONSchemaProperties, JSONValue } from "../types/schema";
-import type { FormField } from "../utils/formModel/types";
 import { useFormModel, useUnsavedChangesWarning } from "../hooks/useFormModel";
 import FieldRenderer from "./FieldRenderer";
 
@@ -27,7 +26,6 @@ const UnifiedFormRenderer: React.FC<UnifiedFormRendererProps> = ({
     setValue,
     validate,
     revertField,
-    revertBranch,
     revertAll,
     hasUnsavedChanges,
     getChangedPaths,
@@ -40,9 +38,7 @@ const UnifiedFormRenderer: React.FC<UnifiedFormRendererProps> = ({
   });
 
   // Enable browser warning for unsaved changes
-  if (showUnsavedWarning) {
-    useUnsavedChangesWarning(hasUnsavedChanges);
-  }
+  useUnsavedChangesWarning(showUnsavedWarning ? hasUnsavedChanges : false);
 
   const handleFieldChange = (path: string, value: JSONValue, shouldValidate?: boolean) => {
     setValue(path, value, shouldValidate);

@@ -1,9 +1,9 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import StringField from '../StringField';
 import type { FormField } from '../../../../utils/formModel/types';
 import type { JSONSchema } from '../../../../types/schema';
+import { FormModel } from '../../../../utils/formModel/FormModel';
 
 // Helper function to create a mock FormField
 const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
@@ -29,17 +29,35 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
   };
 };
 
+// Helper function to create a mock FormModel
+const createMockFormModel = (): FormModel => {
+  const mockSchema: JSONSchema = {
+    type: 'object',
+    properties: {
+      testField: {
+        type: 'string',
+        title: 'Test Field',
+        description: 'A test string field',
+      },
+    },
+  };
+  
+  return new FormModel(mockSchema);
+};
+
 describe('StringField', () => {
   const mockOnChange = vi.fn();
+  let mockFormModel: FormModel;
 
   beforeEach(() => {
     mockOnChange.mockClear();
+    mockFormModel = createMockFormModel();
   });
 
   it('renders with basic props', () => {
     const field = createMockFormField();
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField')).toBeInTheDocument();
     expect(screen.getByTestId('testField-label')).toBeInTheDocument();
@@ -49,7 +67,7 @@ describe('StringField', () => {
   it('displays the field value', () => {
     const field = createMockFormField({ value: 'Hello World' });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField') as HTMLInputElement;
     expect(input.value).toBe('Hello World');
@@ -58,7 +76,7 @@ describe('StringField', () => {
   it('handles empty/null values gracefully', () => {
     const field = createMockFormField({ value: null });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField') as HTMLInputElement;
     expect(input.value).toBe('');
@@ -67,7 +85,7 @@ describe('StringField', () => {
   it('calls onChange when input value changes', () => {
     const field = createMockFormField();
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField');
     fireEvent.change(input, { target: { value: 'new value' } });
@@ -78,7 +96,7 @@ describe('StringField', () => {
   it('calls onChange with validation trigger on blur', () => {
     const field = createMockFormField();
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField');
     fireEvent.blur(input, { target: { value: 'blurred value' } });
@@ -91,7 +109,7 @@ describe('StringField', () => {
       schema: { type: 'string', title: 'Custom Title' }
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByText('Custom Title')).toBeInTheDocument();
   });
@@ -102,7 +120,7 @@ describe('StringField', () => {
       schema: { type: 'string' }
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByText('FirstName')).toBeInTheDocument();
   });
@@ -115,7 +133,7 @@ describe('StringField', () => {
       }
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField-description')).toBeInTheDocument();
     expect(screen.getByText('Enter your full name here')).toBeInTheDocument();
@@ -126,7 +144,7 @@ describe('StringField', () => {
       schema: { type: 'string' }
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.queryByTestId('testField-description')).not.toBeInTheDocument();
   });
@@ -134,20 +152,24 @@ describe('StringField', () => {
   it('shows required indicator when field is required', () => {
     const field = createMockFormField({ required: true });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const label = screen.getByTestId('testField-label');
-    expect(label).toHaveClass('label required');
+    expect(label).toBeInTheDocument();
+    // Check for the required asterisk in the label text
+    expect(label).toHaveTextContent('Test Field *');
   });
 
   it('does not show required indicator when field is not required', () => {
     const field = createMockFormField({ required: false });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const label = screen.getByTestId('testField-label');
-    expect(label).toHaveClass('label');
-    expect(label).not.toHaveClass('required');
+    expect(label).toBeInTheDocument();
+    // Check that there's no asterisk in the label text
+    expect(label).toHaveTextContent('Test Field');
+    expect(label).not.toHaveTextContent('*');
   });
 
   it('displays error message when field has errors', () => {
@@ -156,7 +178,7 @@ describe('StringField', () => {
       errorCount: 2
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField-error')).toBeInTheDocument();
     expect(screen.getByText('This field is required')).toBeInTheDocument();
@@ -165,7 +187,7 @@ describe('StringField', () => {
   it('does not display error message when field has no errors', () => {
     const field = createMockFormField({ errors: [] });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.queryByTestId('testField-error')).not.toBeInTheDocument();
   });
@@ -173,7 +195,7 @@ describe('StringField', () => {
   it('shows dirty indicator when field is dirty', () => {
     const field = createMockFormField({ dirty: true });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField-dirty-indicator')).toBeInTheDocument();
     expect(screen.getByText('Modified')).toBeInTheDocument();
@@ -182,7 +204,7 @@ describe('StringField', () => {
   it('does not show dirty indicator when field is not dirty', () => {
     const field = createMockFormField({ dirty: false });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.queryByTestId('testField-dirty-indicator')).not.toBeInTheDocument();
   });
@@ -192,7 +214,7 @@ describe('StringField', () => {
       schema: { type: 'string', readOnly: true }
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField') as HTMLInputElement;
     expect(input.disabled).toBe(true);
@@ -203,7 +225,7 @@ describe('StringField', () => {
       schema: { type: 'string', readOnly: false }
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField') as HTMLInputElement;
     expect(input.disabled).toBe(false);
@@ -212,7 +234,7 @@ describe('StringField', () => {
   it('uses field path as DOM ID', () => {
     const field = createMockFormField();
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('testField')).toBeInTheDocument();
     expect(screen.getByTestId('testField-label')).toBeInTheDocument();
@@ -224,7 +246,7 @@ describe('StringField', () => {
       schema: { type: 'string' }
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     expect(screen.getByTestId('user.profile.firstName')).toBeInTheDocument();
     expect(screen.getByText('FirstName')).toBeInTheDocument();
@@ -250,7 +272,7 @@ describe('StringField', () => {
       lastModified: new Date()
     });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     // Check all elements are present
     expect(screen.getByTestId('user.email')).toBeInTheDocument();
@@ -261,13 +283,15 @@ describe('StringField', () => {
     expect(screen.getByText('Modified')).toBeInTheDocument();
     
     const label = screen.getByTestId('user.email-label');
-    expect(label).toHaveClass('label required');
+    expect(label).toBeInTheDocument();
+    // Check for the required asterisk in the label text
+    expect(label).toHaveTextContent('Email Address *');
   });
 
   it('handles interaction correctly', () => {
     const field = createMockFormField({ value: 'initial' });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField');
     
@@ -285,20 +309,23 @@ describe('StringField', () => {
   it('applies yellow background styling when field has changes', () => {
     const field = createMockFormField({ hasChanges: true });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField') as HTMLInputElement;
-    expect(input.style.backgroundColor).toBe('rgb(255, 243, 205)'); // #fff3cd in rgb
-    expect(input.style.borderColor).toBe('rgb(255, 193, 7)'); // #ffc107 in rgb
+    // Check that the input has the dirty styling applied via computed styles
+    const computedStyles = window.getComputedStyle(input);
+    expect(computedStyles.backgroundColor).toBe('rgb(255, 243, 205)'); // #fff3cd in rgb
+    expect(computedStyles.borderColor).toBe('rgb(255, 193, 7)'); // #ffc107 in rgb
   });
 
   it('does not apply yellow background styling when field has no changes', () => {
     const field = createMockFormField({ hasChanges: false });
     
-    render(<StringField field={field} onChange={mockOnChange} />);
+    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField') as HTMLInputElement;
-    expect(input.style.backgroundColor).toBe('');
-    expect(input.style.borderColor).toBe('');
+    // The theme system applies a default white background, so we check it's not the dirty yellow color
+    expect(input.style.backgroundColor).not.toBe('rgb(255, 243, 205)'); // Not the dirty yellow
+    expect(input.style.borderColor).not.toBe('rgb(255, 193, 7)'); // Not the dirty border
   });
 });

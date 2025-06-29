@@ -48,10 +48,7 @@ const meta: Meta<typeof NumberField> = {
       description: 'Callback function called when field value changes',
       action: 'onChange',
     },
-    domContextId: {
-      description: 'Optional DOM context ID for field identification',
-      control: { type: 'text' },
-    },
+
   },
 };
 
@@ -223,7 +220,6 @@ export const WithDomContext: Story = {
         maximum: 150,
       },
     }),
-    domContextId: 'userForm',
     onChange: (value: number, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -252,7 +248,6 @@ export const Complex: Story = {
       hasChanges: true,
       lastModified: new Date(),
     }),
-    domContextId: 'productForm',
     onChange: (value: number, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
@@ -318,7 +313,6 @@ export const Currency: Story = {
         minimum: 0,
       },
     }),
-    domContextId: 'orderForm',
     onChange: (value: number, triggerValidation?: boolean) => {
       console.log('Field changed:', { value, triggerValidation });
     },
