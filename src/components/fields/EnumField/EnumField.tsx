@@ -4,13 +4,13 @@ import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import { useLayoutContext } from '../../../contexts/LayoutContext';
 import {
-  SimpleFieldContainer,
-  SimpleFieldSelect,
-  SimpleFieldLabel,
-  SimpleFieldDescription,
-  SimpleFieldError,
-  SimpleFieldHelper,
-} from '../../../theme/simpleStyled';
+  StyledFieldContainer,
+  StyledFieldSelect,
+  StyledFieldLabel,
+  StyledFieldDescription,
+  StyledFieldError,
+  StyledFieldHelper,
+} from '../../../theme/styled';
 
 export interface EnumFieldProps {
   field: FormField;
@@ -44,12 +44,12 @@ const EnumField: React.FC<EnumFieldProps> = ({ field, onChange }) => {
   const isActive = isFloating && hasValue;
 
   return (
-    <SimpleFieldContainer
+    <StyledFieldContainer
       hasError={hasErrors}
       isDirty={field.hasChanges}
-      isFloating={isFloating}
+      layout={isFloating ? 'floating' : 'default'}
     >
-      <SimpleFieldSelect
+      <StyledFieldSelect
         id={fieldId}
         data-testid={fieldId}
         multiple={isMultiple}
@@ -71,7 +71,7 @@ const EnumField: React.FC<EnumFieldProps> = ({ field, onChange }) => {
         }}
         hasError={hasErrors}
         isDirty={field.hasChanges}
-        isFloating={isFloating}
+        variant={isFloating ? 'floating' : 'default'}
         style={{ minHeight: isMultiple ? '80px' : 'auto' }}
       >
         {!isMultiple && (
@@ -85,47 +85,47 @@ const EnumField: React.FC<EnumFieldProps> = ({ field, onChange }) => {
             </option>
           );
         })}
-      </SimpleFieldSelect>
+      </StyledFieldSelect>
       
-      <SimpleFieldLabel
+      <StyledFieldLabel
         htmlFor={fieldId}
         id={`${fieldId}-label`}
         data-testid={`${fieldId}-label`}
         required={field.required}
-        isFloating={isFloating}
-        isActive={isActive}
+        floating={isFloating}
+        active={isActive}
         hasError={hasErrors}
       >
         {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-      </SimpleFieldLabel>
+      </StyledFieldLabel>
 
       {field.schema.description && (
-        <SimpleFieldDescription
+        <StyledFieldDescription
           id={`${fieldId}-description`}
           data-testid={`${fieldId}-description`}
         >
           {field.schema.description}
-        </SimpleFieldDescription>
+        </StyledFieldDescription>
       )}
       
       {hasErrors && (
-        <SimpleFieldError
+        <StyledFieldError
           id={`${fieldId}-error`}
           data-testid={`${fieldId}-error`}
         >
           {errorMessage}
-        </SimpleFieldError>
+        </StyledFieldError>
       )}
       
       {field.dirty && (
-        <SimpleFieldHelper
+        <StyledFieldHelper
           id={`${fieldId}-dirty-indicator`}
           data-testid={`${fieldId}-dirty-indicator`}
         >
           Modified
-        </SimpleFieldHelper>
+        </StyledFieldHelper>
       )}
-    </SimpleFieldContainer>
+    </StyledFieldContainer>
   );
 };
 

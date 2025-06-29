@@ -16,6 +16,21 @@ export const defaultTheme = {
   overrides: {
     // Can be used to override specific token values for this theme
   },
+  layout: {
+    form: {
+      gap: '1.5rem',
+      maxWidth: '800px',
+      padding: '1rem'
+    },
+    field: {
+      gap: '0.5rem',
+      direction: 'column'
+    },
+    section: {
+      gap: '1rem',
+      padding: '0.5rem'
+    }
+  },
 } as const;
 
 export type Theme = typeof defaultTheme;

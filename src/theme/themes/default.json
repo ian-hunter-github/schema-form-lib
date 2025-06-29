@@ -1,0 +1,219 @@
+{
+  "$schema": "../schema/theme.schema.json",
+  "name": "default",
+  "description": "Default theme configuration in JSON format",
+  "colors": {
+    "primary": {
+      "50": "#eff6ff",
+      "100": "#dbeafe",
+      "200": "#bfdbfe",
+      "300": "#93c5fd",
+      "400": "#60a5fa",
+      "500": "#3b82f6",
+      "600": "#2563eb",
+      "700": "#1d4ed8",
+      "800": "#1e40af",
+      "900": "#1e3a8a"
+    },
+    "gray": {
+      "50": "#f9fafb",
+      "100": "#f3f4f6",
+      "200": "#e5e7eb",
+      "300": "#d1d5db",
+      "400": "#9ca3af",
+      "500": "#6b7280",
+      "600": "#4b5563",
+      "700": "#374151",
+      "800": "#1f2937",
+      "900": "#111827"
+    },
+    "semantic": {
+      "error": "#dc2626",
+      "errorLight": "#fef2f2",
+      "errorBorder": "#fecaca",
+      "warning": "#d97706",
+      "warningLight": "#fffbeb",
+      "warningBorder": "#fed7aa",
+      "success": "#059669",
+      "successLight": "#ecfdf5",
+      "successBorder": "#a7f3d0",
+      "info": "#0284c7",
+      "infoLight": "#f0f9ff",
+      "infoBorder": "#7dd3fc"
+    },
+    "state": {
+      "hover": "#f3f4f6",
+      "active": "#e5e7eb",
+      "focus": "#3b82f6",
+      "disabled": "#f9fafb",
+      "dirty": "#fff3cd",
+      "dirtyBorder": "#ffc107",
+      "changed": "#fff3cd",
+      "changedBorder": "#ffc107"
+    },
+    "background": {
+      "primary": "#ffffff",
+      "secondary": "#f9fafb",
+      "tertiary": "#f3f4f6",
+      "overlay": "rgba(0, 0, 0, 0.5)"
+    },
+    "text": {
+      "primary": "#111827",
+      "secondary": "#6b7280",
+      "tertiary": "#9ca3af",
+      "inverse": "#ffffff",
+      "link": "#3b82f6",
+      "linkHover": "#1d4ed8"
+    },
+    "border": {
+      "primary": "#e5e7eb",
+      "secondary": "#d1d5db",
+      "focus": "#3b82f6",
+      "error": "#fecaca",
+      "warning": "#fed7aa",
+      "success": "#a7f3d0"
+    }
+  },
+  "spacing": {
+    "xs": "0.25rem",
+    "sm": "0.5rem",
+    "md": "1rem",
+    "lg": "1.5rem",
+    "xl": "2rem",
+    "button": {
+      "padding": "0.5rem 1rem",
+      "gap": "0.5rem"
+    },
+    "array": {
+      "header": "0.5rem",
+      "content": "0.5rem",
+      "item": "0.25rem"
+    },
+    "form": {
+      "section": "1.5rem"
+    },
+    "field": {
+      "gap": "0.5rem"
+    }
+  },
+  "typography": {
+    "fontSize": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem"
+    },
+    "fontWeight": {
+      "light": 300,
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "lineHeight": {
+      "none": 1,
+      "tight": 1.25,
+      "normal": 1.5,
+      "loose": 1.75
+    },
+    "field": {
+      "label": {
+        "fontSize": "0.875rem",
+        "fontWeight": 500,
+        "lineHeight": 1.25
+      },
+      "input": {
+        "fontSize": "1rem",
+        "fontWeight": 400,
+        "lineHeight": 1.5
+      },
+      "description": {
+        "fontSize": "0.75rem",
+        "fontWeight": 400,
+        "lineHeight": 1.25
+      },
+      "error": {
+        "fontSize": "0.75rem",
+        "fontWeight": 500,
+        "lineHeight": 1.25
+      },
+      "helper": {
+        "fontSize": "0.75rem",
+        "fontWeight": 400,
+        "lineHeight": 1.25
+      }
+    },
+    "button": {
+      "fontSize": "1rem",
+      "fontWeight": 500,
+      "lineHeight": 1.5
+    }
+  },
+  "shadows": {
+    "field": {
+      "default": "0 0 0 1px #e5e7eb",
+      "focus": "0 0 0 2px #3b82f6",
+      "error": "0 0 0 2px #fecaca"
+    },
+    "button": {
+      "default": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      "hover": "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+      "active": "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+    },
+    "card": {
+      "default": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      "hover": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+    }
+  },
+  "components": {
+    "density": {
+      "compact": {
+        "components": {
+          "fieldContainer": {
+            "marginBottom": "0.5rem"
+          },
+          "fieldInput": {
+            "padding": "0.25rem 0.5rem"
+          }
+        }
+      },
+      "normal": {
+        "components": {
+          "fieldContainer": {
+            "marginBottom": "1rem"
+          },
+          "fieldInput": {
+            "padding": "0.5rem 0.75rem"
+          }
+        }
+      },
+      "comfortable": {
+        "components": {
+          "fieldContainer": {
+            "marginBottom": "1.5rem"
+          },
+          "fieldInput": {
+            "padding": "0.75rem 1rem"
+          }
+        }
+      }
+    }
+  },
+  "overrides": {},
+  "layout": {
+    "form": {
+      "gap": "1.5rem",
+      "maxWidth": "800px",
+      "padding": "1rem"
+    },
+    "field": {
+      "gap": "0.5rem",
+      "direction": "column"
+    },
+    "section": {
+      "gap": "1rem",
+      "padding": "0.5rem"
+    }
+  }
+}

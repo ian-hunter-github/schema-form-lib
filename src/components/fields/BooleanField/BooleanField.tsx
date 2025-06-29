@@ -4,17 +4,17 @@ import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import { useLayoutContext } from '../../../contexts/LayoutContext';
 import {
-  SimpleFieldContainer,
-  SimpleFieldDescription,
-  SimpleFieldError,
-  SimpleFieldHelper,
-  SimpleCheckboxWrapper,
-  SimpleCheckboxInput,
-  SimpleCheckboxLabel,
-  SimpleGrid12BooleanContainer,
-  SimpleGrid12BooleanCheckbox,
-  SimpleGrid12BooleanLabel,
-} from '../../../theme/simpleStyled';
+  StyledFieldContainer,
+  StyledFieldDescription,
+  StyledFieldError,
+  StyledFieldHelper,
+  StyledCheckboxWrapper,
+  StyledCheckboxInput,
+  StyledCheckboxLabel,
+  StyledGrid12BooleanContainer,
+  StyledGrid12BooleanCheckbox,
+  StyledGrid12BooleanLabel,
+} from '../../../theme/styled';
 
 export interface BooleanFieldProps {
   field: FormField;
@@ -36,9 +36,9 @@ const BooleanField: React.FC<BooleanFieldProps> = ({ field, onChange }) => {
   // Grid-12 layout with special boolean styling
   if (isGrid12) {
     return (
-      <SimpleFieldContainer>
-        <SimpleGrid12BooleanContainer isDirty={field.hasChanges}>
-          <SimpleGrid12BooleanCheckbox
+      <StyledFieldContainer>
+        <StyledGrid12BooleanContainer isDirty={field.hasChanges}>
+          <StyledGrid12BooleanCheckbox
             id={fieldId}
             data-testid={fieldId}
             type="checkbox"
@@ -47,51 +47,51 @@ const BooleanField: React.FC<BooleanFieldProps> = ({ field, onChange }) => {
             onChange={(e) => onChange(e.target.checked, false)}
             onBlur={(e) => onChange(e.target.checked, true)}
           />
-          <SimpleGrid12BooleanLabel 
+          <StyledGrid12BooleanLabel 
             htmlFor={fieldId} 
             id={`${fieldId}-label`}
             data-testid={`${fieldId}-label`}
             required={field.required}
           >
             {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-          </SimpleGrid12BooleanLabel>
-        </SimpleGrid12BooleanContainer>
+          </StyledGrid12BooleanLabel>
+        </StyledGrid12BooleanContainer>
 
         {field.schema.description && (
-          <SimpleFieldDescription 
+          <StyledFieldDescription 
             id={`${fieldId}-description`} 
             data-testid={`${fieldId}-description`}
           >
             {field.schema.description}
-          </SimpleFieldDescription>
+          </StyledFieldDescription>
         )}
         
         {hasErrors && (
-          <SimpleFieldError 
+          <StyledFieldError 
             id={`${fieldId}-error`} 
             data-testid={`${fieldId}-error`}
           >
             {errorMessage}
-          </SimpleFieldError>
+          </StyledFieldError>
         )}
         
         {field.dirty && (
-          <SimpleFieldHelper 
+          <StyledFieldHelper 
             id={`${fieldId}-dirty-indicator`} 
             data-testid={`${fieldId}-dirty-indicator`}
           >
             Modified
-          </SimpleFieldHelper>
+          </StyledFieldHelper>
         )}
-      </SimpleFieldContainer>
+      </StyledFieldContainer>
     );
   }
 
   // Default layout (non-grid-12)
   return (
-    <SimpleFieldContainer>
-      <SimpleCheckboxWrapper isDirty={field.hasChanges}>
-        <SimpleCheckboxInput
+    <StyledFieldContainer>
+      <StyledCheckboxWrapper isDirty={field.hasChanges}>
+        <StyledCheckboxInput
           id={fieldId}
           data-testid={fieldId}
           type="checkbox"
@@ -100,43 +100,43 @@ const BooleanField: React.FC<BooleanFieldProps> = ({ field, onChange }) => {
           onChange={(e) => onChange(e.target.checked, false)}
           onBlur={(e) => onChange(e.target.checked, true)}
         />
-        <SimpleCheckboxLabel 
+        <StyledCheckboxLabel 
           htmlFor={fieldId} 
           id={`${fieldId}-label`}
           data-testid={`${fieldId}-label`}
           required={field.required}
         >
           {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-        </SimpleCheckboxLabel>
-      </SimpleCheckboxWrapper>
+        </StyledCheckboxLabel>
+      </StyledCheckboxWrapper>
 
       {field.schema.description && (
-        <SimpleFieldDescription 
+        <StyledFieldDescription 
           id={`${fieldId}-description`} 
           data-testid={`${fieldId}-description`}
         >
           {field.schema.description}
-        </SimpleFieldDescription>
+        </StyledFieldDescription>
       )}
       
       {hasErrors && (
-        <SimpleFieldError 
+        <StyledFieldError 
           id={`${fieldId}-error`} 
           data-testid={`${fieldId}-error`}
         >
           {errorMessage}
-        </SimpleFieldError>
+        </StyledFieldError>
       )}
       
       {field.dirty && (
-        <SimpleFieldHelper 
+        <StyledFieldHelper 
           id={`${fieldId}-dirty-indicator`} 
           data-testid={`${fieldId}-dirty-indicator`}
         >
           Modified
-        </SimpleFieldHelper>
+        </StyledFieldHelper>
       )}
-    </SimpleFieldContainer>
+    </StyledFieldContainer>
   );
 };
 

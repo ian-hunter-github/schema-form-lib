@@ -33,6 +33,60 @@ export const StyledFieldContainer = styled.div<{
 `;
 
 // Enhanced field input with variant support
+export const StyledFieldSelect = styled.select<{
+  hasError?: boolean;
+  isDirty?: boolean;
+  variant?: 'default' | 'floating';
+}>`
+  width: 100%;
+  border: 1px solid ${props => getTheme(props).colors.border.primary};
+  border-radius: ${props => props.variant === 'floating' ? '4px' : '0.375rem'};
+  background-color: ${props => props.variant === 'floating' ? 'transparent' : getTheme(props).colors.background.primary};
+  color: ${props => getTheme(props).colors.text.primary};
+  transition: all 0.2s ease;
+  padding: ${props => props.variant === 'floating' ? '12px 8px 4px 8px' : '8px'};
+  font-size: ${props => props.variant === 'floating' ? '16px' : getTheme(props).typography.field.input.fontSize};
+  font-weight: ${props => getTheme(props).typography.field.input.fontWeight};
+  line-height: ${props => getTheme(props).typography.field.input.lineHeight};
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 1rem;
+
+  &:hover {
+    border-color: ${props => getTheme(props).colors.primary[500]};
+  }
+
+  &:focus {
+    outline: none;
+    border-color: ${props => getTheme(props).colors.primary[500]};
+    box-shadow: ${props => props.variant === 'floating' 
+      ? `0 0 0 2px ${getTheme(props).colors.primary[500]}40`
+      : getTheme(props).shadows.field.focus
+    };
+  }
+
+  &:disabled {
+    background-color: ${props => getTheme(props).colors.state.disabled};
+    color: ${props => getTheme(props).colors.text.tertiary};
+    cursor: not-allowed;
+  }
+
+  ${props => props.hasError && `
+    border-color: ${getTheme(props).colors.semantic.error};
+    box-shadow: ${props.variant === 'floating' 
+      ? `0 0 0 2px ${getTheme(props).colors.semantic.error}40`
+      : getTheme(props).shadows.field.error
+    };
+  `}
+
+  ${props => props.isDirty && `
+    background-color: ${getTheme(props).colors.state.dirty};
+    border-color: ${getTheme(props).colors.state.dirtyBorder};
+  `}
+`;
+
 export const StyledFieldInput = styled.input<{ 
   hasError?: boolean; 
   isDirty?: boolean;
@@ -251,7 +305,7 @@ export const StyledArrayContainer = styled.div`
   margin-bottom: ${props => getTheme(props).spacing.form.section};
 `;
 
-export const StyledArrayItem = styled.div`
+export const StyledArrayItem = styled.div<{ isDirty?: boolean }>`
   margin-bottom: ${props => getTheme(props).spacing.array.item};
   border: 1px solid ${props => getTheme(props).colors.border.primary};
   border-radius: 0.5rem;
@@ -263,7 +317,7 @@ export const StyledArrayItem = styled.div`
   }
 `;
 
-export const StyledArrayHeader = styled.div`
+export const StyledArrayHeader = styled.div<{ hasBottomBorder?: boolean }>`
   padding: ${props => getTheme(props).spacing.array.header};
   border-bottom: 1px solid ${props => getTheme(props).colors.border.primary};
   background-color: ${props => getTheme(props).colors.background.secondary};
@@ -282,11 +336,23 @@ export const StyledArrayContent = styled.div`
   padding: ${props => getTheme(props).spacing.array.content};
 `;
 
-export const StyledCheckboxWrapper = styled.div`
+export const StyledCheckboxWrapper = styled.div<{ isDirty?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${props => getTheme(props).spacing.field.gap};
   padding: ${props => getTheme(props).spacing.sm} 0;
+  
+  ${props => props.isDirty && `
+    &::before {
+      content: "";
+      position: absolute;
+      left: -4px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: ${getTheme(props).colors.state.dirtyBorder};
+    }
+  `}
 `;
 
 export const StyledCheckboxInput = styled.input`
@@ -301,6 +367,51 @@ export const StyledCheckboxLabel = styled.label<{ required?: boolean }>`
   font-weight: ${props => getTheme(props).typography.field.label.fontWeight};
   color: ${props => getTheme(props).colors.text.primary};
   cursor: pointer;
+  
+  ${props => props.required && `
+    &::after {
+      content: " *";
+      color: ${getTheme(props).colors.semantic.error};
+    }
+  `}
+`;
+
+// Grid-12 specific boolean field components
+export const StyledGrid12BooleanContainer = styled.div<{ isDirty?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: ${props => getTheme(props).spacing.md};
+  padding: ${props => getTheme(props).spacing.sm} 0;
+  position: relative;
+  
+  ${props => props.isDirty && `
+    &::before {
+      content: "";
+      position: absolute;
+      left: -4px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: ${getTheme(props).colors.state.dirtyBorder};
+    }
+  `}
+`;
+
+export const StyledGrid12BooleanCheckbox = styled.input`
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: ${props => getTheme(props).colors.primary[500]};
+  position: relative;
+  top: -1px;
+`;
+
+export const StyledGrid12BooleanLabel = styled.label<{ required?: boolean }>`
+  font-size: ${props => getTheme(props).typography.field.label.fontSize};
+  font-weight: ${props => getTheme(props).typography.field.label.fontWeight};
+  color: ${props => getTheme(props).colors.text.primary};
+  cursor: pointer;
+  flex-grow: 1;
   
   ${props => props.required && `
     &::after {

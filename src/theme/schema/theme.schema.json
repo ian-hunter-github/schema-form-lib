@@ -1,0 +1,392 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Theme Configuration",
+  "description": "JSON schema for theme configuration",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Theme name"
+    },
+    "colors": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "semantic": {
+          "type": "object",
+          "properties": {
+            "error": { "type": "string" },
+            "warning": { "type": "string" },
+            "success": { "type": "string" }
+          },
+          "required": ["error"]
+        },
+        "text": {
+          "type": "object",
+          "properties": {
+            "primary": { "type": "string" },
+            "secondary": { "type": "string" },
+            "tertiary": { "type": "string" },
+            "inverse": { "type": "string" }
+          },
+          "required": ["primary", "secondary"]
+        },
+        "border": {
+          "type": "object",
+          "properties": {
+            "primary": { "type": "string" },
+            "secondary": { "type": "string" }
+          },
+          "required": ["primary"]
+        },
+        "background": {
+          "type": "object",
+          "properties": {
+            "primary": { "type": "string" },
+            "secondary": { "type": "string" }
+          },
+          "required": ["primary"]
+        },
+        "state": {
+          "type": "object",
+          "properties": {
+            "hover": { "type": "string" },
+            "active": { "type": "string" },
+            "disabled": { "type": "string" },
+            "dirty": { "type": "string" },
+            "dirtyBorder": { "type": "string" }
+          }
+        }
+      },
+      "required": ["primary", "semantic", "text", "border", "background"]
+    },
+    "spacing": {
+      "type": "object",
+      "properties": {
+        "xs": { "type": "string" },
+        "sm": { "type": "string" },
+        "md": { "type": "string" },
+        "lg": { "type": "string" },
+        "xl": { "type": "string" },
+        "button": {
+          "type": "object",
+          "properties": {
+            "padding": { "type": "string" },
+            "gap": { "type": "string" }
+          }
+        },
+        "array": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "content": { "type": "string" },
+            "item": { "type": "string" }
+          }
+        },
+        "form": {
+          "type": "object",
+          "properties": {
+            "section": { "type": "string" }
+          }
+        },
+        "field": {
+          "type": "object",
+          "properties": {
+            "gap": { "type": "string" }
+          }
+        }
+      },
+      "required": ["xs", "sm", "md", "lg", "xl"]
+    },
+    "typography": {
+      "type": "object",
+      "properties": {
+        "fontSize": {
+          "type": "object",
+          "properties": {
+            "xs": { "type": "string" },
+            "sm": { "type": "string" },
+            "base": { "type": "string" },
+            "lg": { "type": "string" },
+            "xl": { "type": "string" }
+          }
+        },
+        "fontWeight": {
+          "type": "object",
+          "properties": {
+            "light": { 
+                "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                ]
+            },
+            "normal": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            },
+            "medium": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            },
+            "semibold": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            },
+            "bold": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            }
+          },
+          "required": []
+        },
+        "lineHeight": {
+          "type": "object",
+          "properties": {
+            "none": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            },
+            "tight": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            },
+            "normal": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            },
+            "loose": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            }
+          }
+        },
+        "field": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "object",
+              "properties": {
+                "fontSize": { "type": "string" },
+                "fontWeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                },
+                "lineHeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                }
+              }
+            },
+            "input": {
+              "type": "object",
+              "properties": {
+                "fontSize": { "type": "string" },
+                "fontWeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                },
+                "lineHeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                }
+              }
+            },
+            "description": {
+              "type": "object",
+              "properties": {
+                "fontSize": { "type": "string" },
+                "fontWeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                },
+                "lineHeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                }
+              }
+            },
+            "error": {
+              "type": "object",
+              "properties": {
+                "fontSize": { "type": "string" },
+                "fontWeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                },
+                "lineHeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                }
+              }
+            },
+            "helper": {
+              "type": "object",
+              "properties": {
+                "fontSize": { "type": "string" },
+                "fontWeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                },
+                "lineHeight": { 
+                  "oneOf": [
+                    { "type": "number" },
+                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "button": {
+          "type": "object",
+          "properties": {
+            "fontSize": { "type": "string" },
+            "fontWeight": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            },
+            "lineHeight": { 
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
+              ]
+            }
+          }
+        }
+      },
+      "required": ["fontSize", "fontWeight", "lineHeight"]
+    },
+    "shadows": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "object",
+          "properties": {
+            "default": { "type": "string" },
+            "focus": { "type": "string" },
+            "error": { "type": "string" }
+          }
+        },
+        "button": {
+          "type": "object",
+          "properties": {
+            "default": { "type": "string" },
+            "hover": { "type": "string" },
+            "active": { "type": "string" }
+          }
+        },
+        "card": {
+          "type": "object",
+          "properties": {
+            "default": { "type": "string" },
+            "hover": { "type": "string" }
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "properties": {
+        "density": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "components": {
+                "type": "object",
+                "properties": {
+                  "fieldContainer": {
+                    "type": "object",
+                    "properties": {
+                      "marginBottom": { "type": "string" }
+                    }
+                  },
+                  "fieldInput": {
+                    "type": "object",
+                    "properties": {
+                      "padding": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "overrides": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "form": {
+          "type": "object",
+          "properties": {
+            "gap": { "type": "string" },
+            "maxWidth": { "type": "string" },
+            "padding": { "type": "string" }
+          }
+        },
+        "field": {
+          "type": "object",
+          "properties": {
+            "gap": { "type": "string" },
+            "direction": { 
+              "type": "string",
+              "enum": ["row", "column"] 
+            }
+          }
+        },
+        "section": {
+          "type": "object",
+          "properties": {
+            "gap": { "type": "string" },
+            "padding": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "required": []
+}

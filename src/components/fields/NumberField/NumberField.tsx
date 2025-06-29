@@ -4,13 +4,13 @@ import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import { useLayoutContext } from '../../../contexts/LayoutContext';
 import {
-  SimpleFieldContainer,
-  SimpleFieldInput,
-  SimpleFieldLabel,
-  SimpleFieldDescription,
-  SimpleFieldError,
-  SimpleFieldHelper,
-} from '../../../theme/simpleStyled';
+  StyledFieldContainer,
+  StyledFieldInput,
+  StyledFieldLabel,
+  StyledFieldDescription,
+  StyledFieldError,
+  StyledFieldHelper,
+} from '../../../theme/styled';
 
 export interface NumberFieldProps {
   field: FormField;
@@ -33,12 +33,12 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, onChange }) => {
   const isActive = isFloating && fieldValue !== '';
 
   return (
-    <SimpleFieldContainer
+    <StyledFieldContainer
       hasError={hasErrors}
       isDirty={field.hasChanges}
-      isFloating={isFloating}
+      layout={isFloating ? 'floating' : 'default'}
     >
-      <SimpleFieldInput
+      <StyledFieldInput
         id={fieldId}
         data-testid={fieldId}
         type="number"
@@ -49,48 +49,48 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, onChange }) => {
         placeholder={isFloating ? " " : undefined}
         hasError={hasErrors}
         isDirty={field.hasChanges}
-        isFloating={isFloating}
+        variant={isFloating ? 'floating' : 'default'}
       />
       
-      <SimpleFieldLabel
+      <StyledFieldLabel
         htmlFor={fieldId}
         id={`${fieldId}-label`}
         data-testid={`${fieldId}-label`}
         required={field.required}
-        isFloating={isFloating}
-        isActive={isActive}
+        floating={isFloating}
+        active={isActive}
         hasError={hasErrors}
       >
         {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-      </SimpleFieldLabel>
+      </StyledFieldLabel>
 
       {field.schema.description && (
-        <SimpleFieldDescription
+        <StyledFieldDescription
           id={`${fieldId}-description`}
           data-testid={`${fieldId}-description`}
         >
           {field.schema.description}
-        </SimpleFieldDescription>
+        </StyledFieldDescription>
       )}
       
       {hasErrors && (
-        <SimpleFieldError
+        <StyledFieldError
           id={`${fieldId}-error`}
           data-testid={`${fieldId}-error`}
         >
           {errorMessage}
-        </SimpleFieldError>
+        </StyledFieldError>
       )}
       
       {field.dirty && (
-        <SimpleFieldHelper
+        <StyledFieldHelper
           id={`${fieldId}-dirty-indicator`}
           data-testid={`${fieldId}-dirty-indicator`}
         >
           Modified
-        </SimpleFieldHelper>
+        </StyledFieldHelper>
       )}
-    </SimpleFieldContainer>
+    </StyledFieldContainer>
   );
 };
 

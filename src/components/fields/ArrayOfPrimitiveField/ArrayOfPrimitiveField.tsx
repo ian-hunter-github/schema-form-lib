@@ -3,14 +3,14 @@ import type { FormField } from '../../../utils/formModel/types';
 import type { FormModel } from '../../../utils/formModel/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import {
-  SimpleArrayContainer,
-  SimpleFieldLabel,
-  SimpleFieldDescription,
-  SimpleFieldInput,
-  SimpleButton,
-  SimpleFieldError,
-  SimpleFieldHelper,
-} from '../../../theme/simpleStyled';
+  StyledArrayContainer,
+  StyledFieldLabel,
+  StyledFieldDescription,
+  StyledFieldInput,
+  StyledButton,
+  StyledFieldError,
+  StyledFieldHelper,
+} from '../../../theme/styled';
 
 export interface ArrayOfPrimitiveFieldProps {
   field: FormField;
@@ -48,23 +48,23 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
   };
 
   return (
-    <SimpleArrayContainer id={fieldId} data-testid={fieldId}>
-      <SimpleFieldLabel 
+    <StyledArrayContainer id={fieldId} data-testid={fieldId}>
+      <StyledFieldLabel 
         htmlFor={fieldId} 
         id={`${fieldId}-label`}
         data-testid={`${fieldId}-label`}
         required={field.required}
       >
         {capitalizeFirstLetter(field.schema.title || displayName)}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-      </SimpleFieldLabel>
+      </StyledFieldLabel>
 
       {field.schema.description && (
-        <SimpleFieldDescription 
+        <StyledFieldDescription 
           id={`${fieldId}-description`} 
           data-testid={`${fieldId}-description`}
         >
           {field.schema.description}
-        </SimpleFieldDescription>
+        </StyledFieldDescription>
       )}
 
       {items.map((item, index) => (
@@ -73,7 +73,7 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
           gap: '0.5rem', 
           marginBottom: '0.75rem' 
         }}>
-          <SimpleFieldInput
+          <StyledFieldInput
             id={`${fieldId}.${index}`}
             data-testid={`${fieldId}.${index}`}
             type="text"
@@ -84,7 +84,7 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
             isDirty={field.hasChanges}
             style={{ flex: 1 }}
           />
-          <SimpleButton
+          <StyledButton
             id={`${fieldId}.${index}-remove`}
             data-testid={`${fieldId}.${index}-remove`}
             type="button"
@@ -94,11 +94,11 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
             size="sm"
           >
             Remove
-          </SimpleButton>
+          </StyledButton>
         </div>
       ))}
 
-      <SimpleButton
+      <StyledButton
         id={`${fieldId}-add`}
         data-testid={`${fieldId}-add`}
         type="button"
@@ -108,26 +108,26 @@ const ArrayOfPrimitiveField: React.FC<ArrayOfPrimitiveFieldProps> = ({ field, fo
         style={{ marginTop: '0.5rem' }}
       >
         Add Item
-      </SimpleButton>
+      </StyledButton>
 
       {hasErrors && (
-        <SimpleFieldError 
+        <StyledFieldError 
           id={`${fieldId}-error`} 
           data-testid={`${fieldId}-error`}
         >
           {errorMessage}
-        </SimpleFieldError>
+        </StyledFieldError>
       )}
       
       {field.dirty && (
-        <SimpleFieldHelper 
+        <StyledFieldHelper 
           id={`${fieldId}-dirty-indicator`} 
           data-testid={`${fieldId}-dirty-indicator`}
         >
           Modified
-        </SimpleFieldHelper>
+        </StyledFieldHelper>
       )}
-    </SimpleArrayContainer>
+    </StyledArrayContainer>
   );
 };
 

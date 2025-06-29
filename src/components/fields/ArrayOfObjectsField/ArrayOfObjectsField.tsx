@@ -5,16 +5,16 @@ import type { JSONValue } from '../../../types/schema';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import FieldRenderer from '../../FieldRenderer';
 import {
-  SimpleArrayContainer,
-  SimpleFieldLabel,
-  SimpleFieldDescription,
-  SimpleArrayItem,
-  SimpleArrayHeader,
-  SimpleArrayContent,
-  SimpleButton,
-  SimpleFieldError,
-  SimpleFieldHelper,
-} from '../../../theme/simpleStyled';
+  StyledArrayContainer,
+  StyledFieldLabel,
+  StyledFieldDescription,
+  StyledArrayItem,
+  StyledArrayHeader,
+  StyledArrayContent,
+  StyledButton,
+  StyledFieldError,
+  StyledFieldHelper,
+} from '../../../theme/styled';
 
 export interface ArrayOfObjectsFieldProps {
   field: FormField;
@@ -92,12 +92,12 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
     const propertyKeys = Object.keys(properties);
 
     return (
-      <SimpleArrayItem 
+      <StyledArrayItem 
         key={itemIndex} 
         isDirty={itemField?.hasChanges || false}
       >
         {/* Item Header */}
-        <SimpleArrayHeader 
+        <StyledArrayHeader 
           hasBottomBorder={isExpanded}
           onClick={() => toggleItemExpansion(itemIndex)}
         >
@@ -115,12 +115,12 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
           </span>
           
           {itemField?.dirty && (
-            <SimpleFieldHelper style={{ marginRight: '0.5rem' }}>
+            <StyledFieldHelper style={{ marginRight: '0.5rem' }}>
               Modified
-            </SimpleFieldHelper>
+            </StyledFieldHelper>
           )}
           
-          <SimpleButton
+          <StyledButton
             type="button"
             onClick={(e) => {
               e.stopPropagation();
@@ -132,12 +132,12 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
             data-testid={`${fieldId}.${itemIndex}-remove`}
           >
             Remove
-          </SimpleButton>
-        </SimpleArrayHeader>
+          </StyledButton>
+        </StyledArrayHeader>
 
         {/* Item Content */}
         {isExpanded && (
-          <SimpleArrayContent>
+          <StyledArrayContent>
             {propertyKeys.map(propertyKey => {
               const nestedField = getNestedField(itemIndex, propertyKey);
               if (!nestedField) return null;
@@ -156,19 +156,19 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
             })}
             
             {propertyKeys.length === 0 && (
-              <SimpleFieldHelper style={{ fontStyle: 'italic' }}>
+              <StyledFieldHelper style={{ fontStyle: 'italic' }}>
                 No properties defined for this object
-              </SimpleFieldHelper>
+              </StyledFieldHelper>
             )}
-          </SimpleArrayContent>
+          </StyledArrayContent>
         )}
-      </SimpleArrayItem>
+      </StyledArrayItem>
     );
   };
 
   return (
-    <SimpleArrayContainer id={fieldId} data-testid={fieldId}>
-      <SimpleFieldLabel 
+    <StyledArrayContainer id={fieldId} data-testid={fieldId}>
+      <StyledFieldLabel 
         htmlFor={fieldId} 
         id={`${fieldId}-label`}
         data-testid={`${fieldId}-label`}
@@ -180,16 +180,16 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
         }}
       >
         {capitalizeFirstLetter(field.schema.title || displayName)}
-      </SimpleFieldLabel>
+      </StyledFieldLabel>
 
       {field.schema.description && (
-        <SimpleFieldDescription 
+        <StyledFieldDescription 
           id={`${fieldId}-description`} 
           data-testid={`${fieldId}-description`}
           style={{ marginBottom: '0.5rem' }}
         >
           {field.schema.description}
-        </SimpleFieldDescription>
+        </StyledFieldDescription>
       )}
 
       {/* Array Items */}
@@ -214,7 +214,7 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
       </div>
 
       {/* Add Button */}
-      <SimpleButton
+      <StyledButton
         id={`${fieldId}-add`}
         data-testid={`${fieldId}-add`}
         type="button"
@@ -223,42 +223,42 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
         variant="primary"
       >
         Add Item
-      </SimpleButton>
+      </StyledButton>
 
       {/* Error Display */}
       {hasErrors && (
-        <SimpleFieldError 
+        <StyledFieldError 
           id={`${fieldId}-error`} 
           data-testid={`${fieldId}-error`}
         >
           {errorMessage}
-        </SimpleFieldError>
+        </StyledFieldError>
       )}
       
       {/* Dirty Indicator */}
       {field.dirty && (
-        <SimpleFieldHelper 
+        <StyledFieldHelper 
           id={`${fieldId}-dirty-indicator`} 
           data-testid={`${fieldId}-dirty-indicator`}
         >
           Modified
-        </SimpleFieldHelper>
+        </StyledFieldHelper>
       )}
-    </SimpleArrayContainer>
+    </StyledArrayContainer>
   );
 };
 
 // Helper function to create default object values
-function createDefaultObjectValue(itemSchema: any): Record<string, any> {
+function createDefaultObjectValue(itemSchema?: { properties?: Record<string, { type?: string; default?: JSONValue }> }): Record<string, JSONValue> {
   if (!itemSchema || !itemSchema.properties) {
     return {};
   }
 
-  const defaultObj: Record<string, any> = {};
+  const defaultObj: Record<string, JSONValue> = {};
   const properties = itemSchema.properties;
 
   for (const [key, propSchema] of Object.entries(properties)) {
-    const prop = propSchema as any;
+    const prop = propSchema;
     if (prop.default !== undefined) {
       defaultObj[key] = prop.default;
     } else {
