@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ThemeProvider, useTheme } from '../theme/ThemeProvider';
 import { defaultTheme } from '../theme/themes/default';
 import { validateTheme } from '../theme/utils/themeValidation';

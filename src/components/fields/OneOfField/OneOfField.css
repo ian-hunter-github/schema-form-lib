@@ -1,0 +1,25 @@
+.one-of-field {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.one-of-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.one-of-selector button {
+  padding: 0.5rem 1rem;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.one-of-selector button.active {
+  background: #007bff;
+  color: white;
+  border-color: #006fe6;
+}

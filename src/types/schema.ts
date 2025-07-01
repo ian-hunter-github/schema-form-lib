@@ -23,6 +23,7 @@ export type JSONSchema = {
   minLength?: number;
   maxLength?: number;
   pattern?: string;
+  format?: string;
   readOnly?: boolean;
   items?: JSONSchema;
   properties?: JSONSchemaProperties;
@@ -31,6 +32,9 @@ export type JSONSchema = {
   maxItems?: number;
   uniqueItems?: boolean;
   additionalItems?: boolean | JSONSchema;
+  oneOf?: JSONSchema[];
+  anyOf?: JSONSchema[];
+  allOf?: JSONSchema[];
 };
 
 export type JSONSchemaProperties = {

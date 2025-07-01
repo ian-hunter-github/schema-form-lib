@@ -4,6 +4,7 @@ import BooleanField from './fields/BooleanField';
 import EnumField from './fields/EnumField';
 import ArrayOfPrimitiveField from './fields/ArrayOfPrimitiveField';
 import ObjectField from './fields/ObjectField';
+import { OneOfField } from './fields/OneOfField/OneOfField';
 
 export const fieldComponents = {
   string: StringField,
@@ -12,6 +13,7 @@ export const fieldComponents = {
   enum: EnumField,
   array: ArrayOfPrimitiveField,
   object: ObjectField,
+  oneOf: OneOfField,
 } as const;
 
 export type FieldComponentType = keyof typeof fieldComponents;

@@ -8,6 +8,7 @@ import BooleanField from "./fields/BooleanField";
 import EnumField from "./fields/EnumField";
 import ArrayOfPrimitiveField from "./fields/ArrayOfPrimitiveField";
 import ArrayOfObjectsField from "./fields/ArrayOfObjectsField";
+import { OneOfField } from "./fields/OneOfField/OneOfField";
 
 interface FieldRendererProps {
   field: FormField;
@@ -16,7 +17,18 @@ interface FieldRendererProps {
 }
 
 const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChange }) => {
-  // Handle enum fields first
+  // Handle oneOf fields first
+  if (field.schema.oneOf) {
+    return (
+      <OneOfField
+        schema={field.schema}
+        path={field.path}
+        onChange={(_path: string, value: unknown) => onChange(value as JSONValue)}
+      />
+    );
+  }
+
+  // Handle enum fields
   if (field.schema.enum) {
     return <EnumField field={field} formModel={formModel} onChange={onChange} />;
   }
@@ -35,6 +47,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
 
   // Handle primitive types
   const fieldType = field.schema.type === 'integer' ? 'number' : field.schema.type;
+  const itemSchema = field.schema.items;
   
   switch (fieldType) {
     case 'string':
@@ -45,7 +58,6 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
       return <BooleanField field={field} formModel={formModel} onChange={onChange} />;
     case 'array':
       // Check if the array contains objects or primitives
-      const itemSchema = field.schema.items;
       if (itemSchema && itemSchema.type === 'object' && itemSchema.properties) {
         return <ArrayOfObjectsField field={field} formModel={formModel} onChange={onChange} />;
       } else {
