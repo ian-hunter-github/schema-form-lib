@@ -9,6 +9,7 @@ import EnumField from "./fields/EnumField";
 import ArrayOfPrimitiveField from "./fields/ArrayOfPrimitiveField";
 import ArrayOfObjectsField from "./fields/ArrayOfObjectsField";
 import { OneOfField } from "./fields/OneOfField/OneOfField";
+import ColorField from "./fields/ColorField/ColorField";
 
 interface FieldRendererProps {
   field: FormField;
@@ -35,11 +36,11 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
 
   // Handle object fields - import directly but avoid circular dependency
   // by not importing ObjectField at the top level
-  if (field.schema.properties) {
+  if (field.schema.properties || field.schema.type === 'object') {
     // Create a lazy component that imports ObjectField only when needed
     const ObjectFieldLazy = React.lazy(() => import("./fields/ObjectField"));
     return (
-      <React.Suspense fallback={<div data-testid={`${field.path}-loading`}>Loading...</div>}>
+      <React.Suspense fallback={null}> {/* Empty fallback prevents flash of content */}
         <ObjectFieldLazy field={field} formModel={formModel} onChange={onChange} />
       </React.Suspense>
     );
@@ -51,6 +52,9 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
   
   switch (fieldType) {
     case 'string':
+      if (field.schema.format === 'color') {
+        return <ColorField field={field} onChange={onChange} />;
+      }
       return <StringField field={field} formModel={formModel} onChange={onChange} />;
     case 'number':
       return <NumberField field={field} formModel={formModel} onChange={onChange} />;

@@ -18,7 +18,8 @@ const schema: JSONSchemaProperties = {
         type: 'object',
         properties: {
           theme: { type: 'string', default: 'light' },
-          notifications: { type: 'boolean', default: true }
+          notifications: { type: 'boolean', default: true },
+          color: { type: 'string', format: 'color', default: '#3b82f6' }
         }
       },
       tags: {
@@ -196,6 +197,26 @@ export function BufferedFormExample() {
             {formModel.getField('user.preferences.notifications')?.hasChanges && (
               <button 
                 onClick={() => revertField('user.preferences.notifications')}
+                style={{ marginLeft: '5px', fontSize: '0.8em' }}
+              >
+                Revert
+              </button>
+            )}
+          </label>
+        </div>
+
+        <div>
+          <label>
+            <strong>Color:</strong>
+            <input
+              type="color"
+              value={formModel.getField('user.preferences.color')?.value as string || '#3b82f6'}
+              onChange={(e) => setValue('user.preferences.color', e.target.value)}
+              style={{ marginLeft: '10px', verticalAlign: 'middle' }}
+            />
+            {formModel.getField('user.preferences.color')?.hasChanges && (
+              <button 
+                onClick={() => revertField('user.preferences.color')}
                 style={{ marginLeft: '5px', fontSize: '0.8em' }}
               >
                 Revert

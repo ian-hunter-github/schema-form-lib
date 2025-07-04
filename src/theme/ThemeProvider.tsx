@@ -57,7 +57,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
         const validatedTheme = validateTheme(json);
         setTheme(validatedTheme);
       } catch (error) {
-        console.error('Failed to load theme:', error);
         onThemeError?.(error instanceof Error ? error : new Error(String(error)));
       } finally {
         setLoading(false);
@@ -74,7 +73,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
         : validateTheme(newTheme);
       setTheme(validatedTheme);
     } catch (error) {
-      console.error('Failed to set theme:', error);
       onThemeError?.(error instanceof Error ? error : new Error(String(error)));
     }
   };

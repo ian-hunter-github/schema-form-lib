@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import StringField from '../StringField';
 import type { FormField } from '../../../../utils/formModel/types';
 import type { JSONSchema } from '../../../../types/schema';
+import { VALIDATION_MESSAGES } from '../../../../utils/formModel/FormValidator/validationMessages';
 
 // Helper function to create mock FormField
 const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
@@ -219,7 +220,7 @@ export const MultipleErrors: Story = {
     field: createMockFormField({
       value: 'x',
       errors: [
-        'Field is required',
+        VALIDATION_MESSAGES.REQUIRED,
         'Must be at least 3 characters long',
         'Must contain only letters and spaces',
       ],

@@ -23,7 +23,21 @@ export type ThemeWithLayout = Theme & {
   layout?: LayoutTheme;
 };
 
-const ajv = new Ajv();
+const ajv = new Ajv({
+  strict: true,
+  strictRequired: true,
+  allErrors: true,
+  strictTypes: false
+});
+
+// Register custom color format (supports hex with/without alpha and rgba)
+ajv.addFormat("color", {
+  type: "string",
+  validate: (value) => /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$|^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[01]?\d?\d?\s*)?\)$/.test(value)
+});
+
+// Removed x-format keyword since we're using standard format validation
+
 const validate = ajv.compile(themeSchema);
 
 /**
@@ -170,6 +184,8 @@ function deepMergeTheme(defaultTheme: Theme, partialTheme: Partial<ThemeWithLayo
       }
     },
     layout: {
+      ...defaultTheme.layout,
+      ...partialTheme.layout,
       form: {
         ...defaultTheme.layout?.form,
         ...partialTheme.layout?.form

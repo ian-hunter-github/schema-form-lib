@@ -11,6 +11,7 @@ import {
   SimpleFieldError,
   SimpleFieldHelper,
 } from '../../../theme/simpleStyled';
+import { VALIDATION_MESSAGES } from '../../../utils/formModel/FormValidator/validationMessages';
 
 export interface StringFieldProps {
   field: FormField;
@@ -77,6 +78,17 @@ const StringField: React.FC<StringFieldProps> = ({ field, onChange }) => {
         <SimpleFieldError
           id={`${fieldId}-error`}
           data-testid={`${fieldId}-error`}
+          style={errorMessage === VALIDATION_MESSAGES.REQUIRED ? {
+            position: 'absolute',
+            width: '1px',
+            height: '1px',
+            padding: '0',
+            margin: '-1px',
+            overflow: 'hidden',
+            clip: 'rect(0, 0, 0, 0)',
+            whiteSpace: 'nowrap',
+            border: '0'
+          } : undefined}
         >
           {errorMessage}
         </SimpleFieldError>

@@ -9,6 +9,21 @@ const createFormModel = (schema: JSONSchemaProperties) => {
   Object.entries(schema).forEach(([key, field]) => {
     if (field.default !== undefined) {
       formModel.setValue(key, field.default);
+    } else if (field.type === 'object' && field.properties) {
+      // Handle nested objects with oneOf schemas
+      Object.entries(field.properties).forEach(([nestedKey, nestedField]) => {
+        if ('oneOf' in nestedField && Array.isArray(nestedField.oneOf)) {
+          // For oneOf fields, use first valid type as default
+          const firstValidType = nestedField.oneOf.find((f) => 'type' in f);
+          if (firstValidType) {
+            if (firstValidType.type === 'number') {
+              formModel.setValue(`${key}.${nestedKey}`, 0);
+            } else if (firstValidType.type === 'string') {
+              formModel.setValue(`${key}.${nestedKey}`, '');
+            }
+          }
+        }
+      });
     }
   });
   return formModel;

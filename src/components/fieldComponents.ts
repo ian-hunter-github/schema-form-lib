@@ -5,8 +5,10 @@ import EnumField from './fields/EnumField';
 import ArrayOfPrimitiveField from './fields/ArrayOfPrimitiveField';
 import ObjectField from './fields/ObjectField';
 import { OneOfField } from './fields/OneOfField/OneOfField';
+import ColorField from './fields/ColorField/ColorField';
 
 export const fieldComponents = {
+  color: ColorField,
   string: StringField,
   number: NumberField,
   boolean: BooleanField,

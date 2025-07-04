@@ -34,7 +34,7 @@ describe("FormModel - Basic Types", () => {
     };
     const model = new FormModel(schema);
     expect(model.validate()).toBe(false);
-    expect(model.getField("name")?.errors).toContain("Field is required");
+    expect(model.getField("name")?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
   });
 
   it("should validate number type", () => {
@@ -733,23 +733,23 @@ describe("FormModel - Nested Data Validation", () => {
 
     // Check individual field errors
     const nameField = model.getField("user.profile.name");
-    expect(nameField?.errors).toContain("Field is required");
+    expect(nameField?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
     expect(nameField?.errorCount).toBe(1);
 
     const emailField = model.getField("user.profile.email");
-    expect(emailField?.errors).toContain("Must be at least 5 characters");
+    expect(emailField?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(5));
     expect(emailField?.errorCount).toBe(1);
 
     const ageField = model.getField("user.profile.age");
-    expect(ageField?.errors).toContain("Must be at least 18");
+    expect(ageField?.errors).toContain(VALIDATION_MESSAGES.MIN_NUMBER(18));
     expect(ageField?.errorCount).toBe(1);
 
     const themeField = model.getField("user.preferences.theme");
-    expect(themeField?.errors).toContain("Field is required");
+    expect(themeField?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
     expect(themeField?.errorCount).toBe(1);
 
     const tagField = model.getField("user.tags.0");
-    expect(tagField?.errors).toContain("Field is required");
+    expect(tagField?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
     expect(tagField?.errorCount).toBe(1);
 
     // Verify all fields are marked as dirty

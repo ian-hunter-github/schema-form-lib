@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import UnifiedFormRenderer from './components/UnifiedFormRenderer';
 import { BufferedFormExample } from './examples/BufferedFormExample';
 import LayoutDemo from './examples/LayoutDemo';
-import type { JSONSchemaProperties, JSONValue } from './types/schema';
+import { ThemeSchemaDemo } from './demo/ThemeSchemaDemo';
+import type { JSONSchemaProperties } from './types/schema';
 import { ThemeProvider, useVariants } from './theme';
 import './App.css';
 
@@ -43,7 +44,7 @@ const DensitySelector: React.FC = () => {
 };
 
 function App() {
-  const [currentExample, setCurrentExample] = useState<'unified' | 'buffered' | 'layout'>('unified');
+  const [currentExample, setCurrentExample] = useState<'unified' | 'buffered' | 'layout' | 'theme'>('unified');
 
   const schema: JSONSchemaProperties = {
     name: { 
@@ -186,9 +187,8 @@ function App() {
     },
   };
 
-  const handleSubmit = (data: Record<string, JSONValue>) => {
-    console.log('Form submitted with data:', data);
-    alert('Form submitted successfully! Check the console for details.');
+  const handleSubmit = () => {
+    alert('Form submitted successfully!');
   };
 
   return (
@@ -239,6 +239,19 @@ function App() {
             }}
           >
             Layout Strategy Demo
+          </button>
+          <button
+            onClick={() => setCurrentExample('theme')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: currentExample === 'theme' ? '#007bff' : '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Theme Schema Demo
           </button>
         </div>
       </div>
@@ -296,6 +309,30 @@ function App() {
             backgroundColor: '#f8f9fa'
           }}>
             <BufferedFormExample />
+          </div>
+        </div>
+      )}
+
+      {currentExample === 'theme' && (
+        <div>
+          <h2>Theme Configuration Editor</h2>
+          <p>
+            This demonstrates the theme configuration form built from theme.schema.json:
+          </p>
+          <ul>
+            <li><strong>Schema-Driven:</strong> Form generated from JSON Schema</li>
+            <li><strong>Type Safety:</strong> Proper TypeScript typing</li>
+            <li><strong>FormRenderer:</strong> Uses the new FormRenderer component</li>
+            <li><strong>Live Preview:</strong> Shows submitted data</li>
+          </ul>
+          
+          <div style={{ 
+            border: '2px solid #9c27b0', 
+            borderRadius: '8px', 
+            padding: '20px',
+            backgroundColor: '#f8f9fa'
+          }}>
+            <ThemeSchemaDemo />
           </div>
         </div>
       )}

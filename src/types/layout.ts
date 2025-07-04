@@ -31,6 +31,7 @@ export interface LayoutConfig {
   breakpoints?: {
     [K in ResponsiveBreakpoint]?: LayoutStrategy;
   };
+  fieldWidths?: Record<string, number>;
   debug?: boolean; // Shows grid lines and field boundaries for debugging
 }
 

@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ThemeProvider } from '../../theme/ThemeProvider';
 import FormRenderer from '../FormRenderer';
 import { FormModel } from '../../utils/formModel/FormModel';
 import type { JSONSchema } from '../../types/schema';
@@ -99,7 +100,11 @@ describe('FormRenderer', () => {
 
       mockFormModel = new FormModel(schema);
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       expect(screen.getByTestId('form-renderer')).toBeInTheDocument();
       expect(screen.getByTestId('string-field-name')).toBeInTheDocument();
@@ -118,7 +123,11 @@ describe('FormRenderer', () => {
 
       mockFormModel = new FormModel(schema);
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       expect(screen.getByTestId('string-field-name')).toBeInTheDocument();
       expect(screen.getByTestId('number-field-age')).toBeInTheDocument();
@@ -142,7 +151,11 @@ describe('FormRenderer', () => {
 
       mockFormModel = new FormModel(schema);
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       // Wait for the lazy component to load
       expect(await screen.findByTestId('object-field-person')).toBeInTheDocument();
@@ -162,7 +175,11 @@ describe('FormRenderer', () => {
       const setValueSpy = vi.spyOn(mockFormModel, 'setValue');
       const validateSpy = vi.spyOn(mockFormModel, 'validate');
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       const input = screen.getByTestId('name-input');
       fireEvent.change(input, { target: { value: 'John Doe' } });
@@ -189,7 +206,11 @@ describe('FormRenderer', () => {
       // Mock validate to return true (valid)
       vi.spyOn(mockFormModel, 'validate').mockReturnValue(true);
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       const submitButton = screen.getByTestId('submit-button');
       fireEvent.click(submitButton);
@@ -215,7 +236,11 @@ describe('FormRenderer', () => {
       // Mock validate to return false (invalid)
       vi.spyOn(mockFormModel, 'validate').mockReturnValue(false);
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       const submitButton = screen.getByTestId('submit-button');
       fireEvent.click(submitButton);
@@ -242,7 +267,11 @@ describe('FormRenderer', () => {
       
       vi.spyOn(mockFormModel, 'validate').mockReturnValue(true);
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       const submitButton = screen.getByTestId('submit-button');
       fireEvent.click(submitButton);
@@ -267,7 +296,11 @@ describe('FormRenderer', () => {
 
       mockFormModel = new FormModel(schema);
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       // Initially, the field should have no value
       const input = screen.getByTestId('name-input');
@@ -295,7 +328,11 @@ describe('FormRenderer', () => {
       mockFormModel = new FormModel(schema);
       const removeListenerSpy = vi.spyOn(mockFormModel, 'removeListener');
       
-      const { unmount } = render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      const { unmount } = render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       unmount();
 
@@ -321,7 +358,11 @@ describe('FormRenderer', () => {
       
       const validateSpy = vi.spyOn(mockFormModel, 'validate');
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       expect(validateSpy).toHaveBeenCalled();
     });
@@ -341,7 +382,11 @@ describe('FormRenderer', () => {
       const validateSpy = vi.spyOn(mockFormModel, 'validate');
       validateSpy.mockClear();
       
-      render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+        </ThemeProvider>
+      );
 
       // The validation behavior is acceptable as long as it doesn't cause issues
       // The main goal is that the form renders correctly with empty fields
@@ -363,7 +408,11 @@ describe('FormRenderer', () => {
       mockFormModel = new FormModel(schema);
       vi.spyOn(mockFormModel, 'validate').mockReturnValue(true);
       
-      render(<FormRenderer formModel={mockFormModel} />);
+      render(
+        <ThemeProvider>
+          <FormRenderer formModel={mockFormModel} />
+        </ThemeProvider>
+      );
 
       const submitButton = screen.getByTestId('submit-button');
       
@@ -395,7 +444,11 @@ describe('FormRenderer', () => {
       
       // Wrap render in act() to handle lazy loading of ObjectField
       await act(async () => {
-        render(<FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />);
+        render(
+          <ThemeProvider>
+            <FormRenderer formModel={mockFormModel} onSubmit={mockOnSubmit} />
+          </ThemeProvider>
+        );
       });
 
       const submitButton = screen.getByTestId('submit-button');

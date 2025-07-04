@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import NumberField from '../NumberField';
 import type { FormField } from '../../../../utils/formModel/types';
 import type { JSONSchema } from '../../../../types/schema';
@@ -59,9 +59,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     field: createMockFormField(),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -72,9 +70,7 @@ export const WithValue: Story = {
       value: 42,
       pristineValue: 42,
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -90,9 +86,7 @@ export const DecimalValue: Story = {
         description: 'Enter a decimal number',
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -108,9 +102,7 @@ export const NegativeValue: Story = {
         description: 'Enter temperature in Celsius',
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -125,9 +117,7 @@ export const Required: Story = {
         description: 'This field is required',
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -145,9 +135,7 @@ export const WithErrors: Story = {
         minimum: 0,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -166,9 +154,7 @@ export const Dirty: Story = {
         description: 'This field has been modified',
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -184,9 +170,7 @@ export const ReadOnly: Story = {
         readOnly: true,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -200,9 +184,7 @@ export const NoDescription: Story = {
         title: 'Simple Field',
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -220,9 +202,7 @@ export const WithDomContext: Story = {
         maximum: 150,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -248,9 +228,7 @@ export const Complex: Story = {
       hasChanges: true,
       lastModified: new Date(),
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -274,9 +252,7 @@ export const MultipleErrors: Story = {
         maximum: 100,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -294,9 +270,7 @@ export const NestedPath: Story = {
         maximum: 3600,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -313,9 +287,7 @@ export const Currency: Story = {
         minimum: 0,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -333,9 +305,7 @@ export const Percentage: Story = {
         maximum: 100,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -353,9 +323,7 @@ export const Quantity: Story = {
         maximum: 999,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -372,9 +340,7 @@ export const LargeNumber: Story = {
         minimum: 0,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };
 
@@ -392,8 +358,6 @@ export const ZeroValue: Story = {
         maximum: 10,
       },
     }),
-    onChange: (value: number, triggerValidation?: boolean) => {
-      console.log('Field changed:', { value, triggerValidation });
-    },
+    onChange: (value) => { console.log('NumberField changed:', value); },
   },
 };

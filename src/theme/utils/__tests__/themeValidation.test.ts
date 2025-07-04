@@ -76,48 +76,48 @@ describe('validateTheme', () => {
         typography: {
           ...defaultTheme.typography,
           fontWeight: {
-            normal: 400,
-            medium: 500,
-            semibold: 600,
-            bold: 700
+            normal: '400px',
+            medium: '500px',
+            semibold: '600px',
+            bold: '700px'
           },
           lineHeight: {
-            none: 1,
-            tight: 1.25,
-            normal: 1.5,
-            loose: 2
+            none: '1px',
+            tight: '1.25rem',
+            normal: '1.5rem',
+            loose: '2rem'
           },
           field: {
             label: {
               fontSize: '1rem',
-              fontWeight: 600,
-              lineHeight: 1.5
+              fontWeight: '600px',
+              lineHeight: '1.5rem'
             },
             input: {
               fontSize: '1rem',
-              fontWeight: 400,
-              lineHeight: 1.5
+              fontWeight: '400px',
+              lineHeight: '1.5rem'
             },
             description: {
               fontSize: '0.875rem',
-              fontWeight: 400,
-              lineHeight: 1.5
+              fontWeight: '400px',
+              lineHeight: '1.5rem'
             },
             error: {
               fontSize: '0.875rem',
-              fontWeight: 400,
-              lineHeight: 1.5
+              fontWeight: '400px',
+              lineHeight: '1.5rem'
             },
             helper: {
               fontSize: '0.875rem',
-              fontWeight: 400,
-              lineHeight: 1.5
+              fontWeight: '400px',
+              lineHeight: '1.5rem'
             }
           },
           button: {
             fontSize: '1rem',
-            fontWeight: 600,
-            lineHeight: 1.5
+            fontWeight: '600px',
+            lineHeight: '1.5rem'
           }
         },
         spacing: {
@@ -172,16 +172,16 @@ describe('validateTheme', () => {
             base: '16px'
           },
           fontWeight: {
-            normal: 400,
-            medium: 500,
-            semibold: 600
+            normal: '400px',
+            medium: '500px',
+            semibold: '600px'
           },
           lineHeight: {
-            tight: 1.25
+            tight: '1.25rem'
           },
           field: {
             label: {
-              fontWeight: 600
+              fontWeight: '600px'
             }
           }
         }
@@ -191,9 +191,9 @@ describe('validateTheme', () => {
       expect(result.name).toBe('partial');
       expect(result.colors.primary[500]).toBe('#123456');
       expect(result.typography.fontSize.base).toBe('16px');
-      expect(result.typography.fontWeight.normal).toBe(400);
-      expect(result.typography.fontWeight.medium).toBe(500);
-      expect(result.typography.fontWeight.semibold).toBe(600);
+      expect(result.typography.fontWeight.normal).toBe('400px');
+      expect(result.typography.fontWeight.medium).toBe('500px');
+      expect(result.typography.fontWeight.semibold).toBe('600px');
       expect(result.spacing).toEqual(defaultTheme.spacing);
     });
   });
@@ -206,6 +206,10 @@ describe('validateTheme', () => {
           ...defaultTheme.colors,
           primary: {
             500: '#654321'
+          },
+          background: {
+            ...defaultTheme.colors.background,
+            overlay: '#ffffff'
           }
         }
       });

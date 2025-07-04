@@ -4,6 +4,7 @@ import type { FormModel } from '../../utils/formModel/FormModel';
 import type { LayoutConfig, FieldLayoutConfig } from '../../types/layout';
 import type { JSONValue } from '../../types/schema';
 import { useLayout } from '../../hooks/useLayout';
+import { useTheme } from '../../theme/ThemeProvider';
 import { 
   groupFieldsIntoRows, 
   getLayoutGap,
@@ -25,11 +26,27 @@ interface LayoutContainerProps {
 const LayoutContainer: React.FC<LayoutContainerProps> = ({
   fields,
   formModel,
-  layoutConfig,
+  layoutConfig: propConfig = {},
   onChange,
   className = ''
 }) => {
-  const { breakpoint, layoutConfig: resolvedConfig, isVertical, isGrid, isFlow } = useLayout(layoutConfig);
+  const { theme } = useTheme();
+  
+  // Merge theme layout with prop config (props take precedence)
+  const mergedConfig = {
+    ...theme.layout,
+    ...propConfig,
+    breakpoints: {
+      ...theme.layout?.breakpoints,
+      ...propConfig.breakpoints
+    },
+    fieldWidths: {
+      ...theme.layout?.fieldWidths,
+      ...propConfig.fieldWidths
+    }
+  };
+
+  const { breakpoint, layoutConfig: resolvedConfig, isVertical, isGrid, isFlow } = useLayout(mergedConfig);
   
   const gap = getLayoutGap(resolvedConfig.gap);
   
@@ -65,15 +82,16 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
     
     return (
       <LayoutProvider strategy={resolvedConfig.strategy} debug={resolvedConfig.debug}>
-        <div 
-          className={`layout-grid layout-grid-12 ${gapClass} ${debugClass} ${className}`}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(12, 1fr)',
-            gap,
-            width: '100%'
-          }}
-        >
+      <div 
+        data-testid="layout-container"
+        className={`layout-grid layout-grid-12 ${gapClass} ${debugClass} ${className}`}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(12, 1fr)',
+          gap,
+          width: '100%'
+        }}
+      >
           {rows.map((row) => {
             // Adjust field widths to fill remaining space (no gaps on the right)
             const adjustedFields = adjustRowFieldWidths(row, breakpoint);
@@ -137,6 +155,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
                 <div 
                   key={field.path}
                   className="field-wrapper"
+                  data-testid="field-wrapper"
                   style={{
                     flex: `0 0 ${flexBasis}`,
                     minWidth: 0,
@@ -160,6 +179,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
   // Fallback to vertical layout
   return (
     <div 
+      data-testid="layout-container"
       className={`layout-fallback ${className}`}
       style={{ 
         display: 'flex', 

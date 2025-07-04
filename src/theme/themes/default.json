@@ -55,7 +55,7 @@
       "primary": "#ffffff",
       "secondary": "#f9fafb",
       "tertiary": "#f3f4f6",
-      "overlay": "rgba(0, 0, 0, 0.5)"
+      "overlay": "#00000080"
     },
     "text": {
       "primary": "#111827",
@@ -105,49 +105,49 @@
       "xl": "1.25rem"
     },
     "fontWeight": {
-      "light": 300,
-      "normal": 400,
-      "medium": 500,
-      "semibold": 600,
-      "bold": 700
+      "light": "300",
+      "normal": "400", 
+      "medium": "500",
+      "semibold": "600",
+      "bold": "700"
     },
     "lineHeight": {
-      "none": 1,
-      "tight": 1.25,
-      "normal": 1.5,
-      "loose": 1.75
+      "none": "1px",
+      "tight": "1.25px",
+      "normal": "1.5px",
+      "loose": "1.75px"
     },
     "field": {
       "label": {
         "fontSize": "0.875rem",
-        "fontWeight": 500,
-        "lineHeight": 1.25
+        "fontWeight": "500",
+        "lineHeight": "1.25"
       },
       "input": {
         "fontSize": "1rem",
-        "fontWeight": 400,
-        "lineHeight": 1.5
+        "fontWeight": "400",
+        "lineHeight": "1.5"
       },
       "description": {
         "fontSize": "0.75rem",
-        "fontWeight": 400,
-        "lineHeight": 1.25
+        "fontWeight": "400",
+        "lineHeight": "1.25"
       },
       "error": {
         "fontSize": "0.75rem",
-        "fontWeight": 500,
-        "lineHeight": 1.25
+        "fontWeight": "500",
+        "lineHeight": "1.25"
       },
       "helper": {
         "fontSize": "0.75rem",
-        "fontWeight": 400,
-        "lineHeight": 1.25
+        "fontWeight": "400",
+        "lineHeight": "1.25"
       }
     },
     "button": {
       "fontSize": "1rem",
-      "fontWeight": 500,
-      "lineHeight": 1.5
+      "fontWeight": "500",
+      "lineHeight": "1.5"
     }
   },
   "shadows": {

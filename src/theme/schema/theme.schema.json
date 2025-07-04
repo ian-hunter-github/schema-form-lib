@@ -1,6 +1,21 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Theme Configuration",
+  "$defs": {
+    "spacingPattern": {
+      "type": "string",
+      "pattern": "^\\d+(?:\\.\\d+)?\\s*(px|rem|em|pt|%)$"
+    },
+    "sizePattern": {
+      "type": "string",
+      "pattern": "^\\d+(?:\\.\\d+)?\\s*(px|rem|em|pt|%)$"
+    },
+    "colorFormat": {
+      "type": "string", 
+      "format": "color",
+          "pattern": "^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$|^rgba?\\(\\s*\\d+\\s*,\\s*\\d+\\s*,\\s*\\d+\\s*(?:,\\s*[01]?\\d?\\d?\\s*)?\\)$"
+    }
+  },
   "description": "JSON schema for theme configuration",
   "type": "object",
   "properties": {
@@ -13,51 +28,102 @@
       "properties": {
         "primary": {
           "type": "object",
-          "additionalProperties": { "type": "string" }
+          "properties": {
+            "50": { "$ref": "#/$defs/colorFormat" },
+            "100": { "$ref": "#/$defs/colorFormat" },
+            "200": { "$ref": "#/$defs/colorFormat" },
+            "300": { "$ref": "#/$defs/colorFormat" },
+            "400": { "$ref": "#/$defs/colorFormat" },
+            "500": { "$ref": "#/$defs/colorFormat" },
+            "600": { "$ref": "#/$defs/colorFormat" },
+            "700": { "$ref": "#/$defs/colorFormat" },
+            "800": { "$ref": "#/$defs/colorFormat" },
+            "900": { "$ref": "#/$defs/colorFormat" }
+          },
+          "additionalProperties": { 
+            "$ref": "#/$defs/colorFormat",
+            "description": "Additional color variants beyond the standard scale"
+          },
+          "description": "Primary color scale using standard 50-900 values"
+        },
+        "gray": {
+          "type": "object",
+          "properties": {
+            "50": { "$ref": "#/$defs/colorFormat" },
+            "100": { "$ref": "#/$defs/colorFormat" },
+            "200": { "$ref": "#/$defs/colorFormat" },
+            "300": { "$ref": "#/$defs/colorFormat" },
+            "400": { "$ref": "#/$defs/colorFormat" },
+            "500": { "$ref": "#/$defs/colorFormat" },
+            "600": { "$ref": "#/$defs/colorFormat" },
+            "700": { "$ref": "#/$defs/colorFormat" },
+            "800": { "$ref": "#/$defs/colorFormat" },
+            "900": { "$ref": "#/$defs/colorFormat" }
+          },
+          "additionalProperties": { 
+            "type": "string",
+            "description": "Additional gray variants beyond the standard scale"
+          },
+          "description": "Gray color scale using standard 50-900 values"
         },
         "semantic": {
           "type": "object",
           "properties": {
-            "error": { "type": "string" },
-            "warning": { "type": "string" },
-            "success": { "type": "string" }
-          },
-          "required": ["error"]
+            "error": { "$ref": "#/$defs/colorFormat" },
+            "errorLight": { "$ref": "#/$defs/colorFormat" },
+            "errorBorder": { "$ref": "#/$defs/colorFormat" },
+            "warning": { "$ref": "#/$defs/colorFormat" },
+            "warningLight": { "$ref": "#/$defs/colorFormat" },
+            "warningBorder": { "$ref": "#/$defs/colorFormat" },
+            "success": { "$ref": "#/$defs/colorFormat" },
+            "successLight": { "$ref": "#/$defs/colorFormat" },
+            "successBorder": { "$ref": "#/$defs/colorFormat" },
+            "info": { "$ref": "#/$defs/colorFormat" },
+            "infoLight": { "$ref": "#/$defs/colorFormat" },
+            "infoBorder": { "$ref": "#/$defs/colorFormat" }
+          }
         },
         "text": {
           "type": "object",
           "properties": {
-            "primary": { "type": "string" },
-            "secondary": { "type": "string" },
-            "tertiary": { "type": "string" },
-            "inverse": { "type": "string" }
+            "primary": { "$ref": "#/$defs/colorFormat" },
+            "secondary": { "$ref": "#/$defs/colorFormat" },
+            "tertiary": { "$ref": "#/$defs/colorFormat" },
+            "inverse": { "$ref": "#/$defs/colorFormat" },
+            "link": { "$ref": "#/$defs/colorFormat" },
+            "linkHover": { "$ref": "#/$defs/colorFormat" }
           },
           "required": ["primary", "secondary"]
         },
         "border": {
           "type": "object",
           "properties": {
-            "primary": { "type": "string" },
-            "secondary": { "type": "string" }
+            "primary": { "$ref": "#/$defs/colorFormat" },
+            "secondary": { "$ref": "#/$defs/colorFormat" }
           },
           "required": ["primary"]
         },
         "background": {
           "type": "object",
           "properties": {
-            "primary": { "type": "string" },
-            "secondary": { "type": "string" }
+            "primary": { "$ref": "#/$defs/colorFormat" },
+            "secondary": { "$ref": "#/$defs/colorFormat" },
+            "tertiary": { "$ref": "#/$defs/colorFormat" },
+            "overlay": { "$ref": "#/$defs/colorFormat" }
           },
           "required": ["primary"]
         },
         "state": {
           "type": "object",
           "properties": {
-            "hover": { "type": "string" },
-            "active": { "type": "string" },
-            "disabled": { "type": "string" },
-            "dirty": { "type": "string" },
-            "dirtyBorder": { "type": "string" }
+            "hover": { "$ref": "#/$defs/colorFormat" },
+            "active": { "$ref": "#/$defs/colorFormat" },
+            "disabled": { "$ref": "#/$defs/colorFormat" },
+            "dirty": { "$ref": "#/$defs/colorFormat" },
+            "dirtyBorder": { "$ref": "#/$defs/colorFormat" },
+            "focus": { "$ref": "#/$defs/colorFormat" },
+            "changed": { "$ref": "#/$defs/colorFormat" },
+            "changedBorder": { "$ref": "#/$defs/colorFormat" }
           }
         }
       },
@@ -66,16 +132,16 @@
     "spacing": {
       "type": "object",
       "properties": {
-        "xs": { "type": "string" },
-        "sm": { "type": "string" },
-        "md": { "type": "string" },
-        "lg": { "type": "string" },
-        "xl": { "type": "string" },
+        "xs": { "$ref": "#/$defs/spacingPattern" },
+        "sm": { "$ref": "#/$defs/spacingPattern" },
+        "md": { "$ref": "#/$defs/spacingPattern" },
+        "lg": { "$ref": "#/$defs/spacingPattern" },
+        "xl": { "$ref": "#/$defs/spacingPattern" },
         "button": {
           "type": "object",
           "properties": {
-            "padding": { "type": "string" },
-            "gap": { "type": "string" }
+            "padding": { "$ref": "#/$defs/spacingPattern" },
+            "gap": { "$ref": "#/$defs/spacingPattern" }
           }
         },
         "array": {
@@ -95,7 +161,7 @@
         "field": {
           "type": "object",
           "properties": {
-            "gap": { "type": "string" }
+            "gap": { "$ref": "#/$defs/sizePattern" }
           }
         }
       },
@@ -107,76 +173,31 @@
         "fontSize": {
           "type": "object",
           "properties": {
-            "xs": { "type": "string" },
-            "sm": { "type": "string" },
-            "base": { "type": "string" },
-            "lg": { "type": "string" },
-            "xl": { "type": "string" }
+            "xs": {  "$ref": "#/$defs/sizePattern"},
+            "sm": {  "$ref": "#/$defs/sizePattern"},
+            "base": {  "$ref": "#/$defs/sizePattern"},
+            "lg": {  "$ref": "#/$defs/sizePattern"},
+            "xl": {  "$ref": "#/$defs/sizePattern"}
           }
         },
         "fontWeight": {
           "type": "object",
           "properties": {
-            "light": { 
-                "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                ]
-            },
-            "normal": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            },
-            "medium": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            },
-            "semibold": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            },
-            "bold": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            }
-          },
-          "required": []
+            "light": {  "$ref": "#/$defs/sizePattern"},
+            "normal": {  "$ref": "#/$defs/sizePattern"},
+            "medium": {  "$ref": "#/$defs/sizePattern"},
+            "semibold": {  "$ref": "#/$defs/sizePattern"},
+            "bold": {  "$ref": "#/$defs/sizePattern"}
+          }
         },
         "lineHeight": {
           "type": "object",
           "properties": {
-            "none": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            },
-            "tight": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            },
-            "normal": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            },
-            "loose": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            }
+            "none": {  "$ref": "#/$defs/sizePattern"},
+            "tight": {  "$ref": "#/$defs/sizePattern"},
+            "normal": {  "$ref": "#/$defs/sizePattern"},
+            "loose": {  "$ref": "#/$defs/sizePattern"},
+            "relaxed": {  "$ref": "#/$defs/sizePattern"}
           }
         },
         "field": {
@@ -185,91 +206,41 @@
             "label": {
               "type": "object",
               "properties": {
-                "fontSize": { "type": "string" },
-                "fontWeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                },
-                "lineHeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                }
+                "fontSize": { "$ref": "#/$defs/sizePattern" },
+                "fontWeight": { "$ref": "#/$defs/sizePattern" },
+                "lineHeight": { "$ref": "#/$defs/sizePattern" }
               }
             },
             "input": {
               "type": "object",
               "properties": {
-                "fontSize": { "type": "string" },
-                "fontWeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                },
-                "lineHeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                }
+                "fontSize": { "$ref": "#/$defs/sizePattern" },
+                "fontWeight": { "$ref": "#/$defs/sizePattern" },
+                "lineHeight": { "$ref": "#/$defs/sizePattern" }
               }
             },
             "description": {
               "type": "object",
               "properties": {
-                "fontSize": { "type": "string" },
-                "fontWeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                },
-                "lineHeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                }
+                "fontSize": { "$ref": "#/$defs/sizePattern" },
+                "fontWeight": { "$ref": "#/$defs/sizePattern" },
+                "lineHeight": { "$ref": "#/$defs/sizePattern" }
               }
             },
             "error": {
               "type": "object",
               "properties": {
-                "fontSize": { "type": "string" },
-                "fontWeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                },
-                "lineHeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                }
+                "fontSize": { "$ref": "#/$defs/sizePattern" },
+                "fontWeight": { "$ref": "#/$defs/sizePattern" },
+                "lineHeight": { "$ref": "#/$defs/sizePattern" }
               }
             },
             "helper": {
               "type": "object",
               "properties": {
-                "fontSize": { "type": "string" },
-                "fontWeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                },
-                "lineHeight": { 
-                  "oneOf": [
-                    { "type": "number" },
-                    { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-                  ]
-                }
+                "fontSize": { "$ref": "#/$defs/sizePattern" },
+                "fontWeight": { "$ref": "#/$defs/sizePattern" },
+                "lineHeight": { "$ref": "#/$defs/sizePattern" }
               }
             }
           }
@@ -278,22 +249,12 @@
           "type": "object",
           "properties": {
             "fontSize": { "type": "string" },
-            "fontWeight": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            },
-            "lineHeight": { 
-              "oneOf": [
-                { "type": "number" },
-                { "type": "string", "pattern": "^\\d+(?:\\.\\d+)?\\s*(?:px|rem|em|pt|%)?$" }
-              ]
-            }
+            "fontWeight": { "$ref": "#/$defs/sizePattern" },
+            "lineHeight": { "$ref": "#/$defs/sizePattern" }
           }
         }
       },
-      "required": ["fontSize", "fontWeight", "lineHeight"]
+      "required": ["fontSize"]
     },
     "shadows": {
       "type": "object",
@@ -337,13 +298,13 @@
                   "fieldContainer": {
                     "type": "object",
                     "properties": {
-                      "marginBottom": { "type": "string" }
+                      "marginBottom": { "$ref": "#/$defs/sizePattern" }
                     }
                   },
                   "fieldInput": {
                     "type": "object",
                     "properties": {
-                      "padding": { "type": "string" }
+                      "padding": { "$ref": "#/$defs/sizePattern" }
                     }
                   }
                 }
@@ -360,18 +321,51 @@
     "layout": {
       "type": "object",
       "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["vertical", "intelligent-flow", "grid-12", "responsive-adaptive"]
+        },
+        "gap": {
+          "type": "string",
+          "enum": ["xs", "sm", "md", "lg", "xl"]
+        },
+        "breakpoints": {
+          "type": "object",
+          "properties": {
+            "mobile": { 
+              "type": "string",
+              "enum": ["vertical", "intelligent-flow", "grid-12"]
+            },
+            "tablet": { 
+              "type": "string",
+              "enum": ["vertical", "intelligent-flow", "grid-12"]
+            },
+            "desktop": { 
+              "type": "string",
+              "enum": ["vertical", "intelligent-flow", "grid-12"]
+            }
+          }
+        },
+        "fieldWidths": {
+          "type": "object",
+          "additionalProperties": { 
+            "type": "number",
+            "minimum": 1,
+            "maximum": 12
+          }
+        },
         "form": {
           "type": "object",
           "properties": {
-            "gap": { "type": "string" },
-            "maxWidth": { "type": "string" },
-            "padding": { "type": "string" }
+            "gap": { "$ref": "#/$defs/sizePattern" },
+            "maxWidth": { "$ref": "#/$defs/sizePattern" },
+            "padding": { "$ref": "#/$defs/sizePattern" }
           }
         },
         "field": {
           "type": "object",
           "properties": {
-            "gap": { "type": "string" },
+            "gap": { "$ref": "#/$defs/sizePattern" },
             "direction": { 
               "type": "string",
               "enum": ["row", "column"] 
@@ -381,8 +375,8 @@
         "section": {
           "type": "object",
           "properties": {
-            "gap": { "type": "string" },
-            "padding": { "type": "string" }
+            "gap": { "$ref": "#/$defs/sizePattern" },
+            "padding": { "$ref": "#/$defs/sizePattern" }
           }
         }
       }

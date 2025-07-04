@@ -1,5 +1,5 @@
 export const VALIDATION_MESSAGES = {
-  REQUIRED: "Field is required",
+  REQUIRED: '', //"Field is required",
   MIN_LENGTH: (minLength: number) => `Must be at least ${minLength} characters`,
   MAX_LENGTH: (maxLength: number) => `Must be no more than ${maxLength} characters`,
   NUMBER_REQUIRED: "Must be a number",

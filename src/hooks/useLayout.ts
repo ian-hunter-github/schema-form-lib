@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { LayoutConfig, ResponsiveBreakpoint } from '../types/layout';
+import { DEFAULT_FIELD_WIDTHS } from '../types/layout';
 import { getCurrentBreakpoint } from '../utils/layout/layoutUtils';
 
 /**
@@ -70,6 +71,12 @@ export const useLayout = (initialConfig: LayoutConfig = { strategy: 'vertical' }
   const breakpoint = useResponsiveBreakpoint();
   const layoutConfig = useLayoutConfig(initialConfig, breakpoint);
 
+  // Merge default field widths with any custom widths
+  const mergedFieldWidths = {
+    ...DEFAULT_FIELD_WIDTHS,
+    ...layoutConfig.fieldWidths
+  };
+
   const isVertical = layoutConfig.strategy === 'vertical';
   const isGrid = layoutConfig.strategy === 'grid-12' || layoutConfig.strategy === 'grid-custom';
   const isFlow = layoutConfig.strategy === 'intelligent-flow';
@@ -77,7 +84,10 @@ export const useLayout = (initialConfig: LayoutConfig = { strategy: 'vertical' }
 
   return {
     breakpoint,
-    layoutConfig,
+    layoutConfig: {
+      ...layoutConfig,
+      fieldWidths: mergedFieldWidths
+    },
     isVertical,
     isGrid,
     isFlow,

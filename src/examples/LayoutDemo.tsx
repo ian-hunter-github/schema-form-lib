@@ -57,6 +57,13 @@ const createDemoSchema = (layoutConfig?: LayoutConfig): JSONSchema => ({
       maxLength: 500,
       'x-layout': { columns: 12 }
     },
+    themeColor: {
+      type: 'string',
+      title: 'Theme Color',
+      format: 'color',
+      default: '#3b82f6',
+      'x-layout': { columns: 4 }
+    },
     address: {
       type: 'object',
       title: 'Address',

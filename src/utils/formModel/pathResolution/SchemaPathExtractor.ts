@@ -6,17 +6,13 @@ export class SchemaPathExtractor {
 
   static getPaths(schema: JSONSchema, basePath = ''): string[] {
     const paths: string[] = [];
-    console.log(`\nProcessing schema at path: ${basePath || '(root)'}`);
-    console.log('Schema:', JSON.stringify(schema, null, 2));
     
     if (schema.type === 'object') {
       // Handle direct properties
       if (schema.properties) {
-        console.log('Processing direct properties');
         for (const [key, propSchema] of Object.entries(schema.properties)) {
           const currentPath = PathBuilder.buildChildPath(basePath, key);
           if (!this.isObjectSchema(propSchema)) {
-            console.log(`Adding leaf path: ${currentPath}`);
             paths.push(currentPath);
           } else {
             paths.push(...this.getPaths(propSchema, currentPath));
@@ -31,18 +27,14 @@ export class SchemaPathExtractor {
         const items = schema[combiner as keyof JSONSchema];
         if (!items) continue;
 
-        console.log(`Processing ${combiner}`);
         const variants = Array.isArray(items) ? items : [items];
         for (const variant of variants) {
           if (this.isObjectSchema(variant)) {
-            console.log('Processing variant:', JSON.stringify(variant, null, 2));
             // Process variant's properties with parent path
             if (variant.properties) {
-              console.log('Processing variant properties');
               for (const [key, propSchema] of Object.entries(variant.properties)) {
                 const currentPath = PathBuilder.buildChildPath(basePath, key);
                 if (!this.isObjectSchema(propSchema)) {
-                  console.log(`Adding variant leaf path: ${currentPath}`);
                   paths.push(currentPath);
                 } else {
                   paths.push(...this.getPaths(propSchema, currentPath));
@@ -55,7 +47,6 @@ export class SchemaPathExtractor {
         }
       }
     }
-    console.log(`Final paths for ${basePath || '(root)'}:`, paths);
     return [...new Set(paths)]; // Remove duplicates
   }
 
