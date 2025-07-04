@@ -27,7 +27,10 @@ export type JSONSchema = {
   readOnly?: boolean;
   items?: JSONSchema;
   properties?: JSONSchemaProperties;
-  required?: boolean;
+  // For object schemas (draft-7 standard)
+  required?: string[];
+  // For property schemas (our extension)
+  isRequired?: boolean;
   minItems?: number;
   maxItems?: number;
   uniqueItems?: boolean;

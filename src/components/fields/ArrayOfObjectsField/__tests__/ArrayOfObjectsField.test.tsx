@@ -34,7 +34,7 @@ describe('ArrayOfObjectsField', () => {
         age: { type: 'number', title: 'Age' },
         active: { type: 'boolean', title: 'Active' }
       },
-      required: true
+      isRequired: true
     }
   });
 

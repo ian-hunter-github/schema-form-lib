@@ -13,7 +13,7 @@ export class FieldInitializer {
       schema,
       errors: [],
       errorCount: 0,
-      required: schema.required || false,
+      required: schema.isRequired || false,
       dirty: false,
       dirtyCount: 0,
       hasChanges: false,          // No changes initially

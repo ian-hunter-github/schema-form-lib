@@ -245,7 +245,7 @@ describe("FormValidator", () => {
   });
 
   describe("validateAll", () => {
-    function createField(
+      function createField(
       path: string, 
       schema: JSONSchema,
       value: JSONValue,
@@ -256,7 +256,7 @@ describe("FormValidator", () => {
         value,
         schema: {
           ...schema,
-          required
+          isRequired: required
         },
         errors: [],
         errorCount: 0,

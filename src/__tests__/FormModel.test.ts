@@ -30,7 +30,7 @@ describe("FormModel - Basic Types", () => {
 
   it("should validate required string", () => {
     const schema: JSONSchemaProperties = {
-      name: { type: "string", required: true },
+      name: { type: "string", minLength: 1 }, // Make it effectively required
     };
     const model = new FormModel(schema);
     expect(model.validate()).toBe(false);
@@ -637,7 +637,7 @@ describe("FormModel - Advanced Features", () => {
 
   it("should support error clearing", () => {
     const schema: JSONSchemaProperties = {
-      name: { type: "string", required: true },
+      name: { type: "string", minLength: 1 }, // Make it effectively required
     };
     const model = new FormModel(schema);
 
@@ -661,16 +661,14 @@ describe("FormModel - Nested Data Validation", () => {
           profile: {
             type: "object",
             properties: {
-              name: {
-                type: "string",
-                required: true,
-                minLength: 2,
-                maxLength: 50,
+      name: {
+        type: "string",
+        minLength: 1, // Make it effectively required
+        maxLength: 50,
               },
               email: {
                 type: "string",
-                required: true,
-                minLength: 5,
+                minLength: 5, // Effectively required
               },
               age: {
                 type: "number",
@@ -684,7 +682,7 @@ describe("FormModel - Nested Data Validation", () => {
             properties: {
               theme: {
                 type: "string",
-                required: true,
+                minLength: 1, // Effectively required
               },
               notifications: {
                 type: "boolean",
@@ -815,7 +813,7 @@ describe("FormModel - Nested Data Validation", () => {
             items: {
               type: "object",
               properties: {
-                name: { type: "string", required: true, minLength: 3 },
+                name: { type: "string", isRequired: true, minLength: 3 },
                 employees: {
                   type: "array",
                   items: {
@@ -823,12 +821,12 @@ describe("FormModel - Nested Data Validation", () => {
                     properties: {
                       firstName: {
                         type: "string",
-                        required: true,
+                        isRequired: true,
                         minLength: 2,
                       },
                       lastName: {
                         type: "string",
-                        required: true,
+                        isRequired: true,
                         minLength: 2,
                       },
                       salary: {

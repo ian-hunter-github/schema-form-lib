@@ -1,5 +1,5 @@
 import React from 'react';
-import type { JSONSchema } from '../../types/schema';
+import type { JSONSchema } from '../../../types/schema';
 
 interface DemoStringFieldProps {
   schema: JSONSchema;

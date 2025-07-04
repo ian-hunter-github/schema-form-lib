@@ -49,7 +49,7 @@ function App() {
   const schema: JSONSchemaProperties = {
     name: { 
       type: 'string', 
-      required: true,
+      isRequired: true,
       title: 'Full Name',
       description: 'Enter your full name'
     },
@@ -68,7 +68,7 @@ function App() {
     gender: { 
       type: 'string', 
       enum: ['', 'male', 'female', 'other'], 
-      required: true,
+      isRequired: true,
       title: 'Gender',
       description: 'Select your gender'
     },
@@ -86,18 +86,18 @@ function App() {
       items: {
         type: 'object',
         properties: {
-          name: {
+            name: {
             type: 'string',
             title: 'Contact Name',
             description: 'Full name of the contact person',
-            required: true
+            isRequired: true
           },
-          relationship: {
+            relationship: {
             type: 'string',
             title: 'Relationship',
             description: 'Your relationship to this person',
             enum: ['', 'spouse', 'parent', 'sibling', 'friend', 'colleague', 'other'],
-            required: true
+            isRequired: true
           },
           phone: {
             type: 'string',
@@ -135,7 +135,7 @@ function App() {
       properties: {
         street: { 
           type: 'string', 
-          required: true,
+          isRequired: true,
           title: 'Street Address',
           description: 'Your street address'
         },
@@ -148,7 +148,7 @@ function App() {
           type: 'string', 
           minLength: 5, 
           maxLength: 10, 
-          required: true,
+          isRequired: true,
           title: 'ZIP Code',
           description: 'Your postal/ZIP code'
         },
@@ -179,7 +179,7 @@ function App() {
           type: 'array', 
           items: { type: 'string' }, 
           default: ['feature1', 'feature2'], 
-          required: true,
+          isRequired: true,
           title: 'Area Features',
           description: 'Notable features in your area'
         },

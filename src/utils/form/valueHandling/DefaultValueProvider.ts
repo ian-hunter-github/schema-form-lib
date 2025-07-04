@@ -44,6 +44,6 @@ export class DefaultValueProvider {
   }
 
   static shouldInitializeProperty(schema: JSONSchema): boolean {
-    return schema.default !== undefined || schema.required === true;
+    return schema.default !== undefined || schema.isRequired === true;
   }
 }
