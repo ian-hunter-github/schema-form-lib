@@ -3,8 +3,8 @@ import { vi } from 'vitest';
 import { ThemeProvider, useTheme } from '../ThemeProvider';
 import { defaultTheme } from '../themes/default';
 import LayoutContainer from '../../components/layout/LayoutContainer';
-import { FormModel } from '../../utils/formModel/FormModel';
-import type { FormField } from '../../utils/formModel/types';
+import { FormModel } from '../../utils/form/FormModel';
+import type { FormField } from '../../utils/form/types';
 
 describe('ThemeProvider', () => {
   afterEach(() => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { FormModel } from "../utils/formModel/FormModel";
+import { FormModel } from "../utils/form/FormModel";
 import type { JSONSchemaProperties } from "../types/schema";
 
 describe("BufferingManager - Form Buffering and Revert Operations", () => {

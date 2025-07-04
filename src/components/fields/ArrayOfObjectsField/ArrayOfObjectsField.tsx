@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import type { FormField } from '../../../utils/formModel/types';
-import type { FormModel } from '../../../utils/formModel/FormModel';
+import React, { memo, useState } from 'react';
+import type { FormField } from '../../../types/fields';
+import type { FormModel } from '../../../utils/form/FormModel';
 import type { JSONValue } from '../../../types/schema';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import FieldRenderer from '../../FieldRenderer';
@@ -289,4 +289,13 @@ function createDefaultObjectValue(itemSchema?: { properties?: Record<string, { t
   return defaultObj;
 }
 
-export default ArrayOfObjectsField;
+const areEqual = (prevProps: ArrayOfObjectsFieldProps, nextProps: ArrayOfObjectsFieldProps) => {
+  return (
+    prevProps.field.value === nextProps.field.value &&
+    prevProps.field.errors === nextProps.field.errors &&
+    prevProps.field.hasChanges === nextProps.field.hasChanges &&
+    prevProps.field.schema === nextProps.field.schema
+  );
+};
+
+export default memo(ArrayOfObjectsField, areEqual);

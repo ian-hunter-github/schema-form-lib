@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import StringField from './StringField';
-import type { FormField } from '../../../utils/formModel/types';
+import type { FormField } from '../../../utils/form/types';
 import type { JSONSchema } from '../../../types/schema';
 
 // Mock FormModel for demo

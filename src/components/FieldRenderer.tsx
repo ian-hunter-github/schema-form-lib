@@ -1,7 +1,13 @@
-import React from "react";
-import type { FormField } from "../utils/formModel/types";
-import type { FormModel } from "../utils/formModel/FormModel";
+import React, { memo } from "react";
+import type { FormField } from "../types/fields";
+import type { FormModel } from "../utils/form/FormModel";
 import type { JSONValue } from "../types/schema";
+
+/**
+ * Renders the appropriate field component based on the field's schema type.
+ * Handles all field types including primitives, arrays, objects, enums, and oneOf fields.
+ * Uses lazy loading for complex field types to optimize bundle size.
+ */
 import StringField from "./fields/StringField";
 import NumberField from "./fields/NumberField";
 import BooleanField from "./fields/BooleanField";
@@ -12,13 +18,32 @@ import { OneOfField } from "./fields/OneOfField/OneOfField";
 import ColorField from "./fields/ColorField/ColorField";
 
 interface FieldRendererProps {
+  /** The form field to render */
   field: FormField;
+  /** The form model instance for field operations */
   formModel: FormModel;
+  /** 
+   * Callback when field value changes
+   * @param value - The new field value
+   * @param shouldValidate - Whether to trigger validation after change
+   */
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
 }
 
+/**
+ * FieldRenderer component - dynamically selects and renders the appropriate field component
+ * based on the field's schema definition.
+ * 
+ * @example
+ * // Basic usage
+ * <FieldRenderer 
+ *   field={field} 
+ *   formModel={formModel}
+ *   onChange={(value) => console.log(value)}
+ * />
+ */
 const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChange }) => {
-  // Handle oneOf fields first
+  // Handle oneOf fields first (highest priority)
   if (field.schema.oneOf) {
     return (
       <OneOfField
@@ -29,13 +54,13 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
     );
   }
 
-  // Handle enum fields
+  // Handle enum fields (second priority)
   if (field.schema.enum) {
     return <EnumField field={field} formModel={formModel} onChange={onChange} />;
   }
 
-  // Handle object fields - import directly but avoid circular dependency
-  // by not importing ObjectField at the top level
+  // Handle object fields - lazy loaded to avoid circular dependencies
+  // and reduce initial bundle size
   if (field.schema.properties || field.schema.type === 'object') {
     // Create a lazy component that imports ObjectField only when needed
     const ObjectFieldLazy = React.lazy(() => import("./fields/ObjectField"));
@@ -46,7 +71,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
     );
   }
 
-  // Handle primitive types
+  // Handle primitive types (fallback for simple field types)
   const fieldType = field.schema.type === 'integer' ? 'number' : field.schema.type;
   const itemSchema = field.schema.items;
   
@@ -76,4 +101,12 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
   }
 };
 
-export default FieldRenderer;
+const areEqual = (prevProps: FieldRendererProps, nextProps: FieldRendererProps) => {
+  return (
+    prevProps.field === nextProps.field &&
+    prevProps.formModel === nextProps.formModel &&
+    prevProps.onChange === nextProps.onChange
+  );
+};
+
+export default memo(FieldRenderer, areEqual);

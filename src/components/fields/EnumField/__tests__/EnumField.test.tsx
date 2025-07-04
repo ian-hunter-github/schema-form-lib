@@ -1,9 +1,9 @@
 import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import EnumField from '../EnumField';
-import type { FormField } from '../../../../utils/formModel/types';
+import type { FormField } from '../../../../utils/form/types';
 import type { JSONSchema } from '../../../../types/schema';
-import { FormModel } from '../../../../utils/formModel/FormModel';
+import { FormModel } from '../../../../utils/form/FormModel';
 
 // Helper function to create a mock FormField
 const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {

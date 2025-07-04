@@ -35,7 +35,7 @@ The refactoring follows these key principles:
 
 ### Directory Structure
 ```
-src/utils/formModel/
+src/utils/form/
 ├── FormModel.ts (original - unchanged for compatibility)
 ├── FormModelCore.ts (original - unchanged for compatibility)
 ├── FormModelRefactored.ts (new simplified version)
@@ -241,3 +241,40 @@ With this new architecture, the following enhancements become much easier:
 This refactoring transforms a monolithic, hard-to-maintain codebase into a modular, extensible, and testable architecture. While the total line count increased, the code is now much more manageable, with each component having a clear, single responsibility. This foundation will make future development and maintenance significantly easier and more reliable.
 
 The refactoring maintains full backward compatibility while providing a clear path forward for enhanced functionality and improved developer experience.
+
+## Performance Optimizations
+
+### Field Component Memoization
+
+All field components (StringField, NumberField, etc.) should be memoized using React.memo with a custom comparison function. The pattern follows:
+
+```typescript
+import React, { memo } from 'react';
+import type { FormField } from '../../types/fields';
+
+interface ComponentProps {
+  field: FormField;
+  // other props
+}
+
+const Component: React.FC<ComponentProps> = ({ field /* other props */ }) => {
+  // Component implementation
+};
+
+const areEqual = (prevProps: ComponentProps, nextProps: ComponentProps) => {
+  return (
+    prevProps.field.value === nextProps.field.value &&
+    prevProps.field.errors === nextProps.field.errors &&
+    prevProps.field.hasChanges === nextProps.field.hasChanges &&
+    prevProps.field.schema === nextProps.field.schema
+  );
+};
+
+export default memo(Component, areEqual);
+```
+
+Key aspects:
+1. Uses React.memo to prevent unnecessary re-renders
+2. Custom comparison function checks only relevant field properties
+3. Maintains all existing functionality while improving performance
+4. Applied consistently across all field components

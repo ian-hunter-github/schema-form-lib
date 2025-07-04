@@ -1,4 +1,4 @@
-import type { FormField } from '../formModel/types';
+import type { FormField } from '../form/types';
 import type { JSONSchemaWithLayout, LayoutConfig, FieldLayoutConfig, ResponsiveBreakpoint } from '../../types/layout';
 import { DEFAULT_FIELD_WIDTHS, BREAKPOINTS } from '../../types/layout';
 

@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ArrayOfObjectsField from '../ArrayOfObjectsField';
-import type { FormField } from '../../../../utils/formModel/types';
-import type { FormModel } from '../../../../utils/formModel/FormModel';
+import type { FormField } from '../../../../utils/form/types';
+import type { FormModel } from '../../../../utils/form/FormModel';
 import type { JSONSchema } from '../../../../types/schema';
 
 // Mock the FieldRenderer to avoid circular dependencies in tests

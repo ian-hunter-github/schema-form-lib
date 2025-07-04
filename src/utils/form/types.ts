@@ -1,5 +1,8 @@
 import type { JSONSchema, JSONValue } from '../../types/schema';
 
+/**
+ * @deprecated Use FormField from '../../types/fields' instead
+ */
 export interface FormField {
   path: string;
   value: JSONValue;
@@ -20,4 +23,11 @@ export function isJSONSchema(schema: unknown): schema is JSONSchema {
 
 export function isJSONObject(value: unknown): value is Record<string, JSONValue> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export interface FormError {
+  code: string;
+  message: string;
+  path?: string;
+  details?: unknown;
 }

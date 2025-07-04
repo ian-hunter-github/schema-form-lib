@@ -1,7 +1,28 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { OneOfField } from '../OneOfField';
-import type { JSONSchema } from '../../../../types/schema';
+import type { JSONSchema, JSONValue } from '../../../../types/schema';
 import { describe, it, expect, vi } from 'vitest';
+import React from 'react';
+
+vi.mock('../../SchemaRenderer', () => {
+  const SchemaRenderer = ({ schema, onChange }: { 
+    schema: JSONSchema;
+    onChange?: (value: JSONValue, shouldValidate?: boolean) => void 
+  }) => (
+    <div data-testid="schema-renderer-mock">
+      Mock SchemaRenderer for {schema.type}
+      {onChange && (
+        <button onClick={() => onChange('mock-value', true)}>
+          Trigger Change
+        </button>
+      )}
+    </div>
+  );
+  return {
+    __esModule: true,
+    default: SchemaRenderer
+  };
+});
 
 describe('OneOfField', () => {
   const mockSchema: JSONSchema = {
@@ -11,7 +32,7 @@ describe('OneOfField', () => {
         type: 'object',
         title: 'Email Option',
         properties: {
-          value: { 
+          value: {
             type: 'string',
             format: 'email'
           }

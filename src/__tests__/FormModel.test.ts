@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { FormModel } from "../utils/formModel/FormModel";
+import { FormModel } from "../utils/form/FormModel";
 import type { JSONSchemaProperties } from "../types/schema";
-import { VALIDATION_MESSAGES } from "../utils/formModel/FormValidator/validationMessages";
+import { VALIDATION_MESSAGES } from "../utils/form/FormValidator/validationMessages";
 
 describe("FormModel - Basic Types", () => {
   it("should handle string type with default", () => {

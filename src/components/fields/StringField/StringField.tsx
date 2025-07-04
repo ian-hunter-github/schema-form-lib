@@ -1,6 +1,6 @@
-import React from 'react';
-import type { FormField } from '../../../utils/formModel/types';
-import type { FormModel } from '../../../utils/formModel/FormModel';
+import React, { memo } from 'react';
+import type { FormField } from '../../../types/fields';
+import type { FormModel } from '../../../utils/form/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import { useLayoutContext } from '../../../contexts/LayoutContext';
 import {
@@ -11,7 +11,7 @@ import {
   SimpleFieldError,
   SimpleFieldHelper,
 } from '../../../theme/simpleStyled';
-import { VALIDATION_MESSAGES } from '../../../utils/formModel/FormValidator/validationMessages';
+import { VALIDATION_MESSAGES } from '../../../utils/form/FormValidator/validationMessages';
 
 export interface StringFieldProps {
   field: FormField;
@@ -106,4 +106,13 @@ const StringField: React.FC<StringFieldProps> = ({ field, onChange }) => {
   );
 };
 
-export default StringField;
+const areEqual = (prevProps: StringFieldProps, nextProps: StringFieldProps) => {
+  return (
+    prevProps.field.value === nextProps.field.value &&
+    prevProps.field.errors === nextProps.field.errors &&
+    prevProps.field.hasChanges === nextProps.field.hasChanges &&
+    prevProps.field.schema === nextProps.field.schema
+  );
+};
+
+export default memo(StringField, areEqual);

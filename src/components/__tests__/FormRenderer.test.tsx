@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ThemeProvider } from '../../theme/ThemeProvider';
 import FormRenderer from '../FormRenderer';
-import { FormModel } from '../../utils/formModel/FormModel';
+import { FormModel } from '../../utils/form/FormModel';
 import type { JSONSchema } from '../../types/schema';
 
 // Mock the field components to avoid complex dependencies

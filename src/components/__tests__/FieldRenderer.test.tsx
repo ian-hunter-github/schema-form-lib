@@ -1,37 +1,44 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import FieldRenderer from '../FieldRenderer';
-import { FormModel } from '../../utils/formModel/FormModel';
-import type { FormField } from '../../utils/formModel/types';
-import type { JSONSchema } from '../../types/schema';
+import { FormModel } from '../../utils/form/FormModel';
+import type { FormField } from '../../types/fields';
+import type { JSONSchema, JSONValue } from '../../types/schema';
 
-// Mock all field components
+// Define mock field component props type
+interface MockFieldProps {
+  field: FormField;
+  formModel: FormModel;
+  onChange: (value: unknown, validate?: boolean) => void;
+}
+
+// Mock all field components with proper typing
 vi.mock('../fields/StringField', () => ({
-  default: ({ field }: any) => <div data-testid={`string-field-${field.path}`}>StringField</div>
+  default: ({ field }: MockFieldProps) => <div data-testid={`string-field-${field.path}`}>StringField</div>
 }));
 
 vi.mock('../fields/NumberField', () => ({
-  default: ({ field }: any) => <div data-testid={`number-field-${field.path}`}>NumberField</div>
+  default: ({ field }: MockFieldProps) => <div data-testid={`number-field-${field.path}`}>NumberField</div>
 }));
 
 vi.mock('../fields/BooleanField', () => ({
-  default: ({ field }: any) => <div data-testid={`boolean-field-${field.path}`}>BooleanField</div>
+  default: ({ field }: MockFieldProps) => <div data-testid={`boolean-field-${field.path}`}>BooleanField</div>
 }));
 
 vi.mock('../fields/EnumField', () => ({
-  default: ({ field }: any) => <div data-testid={`enum-field-${field.path}`}>EnumField</div>
+  default: ({ field }: MockFieldProps) => <div data-testid={`enum-field-${field.path}`}>EnumField</div>
 }));
 
 vi.mock('../fields/ArrayOfPrimitiveField', () => ({
-  default: ({ field }: any) => <div data-testid={`array-primitive-field-${field.path}`}>ArrayOfPrimitiveField</div>
+  default: ({ field }: MockFieldProps) => <div data-testid={`array-primitive-field-${field.path}`}>ArrayOfPrimitiveField</div>
 }));
 
 vi.mock('../fields/ArrayOfObjectsField', () => ({
-  default: ({ field }: any) => <div data-testid={`array-objects-field-${field.path}`}>ArrayOfObjectsField</div>
+  default: ({ field }: MockFieldProps) => <div data-testid={`array-objects-field-${field.path}`}>ArrayOfObjectsField</div>
 }));
 
 vi.mock('../fields/ObjectField', () => ({
-  default: ({ field }: any) => <div data-testid={`object-field-${field.path}`}>ObjectField</div>
+  default: ({ field }: MockFieldProps) => <div data-testid={`object-field-${field.path}`}>ObjectField</div>
 }));
 
 describe('FieldRenderer', () => {
@@ -42,10 +49,10 @@ describe('FieldRenderer', () => {
     mockOnChange = vi.fn();
   });
 
-  const createMockField = (path: string, schema: JSONSchema, value?: any): FormField => ({
+  const createMockField = (path: string, schema: JSONSchema, value?: JSONValue): FormField => ({
     path,
-    value: value ?? null,
-    pristineValue: null,
+    value: value ?? null as JSONValue | null,
+    pristineValue: null as JSONValue | null,
     schema,
     errors: [],
     errorCount: 0,
@@ -53,7 +60,12 @@ describe('FieldRenderer', () => {
     dirty: false,
     dirtyCount: 0,
     hasChanges: false,
-    lastModified: new Date()
+    lastModified: new Date(),
+    isTouched: false,
+    isDisabled: false,
+    isReadOnly: false,
+    isHidden: false,
+    validationState: 'valid'
   });
 
   describe('Field Type Selection', () => {
@@ -193,7 +205,7 @@ describe('FieldRenderer', () => {
 
     it('should render error message for unsupported field type', () => {
       const schema: JSONSchema = { 
-        type: 'null' as any, // Unsupported type
+        type: 'null' as never, // Unsupported type
         title: 'Unknown'
       };
       mockFormModel = new FormModel({ type: 'object', properties: { unknown: schema } });
@@ -270,7 +282,7 @@ describe('FieldRenderer', () => {
       const schema: JSONSchema = { 
         title: 'Unknown'
         // type is undefined
-      } as any;
+      } as never;
       mockFormModel = new FormModel({ type: 'object', properties: { unknown: schema } });
       const field = createMockField('unknown', schema);
 

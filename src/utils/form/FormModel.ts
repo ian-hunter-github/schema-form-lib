@@ -1,6 +1,11 @@
 import type { JSONSchemaProperties, JSONSchema, JSONValue } from '../../types/schema';
 import { isJSONSchema } from './schemaUtils';
-import type { FormField } from './types';
+import type { FormField, FormError } from './types';
+
+interface FormModelError extends FormError {
+  path?: string;
+  details?: unknown;
+}
 import { FieldCreatorFactory } from "./fieldCreation/FieldCreatorFactory";
 import { DynamicFieldResolver } from "./fieldManagement/DynamicFieldResolver";
 import { FieldUpdater } from "./fieldManagement/FieldUpdater";
@@ -8,10 +13,23 @@ import { ArrayFieldManager } from "./arrayOperations/ArrayFieldManager";
 import { FormValidator } from "./FormValidator/FormValidator";
 import { BufferingManager } from "./BufferingManager";
 
+/**
+ * Core form state management class that handles:
+ * - Field creation and management
+ * - Value updates
+ * - Validation
+ * - Change tracking
+ * - Array operations
+ */
 export class FormModel {
   protected fields: Map<string, FormField> = new Map();
   private listeners: Set<(fields: Map<string, FormField>) => void> = new Set();
+  private fieldCache: Map<string, FormField> = new Map();
 
+  /**
+   * Creates a new FormModel instance
+   * @param schema - The JSON schema to build the form from
+   */
   constructor(schema: JSONSchema | JSONSchemaProperties) {
     const effectiveSchema = isJSONSchema(schema) ? schema : { type: 'object' as const, properties: schema };
     this.buildForm(effectiveSchema);
@@ -19,34 +37,70 @@ export class FormModel {
 
   private buildForm(schema: JSONSchema): void {
     this.fields = new Map();
+    this.fieldCache = new Map(); // Clear cache when rebuilding form
     FieldCreatorFactory.createFieldsForSchema(this.fields, "", schema);
     this.notifyListeners();
   }
 
-  public getField(path: string): FormField | undefined {
+  /**
+   * Gets a field by its path
+   * @param path - The field path (e.g. 'user.name')
+   * @returns The field or undefined if not found
+   */
+  public getField(path: string): FormField {
+    // Check cache first
+    if (this.fieldCache.has(path)) {
+      return this.fieldCache.get(path)!;
+    }
+
     const field = DynamicFieldResolver.resolveField(this.fields, path);
+    if (!field) {
+      throw {
+        code: 'FIELD_NOT_FOUND',
+        message: `Field not found at path: ${path}`,
+        path
+      } as FormModelError;
+    }
+
+    // Cache the resolved field
+    this.fieldCache.set(path, field);
     return field;
   }
 
+  /**
+   * Gets all fields in the form
+   * @returns Map of all fields (path => field)
+   */
   public getFields(): Map<string, FormField> {
     return new Map(this.fields);
   }
 
+  /**
+   * Sets a field's value
+   * @param path - The field path
+   * @param value - The new value
+   */
   public setValue(path: string, value: JSONValue): void {
-    // Ensure the field exists (create it dynamically if needed)
-    const field = this.getField(path);
-    if (!field) {
-      // Try to create the field path dynamically
-      const createdField = DynamicFieldResolver.resolveField(this.fields, path);
-      if (!createdField) {
-        return;
-      }
+    try {
+      // Ensure the field exists (will throw if not found)
+      this.getField(path);
+      FieldUpdater.updateFieldValue(this.fields, path, value);
+      this.notifyListeners();
+    } catch (error) {
+      console.error(`Failed to set value for path ${path}:`, error);
+      throw {
+        code: 'SET_VALUE_ERROR',
+        message: `Failed to set value for path ${path}`,
+        path,
+        details: error
+      } as FormModelError;
     }
-
-    FieldUpdater.updateFieldValue(this.fields, path, value);
-    this.notifyListeners();
   }
 
+  /**
+   * Validates all fields in the form
+   * @returns True if all fields are valid
+   */
   public validate(): boolean {
     const errors = FormValidator.validateAll(this.fields);
     const isValid = Object.keys(errors).length === 0;
@@ -83,8 +137,13 @@ export class FormModel {
   }
 
   private notifyListeners(): void {
+    // Clear cache when notifying listeners since fields may have changed
+    this.fieldCache.clear();
+    
+    // Batch listener notifications
+    const fieldsSnapshot = new Map(this.fields);
     for (const listener of this.listeners) {
-      listener(this.fields);
+      listener(fieldsSnapshot);
     }
   }
 

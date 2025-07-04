@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { FormValidator } from "../utils/formModel/FormValidator/FormValidator";
-import { VALIDATION_MESSAGES } from "../utils/formModel/FormValidator/validationMessages";
+import { FormValidator } from "../utils/form/FormValidator/FormValidator";
+import { VALIDATION_MESSAGES } from "../utils/form/FormValidator/validationMessages";
 import type { JSONSchemaProperties, JSONSchema, JSONValue } from "../types/schema";
-import type { FormField } from "../utils/formModel/types";
+import type { FormField } from "../utils/form/types";
 
 describe("FormValidator", () => {
   describe("validateField", () => {

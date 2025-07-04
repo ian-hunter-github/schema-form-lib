@@ -3,7 +3,7 @@ import FormRenderer from '../components/FormRenderer';
 import { useFormModel } from '../hooks/useFormModel';
 import themeSchema from '../theme/schema/theme.schema.json';
 import type { JSONSchema, JSONSchemaProperties } from '../types/schema';
-import type { FormField } from '../utils/formModel/types';
+import type { FormField } from '../utils/form/types';
 import { ThemeProvider } from '../theme/ThemeProvider';
 import { validateTheme } from '../theme/utils/themeValidation';
 import type { Theme } from '../theme/themes/default';

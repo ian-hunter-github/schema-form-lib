@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import type { FormField } from '../../../utils/formModel/types';
-import type { FormModel } from '../../../utils/formModel/FormModel';
+import React, { memo, useState } from 'react';
+import type { FormField } from '../../../types/fields';
+import type { FormModel } from '../../../utils/form/FormModel';
 import type { JSONValue } from '../../../types/schema';
 import type { LayoutConfig, JSONSchemaWithLayout } from '../../../types/layout';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
@@ -170,4 +170,13 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
   );
 };
 
-export default ObjectField;
+const areEqual = (prevProps: ObjectFieldProps, nextProps: ObjectFieldProps) => {
+  return (
+    prevProps.field.value === nextProps.field.value &&
+    prevProps.field.errors === nextProps.field.errors &&
+    prevProps.field.hasChanges === nextProps.field.hasChanges &&
+    prevProps.field.schema === nextProps.field.schema
+  );
+};
+
+export default memo(ObjectField, areEqual);

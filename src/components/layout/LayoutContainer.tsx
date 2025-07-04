@@ -1,6 +1,6 @@
 import React from 'react';
-import type { FormField } from '../../utils/formModel/types';
-import type { FormModel } from '../../utils/formModel/FormModel';
+import type { FormField } from '../../utils/form/types';
+import type { FormModel } from '../../utils/form/FormModel';
 import type { LayoutConfig, FieldLayoutConfig } from '../../types/layout';
 import type { JSONValue } from '../../types/schema';
 import { useLayout } from '../../hooks/useLayout';

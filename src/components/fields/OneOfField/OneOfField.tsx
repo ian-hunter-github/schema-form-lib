@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { SchemaRenderer } from '../../SchemaRenderer';
+import React, { memo, useState } from 'react';
+import SchemaRenderer from '../../SchemaRenderer';
 import type { JSONSchema } from '../../../types/schema';
 import './OneOfField.css';
 
@@ -52,3 +52,13 @@ export const OneOfField: React.FC<OneOfFieldProps> = ({
     </div>
   );
 };
+
+const areEqual = (prevProps: OneOfFieldProps, nextProps: OneOfFieldProps) => {
+  return (
+    prevProps.schema === nextProps.schema &&
+    prevProps.path === nextProps.path
+  );
+};
+
+// Export both named and memoized default versions
+export default memo(OneOfField, areEqual);

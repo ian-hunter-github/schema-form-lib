@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import FormRenderer from '../../components/FormRenderer';
-import { FormModel } from '../../utils/formModel/FormModel';
+import { FormModel } from '../../utils/form/FormModel';
 import type { JSONSchemaProperties } from '../../types/schema';
 import themeSchema from '../schema/theme.schema.json';
 

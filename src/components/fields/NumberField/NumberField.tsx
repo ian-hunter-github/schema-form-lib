@@ -1,6 +1,6 @@
-import React from 'react';
-import type { FormField } from '../../../utils/formModel/types';
-import type { FormModel } from '../../../utils/formModel/FormModel';
+import React, { memo } from 'react';
+import type { FormField } from '../../../types/fields';
+import type { FormModel } from '../../../utils/form/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import { useLayoutContext } from '../../../contexts/LayoutContext';
 import {
@@ -94,4 +94,13 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, onChange }) => {
   );
 };
 
-export default NumberField;
+const areEqual = (prevProps: NumberFieldProps, nextProps: NumberFieldProps) => {
+  return (
+    prevProps.field.value === nextProps.field.value &&
+    prevProps.field.errors === nextProps.field.errors &&
+    prevProps.field.hasChanges === nextProps.field.hasChanges &&
+    prevProps.field.schema === nextProps.field.schema
+  );
+};
+
+export default memo(NumberField, areEqual);

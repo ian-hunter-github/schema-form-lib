@@ -19,7 +19,7 @@ A React component for rendering string input fields that uses the FormField data
 
 ```tsx
 import StringField from './components/fields/StringField';
-import type { FormField } from './utils/formModel/types';
+import type { FormField } from './utils/form/types';
 
 const field: FormField = {
   path: 'username',

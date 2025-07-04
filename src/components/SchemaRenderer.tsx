@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import type { JSONSchema, JSONValue } from '../types/schema';
-import { DemoStringField } from './fields/DemoStringField';
-import { DemoNumberField } from './fields/DemoNumberField';
-import { DemoBooleanField } from './fields/DemoBooleanField';
+import { DemoStringField } from './fields/StringField/DemoStringField';
+import { DemoNumberField } from './fields/NumberField/DemoNumberField';
+import { DemoBooleanField } from './fields/BooleanField/DemoBooleanField';
 
 interface SchemaRendererProps {
   schema: JSONSchema;
@@ -11,7 +11,7 @@ interface SchemaRendererProps {
   onChange?: (value: JSONValue, shouldValidate?: boolean) => void;
 }
 
-export const SchemaRenderer: React.FC<SchemaRendererProps> = ({ 
+const SchemaRenderer: React.FC<SchemaRendererProps> = ({ 
   schema,
   value,
   onChange
@@ -41,3 +41,13 @@ export const SchemaRenderer: React.FC<SchemaRendererProps> = ({
       return <div>Unsupported type: {schema.type}</div>;
   }
 };
+
+const areEqual = (prevProps: SchemaRendererProps, nextProps: SchemaRendererProps) => {
+  return (
+    prevProps.schema === nextProps.schema &&
+    prevProps.value === nextProps.value &&
+    prevProps.onChange === nextProps.onChange
+  );
+};
+
+export default memo(SchemaRenderer, areEqual);
