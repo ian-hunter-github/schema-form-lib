@@ -11,7 +11,7 @@ interface SchemaRendererProps {
   onChange?: (value: JSONValue, shouldValidate?: boolean) => void;
 }
 
-const SchemaRenderer: React.FC<SchemaRendererProps> = ({ 
+const SchemaRendererComponent: React.FC<SchemaRendererProps> = ({ 
   schema,
   value,
   onChange
@@ -50,4 +50,5 @@ const areEqual = (prevProps: SchemaRendererProps, nextProps: SchemaRendererProps
   );
 };
 
-export default memo(SchemaRenderer, areEqual);
+export const SchemaRenderer = memo(SchemaRendererComponent, areEqual);
+export type { SchemaRendererProps };

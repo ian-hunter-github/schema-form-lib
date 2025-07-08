@@ -1,9 +1,9 @@
 import React, { memo, useState } from 'react';
-import SchemaRenderer from '../../SchemaRenderer';
+import { SchemaRenderer } from '../../SchemaRenderer';
 import type { JSONSchema } from '../../../types/schema';
 import './OneOfField.css';
 
-interface OneOfFieldProps {
+export interface OneOfFieldProps {
   schema: JSONSchema;
   path: string;
   onChange?: (path: string, value: unknown) => void;

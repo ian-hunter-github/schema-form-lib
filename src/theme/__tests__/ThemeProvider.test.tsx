@@ -1,11 +1,11 @@
+import React from 'react';
 import { render, screen, waitFor, act, cleanup } from '@testing-library/react';
 import { vi } from 'vitest';
 import { ThemeProvider, useTheme } from '../ThemeProvider';
 import { defaultTheme } from '../themes/default';
 import LayoutContainer from '../../components/layout/LayoutContainer';
 import { FormModel } from '../../utils/form/FormModel';
-import type { FormField } from '../../utils/form/types';
-
+import type { FormField } from '../../types/fields';
 describe('ThemeProvider', () => {
   afterEach(() => {
     cleanup();

@@ -1,5 +1,5 @@
 import type { JSONValue } from '../../../types/schema';
-import type { FormField } from '../types';
+import type { FormField } from '../../../types/fields';
 import { ArrayFieldCreator } from '../fieldCreation/ArrayFieldCreator';
 import { PathResolver } from '../pathResolution/PathResolver';
 

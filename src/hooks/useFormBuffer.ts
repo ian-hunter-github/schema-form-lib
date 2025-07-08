@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FormModel } from '../utils/form/FormModel';
 import type { JSONSchema, JSONSchemaProperties, JSONValue } from '../types/schema';
-import type { FormField } from '../utils/form/types';
+import type { FormField } from '../types/fields';
 
 export interface UseFormBufferOptions {
   onUnsavedChangesWarning?: (hasChanges: boolean) => void;

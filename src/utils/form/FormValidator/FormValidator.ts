@@ -4,7 +4,7 @@ import type {
   JSONValue,
   FormValue,
 } from "../../../types/schema";
-import type { FormField } from "../types";
+import type { FormField } from "../../../types/fields";
 import { VALIDATION_MESSAGES } from "./validationMessages";
 
 export class FormValidator {

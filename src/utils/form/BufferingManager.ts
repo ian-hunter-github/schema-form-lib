@@ -1,5 +1,5 @@
 import type { JSONValue } from '../../types/schema';
-import type { FormField } from './types';
+import type { FormField } from '../../types/fields';
 import { FieldInitializer } from './fieldCreation/FieldInitializer';
 import { PathResolver } from './pathResolution/PathResolver';
 import { isJSONObject } from './schemaUtils';

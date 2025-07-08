@@ -1,9 +1,8 @@
 /**
- * Type definitions for form fields and related components
+ * Type definitions for form fields
  */
 
 import type { JSONSchema, JSONValue } from "./schema";
-import type { FormModel } from "../utils/form/FormModel";
 
 export interface FormField {
   path: string;
@@ -22,18 +21,6 @@ export interface FormField {
   isReadOnly?: boolean;
   isHidden?: boolean;
   validationState?: 'valid' | 'invalid' | 'pending';
-}
-
-export interface FieldComponentProps {
-  field: FormField;
-  formModel: FormModel;
-  onChange: (value: unknown, shouldValidate?: boolean) => void;
-}
-
-export interface ArrayFieldComponentProps extends FieldComponentProps {
-  onAddItem: (value?: unknown) => void;
-  onRemoveItem: (index: number) => void;
-  onMoveItem: (fromIndex: number, toIndex: number) => void;
 }
 
 export interface OneOfFieldProps {

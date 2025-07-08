@@ -1,6 +1,7 @@
 import type { JSONSchemaProperties, JSONSchema, JSONValue } from '../../types/schema';
 import { isJSONSchema } from './schemaUtils';
-import type { FormField, FormError } from './types';
+import type { FormError } from './types';
+import type { FormField } from '../../types/fields';
 
 interface FormModelError extends FormError {
   path?: string;

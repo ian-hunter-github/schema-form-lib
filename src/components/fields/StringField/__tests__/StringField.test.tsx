@@ -1,7 +1,8 @@
-import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
+import React from 'react';
+import { render, screen, fireEvent, act } from '../../../../__tests__/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import StringField from '../StringField';
-import type { FormField } from '../../../../utils/form/types';
+import type { FormField } from '../../../../types/fields';
 import type { JSONSchema } from '../../../../types/schema';
 import { FormModel } from '../../../../utils/form/FormModel';
 
@@ -57,7 +58,11 @@ describe('StringField', () => {
   it('renders with basic props', () => {
     const field = createMockFormField();
     
-    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    act(() => {
+      act(() => {
+      render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    });
+    });
     
     expect(screen.getByTestId('testField')).toBeInTheDocument();
     expect(screen.getByTestId('testField-label')).toBeInTheDocument();
@@ -88,7 +93,9 @@ describe('StringField', () => {
     render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField');
-    fireEvent.change(input, { target: { value: 'new value' } });
+    act(() => {
+      fireEvent.change(input, { target: { value: 'new value' } });
+    });
     
     expect(mockOnChange).toHaveBeenCalledWith('new value', false);
   });
@@ -99,7 +106,9 @@ describe('StringField', () => {
     render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
     const input = screen.getByTestId('testField');
-    fireEvent.blur(input, { target: { value: 'blurred value' } });
+    act(() => {
+      fireEvent.blur(input, { target: { value: 'blurred value' } });
+    });
     
     expect(mockOnChange).toHaveBeenCalledWith('blurred value', true);
   });
@@ -296,11 +305,15 @@ describe('StringField', () => {
     const input = screen.getByTestId('testField');
     
     // Test typing
-    fireEvent.change(input, { target: { value: 'updated value' } });
+    act(() => {
+      fireEvent.change(input, { target: { value: 'updated value' } });
+    });
     expect(mockOnChange).toHaveBeenCalledWith('updated value', false);
     
     // Test blur
-    fireEvent.blur(input, { target: { value: 'final value' } });
+    act(() => {
+      fireEvent.blur(input, { target: { value: 'final value' } });
+    });
     expect(mockOnChange).toHaveBeenCalledWith('final value', true);
     
     expect(mockOnChange).toHaveBeenCalledTimes(2);

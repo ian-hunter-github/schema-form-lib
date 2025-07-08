@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen, fireEvent } from './test-utils';
 import { FormModel } from '../utils/form/FormModel';
 import FormRenderer from '../components/FormRenderer';

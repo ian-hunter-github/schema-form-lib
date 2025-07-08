@@ -1,7 +1,8 @@
+import React from 'react';
 import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import EnumField from '../EnumField';
-import type { FormField } from '../../../../utils/form/types';
+import type { FormField } from '../../../../types/fields';
 import type { JSONSchema } from '../../../../types/schema';
 import { FormModel } from '../../../../utils/form/FormModel';
 

@@ -1,5 +1,5 @@
 import type { JSONSchema, JSONValue } from '../../../types/schema';
-import type { FormField } from '../types';
+import type { FormField } from '../../../types/fields';
 import { ObjectFieldCreator } from './ObjectFieldCreator';
 import { ArrayFieldCreator } from './ArrayFieldCreator';
 import { PrimitiveFieldCreator } from './PrimitiveFieldCreator';

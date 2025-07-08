@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FormField } from '../../../utils/form/types';
+import type { FormField } from '../../../types';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import { useLayoutContext } from '../../../contexts/LayoutContext';
 import {

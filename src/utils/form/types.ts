@@ -1,22 +1,5 @@
 import type { JSONSchema, JSONValue } from '../../types/schema';
 
-/**
- * @deprecated Use FormField from '../../types/fields' instead
- */
-export interface FormField {
-  path: string;
-  value: JSONValue;
-  pristineValue: JSONValue;  // Original value for revert operations
-  schema: JSONSchema;
-  errors: string[];
-  errorCount: number;
-  required: boolean;
-  dirty: boolean;
-  dirtyCount: number;
-  hasChanges: boolean;       // True if value !== pristineValue
-  lastModified: Date;        // Timestamp of last modification
-}
-
 export function isJSONSchema(schema: unknown): schema is JSONSchema {
   return typeof schema === 'object' && schema !== null && 'type' in schema;
 }

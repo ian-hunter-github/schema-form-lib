@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { JSONValue } from "../types/schema";
 import type { FormModel } from "../utils/form/FormModel";
-import type { FormField } from "../utils/form/types";
+import type { FormField } from "../types/fields";
 import type { LayoutConfig } from "../types/layout";
 import LayoutContainer from "./layout/LayoutContainer";
 

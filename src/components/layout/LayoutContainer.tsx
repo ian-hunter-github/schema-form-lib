@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FormField } from '../../utils/form/types';
+import type { FormField } from '../../types/fields';
 import type { FormModel } from '../../utils/form/FormModel';
 import type { LayoutConfig, FieldLayoutConfig } from '../../types/layout';
 import type { JSONValue } from '../../types/schema';

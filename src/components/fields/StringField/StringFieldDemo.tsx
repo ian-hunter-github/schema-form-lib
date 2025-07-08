@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import StringField from './StringField';
-import type { FormField } from '../../../utils/form/types';
+import type { FormField } from '../../../types';
 import type { JSONSchema } from '../../../types/schema';
 
 // Mock FormModel for demo
@@ -64,7 +64,7 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
 };
 
 const StringFieldDemo: React.FC = () => {
-  const mockFormModel = createMockFormModel() as any;
+  const mockFormModel = createMockFormModel() as unknown;
   const [basicField, setBasicField] = useState(createMockFormField());
   const [requiredField, setRequiredField] = useState(createMockFormField({
     path: 'requiredField',
