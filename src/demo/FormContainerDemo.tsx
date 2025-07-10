@@ -87,6 +87,24 @@ const FormContainerDemo: React.FC = () => {
         isRequired: true,
         minLength: 3,
       },
+      friends: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+              title: "Friend's Name",
+              isRequired: true,
+            },
+            age: {
+              type: "integer",
+              title: "Friend's Age",
+              minimum: 0,
+            },
+          },
+        },
+      },
     },
   };
 
@@ -117,10 +135,7 @@ const FormContainerDemo: React.FC = () => {
   return (
     <div style={{ padding: 20 }}>
       <h1>Enhanced Form Demo</h1>
-      <FormContainer
-        formModel={formModel}
-        onSubmit={callback}
-      />
+      <FormContainer formModel={formModel} onSubmit={callback} />
     </div>
   );
 };

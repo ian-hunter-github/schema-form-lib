@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from './test-utils';
+import { act } from 'react-dom/test-utils';
 import { FormModel } from '../utils/form/FormModel';
 import FormRenderer from '../components/FormRenderer';
 import { testSchema } from './testSchema';
@@ -82,11 +83,14 @@ describe('FormModel and FormRenderer Integration', () => {
     expect(field.value).toBe('John');
   });
 
-  test('should validate form on submission', () => {
+  test('should validate form on submission', async () => {
     const mockSubmit = vi.fn();
     render(<FormRenderer formModel={formModel} onSubmit={mockSubmit} />);
     
-    fireEvent.click(screen.getByText('Submit'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Submit'));
+    });
+    
     expect(mockSubmit).not.toHaveBeenCalled();
     expect(formModel.validate()).toBe(false);
   });

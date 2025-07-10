@@ -35,9 +35,18 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
   const itemSchema = field.schema.items;
 
   const handleAddItem = () => {
-    // Create a default object based on the item schema
-    const defaultValue = createDefaultObjectValue(itemSchema);
-    formModel.addValue(field.path, defaultValue);
+    if (!itemSchema) {
+      console.error('Cannot add item - array item schema is undefined');
+      return;
+    }
+    
+    try {
+      // Create a default object based on the item schema
+      const defaultValue = createDefaultObjectValue(itemSchema);
+      formModel.addValue(field.path, defaultValue);
+    } catch (error) {
+      console.error('Failed to add array item:', error);
+    }
   };
 
   const handleRemoveItem = (index: number) => {

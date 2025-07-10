@@ -4,15 +4,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ArrayOfObjectsField from '../ArrayOfObjectsField';
 import type { FormField } from '../../../../types/fields';
 import type { FormModel } from '../../../../utils/form/FormModel';
-import type { JSONSchema } from '../../../../types/schema';
+import type { JSONSchema, JSONValue } from '../../../../types/schema';
 
 // Mock the FieldRenderer to avoid circular dependencies in tests
 vi.mock('../../../FieldRenderer', () => ({
-  default: ({ field, onChange }: any) => (
+  default: ({ field, onChange }: { field: FormField; onChange: (value: JSONValue) => void }) => (
     <div data-testid={`mock-field-${field.path}`}>
       <input
         data-testid={`mock-input-${field.path}`}
-        value={field.value || ''}
+        value={field.value?.toString() || ''}
         onChange={(e) => onChange(e.target.value)}
       />
     </div>
@@ -89,18 +89,41 @@ describe('ArrayOfObjectsField', () => {
       ]
     };
 
-    // Mock getField to return mock fields for nested properties
-    (mockFormModel.getField as any).mockImplementation((path: string) => {
+    vi.mocked(mockFormModel.getField).mockImplementation((path: string) => {
+      const baseField: FormField = {
+        path,
+        value: '',
+        pristineValue: '',
+        errors: [],
+        errorCount: 0,
+        dirty: false,
+        dirtyCount: 0,
+        hasChanges: false,
+        required: false,
+        lastModified: new Date(),
+        schema: { type: 'string' }
+      };
+
       if (path === 'testArray.0') {
-        return { path, value: { name: 'John', age: 30, active: true }, hasChanges: false, dirty: false };
+        return { 
+          ...baseField,
+          path,
+          value: { name: 'John', age: 30, active: true },
+          schema: { type: 'object' }
+        };
       }
       if (path === 'testArray.1') {
-        return { path, value: { name: 'Jane', age: 25, active: false }, hasChanges: false, dirty: false };
+        return { 
+          ...baseField,
+          path,
+          value: { name: 'Jane', age: 25, active: false },
+          schema: { type: 'object' }
+        };
       }
       if (path.includes('.name') || path.includes('.age') || path.includes('.active')) {
-        return { path, value: '', hasChanges: false, dirty: false };
+        return { ...baseField, path, value: '' };
       }
-      return undefined;
+      return { ...baseField, path };
     });
 
     render(
@@ -135,17 +158,86 @@ describe('ArrayOfObjectsField', () => {
     });
   });
 
+  it('handles undefined item schema gracefully', () => {
+    const fieldWithUndefinedSchema = {
+      ...mockField,
+      schema: {
+        ...mockField.schema,
+        items: undefined
+      }
+    };
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(
+      <ArrayOfObjectsField
+        field={fieldWithUndefinedSchema}
+        formModel={mockFormModel}
+        onChange={mockOnChange}
+      />
+    );
+
+    const addButton = screen.getByRole('button', { name: 'Add Item' });
+    fireEvent.click(addButton);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Cannot add item - array item schema is undefined');
+    expect(mockFormModel.addValue).not.toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('handles errors during item addition', () => {
+    const error = new Error('Failed to add item');
+    vi.mocked(mockFormModel.addValue).mockImplementation(() => {
+      throw error;
+    });
+    
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(
+      <ArrayOfObjectsField
+        field={mockField}
+        formModel={mockFormModel}
+        onChange={mockOnChange}
+      />
+    );
+
+    const addButton = screen.getByRole('button', { name: 'Add Item' });
+    fireEvent.click(addButton);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to add array item:', error);
+    consoleErrorSpy.mockRestore();
+  });
+
   it('calls deleteValue when Remove button is clicked', () => {
     const fieldWithItems = {
       ...mockField,
       value: [{ name: 'John', age: 30, active: true }]
     };
 
-    (mockFormModel.getField as any).mockImplementation((path: string) => {
+    vi.mocked(mockFormModel.getField).mockImplementation((path: string) => {
+      const baseField: FormField = {
+        path,
+        value: '',
+        pristineValue: '',
+        errors: [],
+        errorCount: 0,
+        dirty: false,
+        dirtyCount: 0,
+        hasChanges: false,
+        required: false,
+        lastModified: new Date(),
+        schema: { type: 'string' }
+      };
+
       if (path === 'testArray.0') {
-        return { path, value: { name: 'John', age: 30, active: true }, hasChanges: false, dirty: false };
+        return { 
+          ...baseField,
+          path,
+          value: { name: 'John', age: 30, active: true },
+          schema: { type: 'object' }
+        };
       }
-      return undefined;
+      return { ...baseField, path };
     });
 
     render(
@@ -168,14 +260,33 @@ describe('ArrayOfObjectsField', () => {
       value: [{ name: 'John', age: 30, active: true }]
     };
 
-    (mockFormModel.getField as any).mockImplementation((path: string) => {
+    vi.mocked(mockFormModel.getField).mockImplementation((path: string) => {
+      const baseField: FormField = {
+        path,
+        value: '',
+        pristineValue: '',
+        errors: [],
+        errorCount: 0,
+        dirty: false,
+        dirtyCount: 0,
+        hasChanges: false,
+        required: false,
+        lastModified: new Date(),
+        schema: { type: 'string' }
+      };
+
       if (path === 'testArray.0') {
-        return { path, value: { name: 'John', age: 30, active: true }, hasChanges: false, dirty: false };
+        return { 
+          ...baseField,
+          path,
+          value: { name: 'John', age: 30, active: true },
+          schema: { type: 'object' }
+        };
       }
       if (path.startsWith('testArray.0.')) {
-        return { path, value: '', hasChanges: false, dirty: false };
+        return { ...baseField, path, value: '' };
       }
-      return undefined;
+      return { ...baseField, path };
     });
 
     render(
@@ -251,11 +362,30 @@ describe('ArrayOfObjectsField', () => {
       value: [{ name: 'John', age: 30, active: true }]
     };
 
-    (mockFormModel.getField as any).mockImplementation((path: string) => {
+    vi.mocked(mockFormModel.getField).mockImplementation((path: string) => {
+      const baseField: FormField = {
+        path,
+        value: '',
+        pristineValue: '',
+        errors: [],
+        errorCount: 0,
+        dirty: false,
+        dirtyCount: 0,
+        hasChanges: false,
+        required: false,
+        lastModified: new Date(),
+        schema: { type: 'string' }
+      };
+
       if (path === 'testArray.0') {
-        return { path, value: { name: 'John', age: 30, active: true }, hasChanges: false, dirty: false };
+        return { 
+          ...baseField,
+          path,
+          value: { name: 'John', age: 30, active: true },
+          schema: { type: 'object' }
+        };
       }
-      return undefined;
+      return { ...baseField, path };
     });
 
     render(
@@ -279,14 +409,33 @@ describe('ArrayOfObjectsField', () => {
       value: [{ name: 'John', age: 30, active: true }]
     };
 
-    (mockFormModel.getField as any).mockImplementation((path: string) => {
+    vi.mocked(mockFormModel.getField).mockImplementation((path: string) => {
+      const baseField: FormField = {
+        path,
+        value: '',
+        pristineValue: '',
+        errors: [],
+        errorCount: 0,
+        dirty: false,
+        dirtyCount: 0,
+        hasChanges: false,
+        required: false,
+        lastModified: new Date(),
+        schema: { type: 'string' }
+      };
+
       if (path === 'testArray.0') {
-        return { path, value: { name: 'John', age: 30, active: true }, hasChanges: false, dirty: false };
+        return { 
+          ...baseField,
+          path,
+          value: { name: 'John', age: 30, active: true },
+          schema: { type: 'object' }
+        };
       }
       if (path === 'testArray.0.name') {
-        return { path, value: 'John', hasChanges: false, dirty: false };
+        return { ...baseField, path, value: 'John' };
       }
-      return undefined;
+      return { ...baseField, path };
     });
 
     render(
@@ -309,7 +458,7 @@ describe('ArrayOfObjectsField', () => {
   });
 
   it('creates default values based on schema types', () => {
-    const schemaWithDefaults = {
+    const schemaWithDefaults: JSONSchema = {
       ...createMockSchema(),
       items: {
         type: 'object' as const,
