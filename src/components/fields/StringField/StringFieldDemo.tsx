@@ -2,42 +2,71 @@ import React, { useState } from 'react';
 import StringField from './StringField';
 import type { FormField } from '../../../types';
 import type { JSONSchema } from '../../../types/schema';
+import { FormModel } from '../../../utils/form/FormModel';
 
-// Mock FormModel for demo
-const createMockFormModel = () => ({
-  fields: new Map(),
-  listeners: new Set(),
-  buildForm: () => {},
-  getField: () => undefined,
-  getFields: () => new Map(),
-  setValue: () => {},
-  validate: () => true,
-  addValue: () => '',
-  deleteValue: () => 0,
-  addListener: () => {},
-  removeListener: () => {},
-  notifyListeners: () => {},
-  moveArrayItem: () => {},
-  insertArrayItem: () => '',
-  getArrayLength: () => 0,
-  resetForm: () => {},
-  clearErrors: () => {},
-  revertField: () => true,
-  revertBranch: () => true,
-  revertAll: () => {},
-  hasUnsavedChanges: () => false,
-  getChangedFields: () => [],
-  getChangedPaths: () => [],
-  createSnapshot: () => new Map(),
-  restoreFromSnapshot: () => {},
-  setPristineValues: () => {},
-  getChangeStatistics: () => ({
-    totalFields: 0,
-    changedFields: 0,
-    dirtyFields: 0,
-    hasUnsavedChanges: false,
-  }),
-});
+class MockFormModel extends FormModel {
+  constructor() {
+    super({ type: 'object' }); // Pass minimal schema to parent constructor
+  }
+
+  // Override methods with mock implementations
+  getField(path: string): FormField {
+    return {
+      path,
+      value: '',
+      pristineValue: '',
+      schema: { type: 'string' },
+      errors: [],
+      errorCount: 0,
+      required: false,
+      dirty: false,
+      dirtyCount: 0,
+      hasChanges: false,
+      lastModified: new Date()
+    };
+  }
+
+  getFields(): Map<string, FormField> {
+    return new Map();
+  }
+
+  setValue(): void {}
+  
+  validate(): boolean {
+    return true;
+  }
+
+  // Add other required mock implementations
+  addValue(): string { return ''; }
+  deleteValue(): number { return 0; }
+  addListener(): void {}
+  removeListener(): void {}
+  moveArrayItem(): void {}
+  insertArrayItem(): string { return ''; }
+  getArrayLength(): number { return 0; }
+  resetForm(): void {}
+  clearErrors(): void {}
+  revertField(): boolean { return true; }
+  revertBranch(): boolean { return true; }
+  revertAll(): void {}
+  hasUnsavedChanges(): boolean { return false; }
+  getChangedFields(): FormField[] { return []; }
+  getChangedPaths(): string[] { return []; }
+  createSnapshot(): Map<string, string | number | boolean | null> { return new Map(); }
+  restoreFromSnapshot(): void {}
+  setPristineValues(): void {}
+  getChangeStatistics() {
+    return {
+      totalFields: 0,
+      changedFields: 0,
+      dirtyFields: 0,
+      hasUnsavedChanges: false
+    };
+  }
+}
+
+// Create mock FormModel instance
+const createMockFormModel = () => new MockFormModel();
 
 // Helper function to create mock FormField
 const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
@@ -64,7 +93,7 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
 };
 
 const StringFieldDemo: React.FC = () => {
-  const mockFormModel = createMockFormModel() as unknown;
+  const mockFormModel = createMockFormModel();
   const [basicField, setBasicField] = useState(createMockFormField());
   const [requiredField, setRequiredField] = useState(createMockFormField({
     path: 'requiredField',

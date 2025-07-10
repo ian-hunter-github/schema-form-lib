@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { FormValidator } from "../utils/form/FormValidator/FormValidator";
 import { VALIDATION_MESSAGES } from "../utils/form/FormValidator/validationMessages";
 import type { JSONSchemaProperties, JSONSchema, JSONValue } from "../types/schema";
-import type { FormField } from "../utils/form/types";
+import type { FormField } from "../types/fields";
 
 describe("FormValidator", () => {
   describe("validateField", () => {
@@ -245,28 +245,39 @@ describe("FormValidator", () => {
   });
 
   describe("validateAll", () => {
-      function createField(
+    function createField(
       path: string, 
       schema: JSONSchema,
       value: JSONValue,
-      required = false
+      isRequired = false
     ): FormField {
-      return {
+      // For test purposes, we'll set required in schema if isRequired is true
+      const testSchema = isRequired 
+        ? { ...schema, required: Array.isArray(schema.required) 
+            ? [...schema.required, path.split('.').pop()!]
+            : [path.split('.').pop()!] 
+          }
+        : schema;
+
+      const field: FormField = {
         path,
         value,
-        schema: {
-          ...schema,
-          isRequired: required
-        },
+        schema: testSchema,
+        required: isRequired,
         errors: [],
         errorCount: 0,
-        required,
         dirty: false,
         dirtyCount: 0,
         pristineValue: value,
         hasChanges: false,
-        lastModified: new Date()
+        lastModified: new Date(),
+        isTouched: false,
+        isDisabled: false,
+        isReadOnly: false,
+        isHidden: false,
+        validationState: undefined
       };
+      return field;
     }
 
     it("validates all fields in a form model", () => {
@@ -328,6 +339,51 @@ describe("FormValidator", () => {
 
       expect(errors["name"]).toBeUndefined();
       expect(errors["age"]).toBeDefined();
+    });
+
+    it("validates required fields from root schema required array", () => {
+      const fields = new Map<string, FormField>([
+        ["", createField("", { 
+          type: "object",
+          required: ["name"], // name is required in root schema
+          properties: {
+            name: { type: "string", minLength: 3 },
+            age: { type: "number" }
+          }
+        }, {})],
+        ["name", createField("name", { type: "string", minLength: 3 }, "")],
+        ["age", createField("age", { type: "number" }, null)]
+      ]);
+
+      const errors = FormValidator.validateAll(fields);
+      
+      // Should fail for empty required field (empty array since we show asterisk instead of message)
+      expect(errors["name"]).toBeDefined();
+      // Should also fail minLength (even though empty)
+      expect(errors["name"]).toContain(VALIDATION_MESSAGES.MIN_LENGTH(3));
+      // Non-required field should pass
+      expect(errors["age"]).toBeUndefined();
+    });
+
+    it("validates minLength for empty strings when field is required", () => {
+      const fields = new Map<string, FormField>([
+        ["", createField("", {
+          type: "object",
+          required: ["name"],
+          properties: {
+            name: { type: "string", minLength: 3 }
+          }
+        }, {})],
+        ["name", createField("name", { 
+          type: "string", 
+          minLength: 3
+        }, "")]
+      ]);
+
+      const errors = FormValidator.validateAll(fields);
+      
+      expect(errors["name"]).toBeDefined();
+      expect(errors["name"]).toContain(VALIDATION_MESSAGES.MIN_LENGTH(3));
     });
   });
 });

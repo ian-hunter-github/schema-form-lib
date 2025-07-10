@@ -17,8 +17,61 @@ export class FormValidator {
     const errors: Record<string, string[]> = {};
     const processedFields = new Set<string>();
 
+    // First validate the root object if it exists
+    const rootField = fields.get("");
+    if (rootField) {
+      // Validate root object itself
+      const rootErrors = this.validateFieldInternal(
+        rootField.schema,
+        "",
+        rootField.value,
+        new Set<string>(),
+        20,
+        0,
+        fields
+      );
+      if (rootErrors.length > 0) {
+        errors[""] = rootErrors;
+      }
+      processedFields.add("");
+
+      // Validate required fields from root schema
+      if (rootField.schema.required && Array.isArray(rootField.schema.required)) {
+        for (const requiredField of rootField.schema.required) {
+          const fieldPath = requiredField;
+          const field = fields.get(fieldPath);
+          
+          // Validate field if it exists in fields map
+          if (field && !processedFields.has(fieldPath)) {
+            const fieldErrors = this.validateFieldInternal(
+              field.schema,
+              fieldPath,
+              field.value,
+              new Set<string>(),
+              20,
+              0,
+              fields
+            );
+            if (fieldErrors.length > 0) {
+              errors[fieldPath] = fieldErrors;
+            }
+            // Special case: field exists but has empty string value and is required
+            else if (field.value === "" && rootField.schema.required?.includes(fieldPath)) {
+              errors[fieldPath] = [VALIDATION_MESSAGES.REQUIRED];
+            }
+            processedFields.add(fieldPath);
+          }
+          // If field doesn't exist in fields map but is required, add error
+          else if (!field) {
+            errors[fieldPath] = [VALIDATION_MESSAGES.REQUIRED];
+          }
+        }
+      }
+    }
+
+    // Then validate all other fields with their required status from root schema
     for (const [path, field] of fields) {
-      if (processedFields.has(path)) continue;
+      if (processedFields.has(path) || path === "") continue;
 
       // Skip validation for readOnly fields
       if (field.schema.readOnly) {
@@ -32,7 +85,9 @@ export class FormValidator {
         path,
         field.value,
         new Set<string>(), // Fresh visited set for each field
-        20 // maxDepth
+        20, // maxDepth
+        0, // currentDepth
+        fields // Pass fields map for required field checking
       );
       if (fieldErrors.length > 0) {
         errors[path] = fieldErrors;
@@ -49,7 +104,8 @@ export class FormValidator {
     value: FormValue,
     visited: Set<string>,
     maxDepth: number,
-    currentDepth = 0
+    currentDepth = 0,
+    fields?: Map<string, FormField>
   ): string[] {
     if (currentDepth > maxDepth) {
       return [VALIDATION_MESSAGES.MAX_DEPTH_EXCEEDED(maxDepth)];
@@ -60,23 +116,26 @@ export class FormValidator {
 
     const errors: string[] = [];
 
-    // Check required fields first - either explicit required or minLength=1 for strings
+    // Check required fields first - either explicit required, minLength=1 for strings,
+    // or required from parent schema
     const isRequired = schema.required || 
-                      (schema.type === "string" && schema.minLength === 1);
+                      (schema.type === "string" && schema.minLength === 1) ||
+                      (path.includes('.') && schema.required === undefined && 
+                       fields?.get(path.split('.')[0])?.schema.required?.includes(path.split('.').pop()!));
 
-    if (isRequired) {
-      if (value === undefined || value === null || 
-          (typeof value === 'string' && value.trim() === '') ||
-          (Array.isArray(value) && value.length === 0) ||
-          (typeof value === 'object' && Object.keys(value).length === 0)) {
-        errors.push(VALIDATION_MESSAGES.REQUIRED);
-      }
+    // Check required status first
+    const isEmpty = value === undefined || value === null || 
+                   (typeof value === 'string' && value.trim() === '') ||
+                   (Array.isArray(value) && value.length === 0) ||
+                   (typeof value === 'object' && Object.keys(value).length === 0);
+
+    if (isRequired && isEmpty) {
+      errors.push(VALIDATION_MESSAGES.REQUIRED);
     }
 
-    // Skip further validation if value is empty (but still check required above)
-    if (value === undefined || value === null || 
-        (typeof value === 'string' && value.trim() === '') ||
-        (typeof value === 'object' && Object.keys(value).length === 0)) {
+    // Only skip further validation if value is completely undefined/null
+    // For empty strings/arrays/objects, we still want to run other validations
+    if (value === undefined || value === null) {
       return errors;
     }
 

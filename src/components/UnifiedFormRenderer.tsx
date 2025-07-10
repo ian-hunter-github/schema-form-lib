@@ -31,7 +31,8 @@ const UnifiedFormRenderer: React.FC<UnifiedFormRendererProps> = ({
     getChangedPaths,
     setPristineValues,
     getChangeStatistics
-  } = useFormModel(schema, {
+  } = useFormModel({
+    schema,
     validateOnChange,
     validateOnBlur,
     autoValidate: true

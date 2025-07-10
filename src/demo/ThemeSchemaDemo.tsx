@@ -25,7 +25,9 @@ export const ThemeSchemaDemo = () => {
 
   const [formData, setFormData] = React.useState<Record<string, ThemeFormValue>>({});
   const [theme, setTheme] = React.useState<Theme | undefined>();
-  const { formModel } = useFormModel(formSchema);
+  const { formModel } = useFormModel({
+    schema: formSchema
+  });
 
   useEffect(() => {
     const handleFormChange = (updatedFields: Map<string, FormField>) => {

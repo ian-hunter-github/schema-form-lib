@@ -34,7 +34,9 @@ describe("FormModel - Basic Types", () => {
     };
     const model = new FormModel(schema);
     expect(model.validate()).toBe(false);
-    expect(model.getField("name")?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
+    expect(model.getField("name")?.errors).toContain(
+      VALIDATION_MESSAGES.REQUIRED
+    );
   });
 
   it("should validate number type", () => {
@@ -172,29 +174,29 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
             properties: {
               name: { type: "string", default: "John Doe" },
               email: { type: "string", default: "john@example.com" },
-              age: { type: "number", default: 25 }
-            }
+              age: { type: "number", default: 25 },
+            },
           },
           preferences: {
             type: "object",
             properties: {
               theme: { type: "string", default: "light" },
-              notifications: { type: "boolean", default: true }
-            }
+              notifications: { type: "boolean", default: true },
+            },
           },
           tags: {
             type: "array",
             items: { type: "string" },
-            default: ["developer", "javascript"]
-          }
-        }
-      }
+            default: ["developer", "javascript"],
+          },
+        },
+      },
     };
 
     const model = new FormModel(schema);
 
     // 2) Check default dirty flag and count is false and 0 respectively on all nodes
-    
+
     // Root level
     const userField = model.getField("user");
     expect(userField?.dirty).toBe(false);
@@ -247,37 +249,39 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
     expect(tag1Field?.dirtyCount).toBe(0);
 
     // 3) Modify each field and check that the dirty flag and count is consistent with each 'edit'
-    
+
     // Edit 1: Change name
     model.setValue("user.profile.name", "Jane Smith");
-    
+
     // Check that name field is dirty with count 1
     const updatedNameField = model.getField("user.profile.name");
     expect(updatedNameField?.dirty).toBe(true);
     expect(updatedNameField?.dirtyCount).toBe(1);
-    
+
     // Check that parent fields are also marked dirty
     const updatedProfileField = model.getField("user.profile");
     expect(updatedProfileField?.dirty).toBe(true);
     expect(updatedProfileField?.dirtyCount).toBe(1);
-    
+
     const updatedUserField = model.getField("user");
     expect(updatedUserField?.dirty).toBe(true);
     expect(updatedUserField?.dirtyCount).toBe(1);
-    
+
     // Check sibling fields in profile remain clean
     expect(model.getField("user.profile.email")?.dirty).toBe(false);
     expect(model.getField("user.profile.email")?.dirtyCount).toBe(0);
     expect(model.getField("user.profile.age")?.dirty).toBe(false);
     expect(model.getField("user.profile.age")?.dirtyCount).toBe(0);
-    
+
     // Check sibling branches remain clean
     expect(model.getField("user.preferences")?.dirty).toBe(false);
     expect(model.getField("user.preferences")?.dirtyCount).toBe(0);
     expect(model.getField("user.preferences.theme")?.dirty).toBe(false);
     expect(model.getField("user.preferences.theme")?.dirtyCount).toBe(0);
     expect(model.getField("user.preferences.notifications")?.dirty).toBe(false);
-    expect(model.getField("user.preferences.notifications")?.dirtyCount).toBe(0);
+    expect(model.getField("user.preferences.notifications")?.dirtyCount).toBe(
+      0
+    );
     expect(model.getField("user.tags")?.dirty).toBe(false);
     expect(model.getField("user.tags")?.dirtyCount).toBe(0);
     expect(model.getField("user.tags.0")?.dirty).toBe(false);
@@ -287,29 +291,29 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
 
     // Edit 2: Change email (same parent as name)
     model.setValue("user.profile.email", "jane.smith@example.com");
-    
+
     // Check email field
     const updatedEmailField = model.getField("user.profile.email");
     expect(updatedEmailField?.dirty).toBe(true);
     expect(updatedEmailField?.dirtyCount).toBe(1);
-    
+
     // Check that parent counts increased
     const profileAfterEmail = model.getField("user.profile");
     expect(profileAfterEmail?.dirty).toBe(true);
     expect(profileAfterEmail?.dirtyCount).toBe(2); // name + email
-    
+
     const userAfterEmail = model.getField("user");
     expect(userAfterEmail?.dirty).toBe(true);
     expect(userAfterEmail?.dirtyCount).toBe(2); // name + email
-    
+
     // Check name field remains dirty with same count
     expect(model.getField("user.profile.name")?.dirty).toBe(true);
     expect(model.getField("user.profile.name")?.dirtyCount).toBe(1);
-    
+
     // Check remaining sibling in profile remains clean
     expect(model.getField("user.profile.age")?.dirty).toBe(false);
     expect(model.getField("user.profile.age")?.dirtyCount).toBe(0);
-    
+
     // Check other branches still clean
     expect(model.getField("user.preferences")?.dirty).toBe(false);
     expect(model.getField("user.preferences")?.dirtyCount).toBe(0);
@@ -318,26 +322,26 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
 
     // Edit 3: Change age (completes profile branch)
     model.setValue("user.profile.age", 30);
-    
+
     const updatedAgeField = model.getField("user.profile.age");
     expect(updatedAgeField?.dirty).toBe(true);
     expect(updatedAgeField?.dirtyCount).toBe(1);
-    
+
     // Check parent counts
     const profileAfterAge = model.getField("user.profile");
     expect(profileAfterAge?.dirty).toBe(true);
     expect(profileAfterAge?.dirtyCount).toBe(3); // name + email + age
-    
+
     const userAfterAge = model.getField("user");
     expect(userAfterAge?.dirty).toBe(true);
     expect(userAfterAge?.dirtyCount).toBe(3);
-    
+
     // Check profile siblings remain with their counts
     expect(model.getField("user.profile.name")?.dirty).toBe(true);
     expect(model.getField("user.profile.name")?.dirtyCount).toBe(1);
     expect(model.getField("user.profile.email")?.dirty).toBe(true);
     expect(model.getField("user.profile.email")?.dirtyCount).toBe(1);
-    
+
     // Check other branches still clean
     expect(model.getField("user.preferences")?.dirty).toBe(false);
     expect(model.getField("user.preferences")?.dirtyCount).toBe(0);
@@ -346,21 +350,21 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
 
     // Edit 4: Change theme (different branch)
     model.setValue("user.preferences.theme", "dark");
-    
+
     const updatedThemeField = model.getField("user.preferences.theme");
     expect(updatedThemeField?.dirty).toBe(true);
     expect(updatedThemeField?.dirtyCount).toBe(1);
-    
+
     // Check preferences parent
     const updatedPreferencesField = model.getField("user.preferences");
     expect(updatedPreferencesField?.dirty).toBe(true);
     expect(updatedPreferencesField?.dirtyCount).toBe(1);
-    
+
     // Check root user count increased
     const userAfterTheme = model.getField("user");
     expect(userAfterTheme?.dirty).toBe(true);
     expect(userAfterTheme?.dirtyCount).toBe(4); // profile changes + theme
-    
+
     // Check profile branch remains unchanged
     expect(model.getField("user.profile")?.dirty).toBe(true);
     expect(model.getField("user.profile")?.dirtyCount).toBe(3);
@@ -370,65 +374,69 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
     expect(model.getField("user.profile.email")?.dirtyCount).toBe(1);
     expect(model.getField("user.profile.age")?.dirty).toBe(true);
     expect(model.getField("user.profile.age")?.dirtyCount).toBe(1);
-    
+
     // Check preferences sibling remains clean
     expect(model.getField("user.preferences.notifications")?.dirty).toBe(false);
-    expect(model.getField("user.preferences.notifications")?.dirtyCount).toBe(0);
-    
+    expect(model.getField("user.preferences.notifications")?.dirtyCount).toBe(
+      0
+    );
+
     // Check tags branch still clean
     expect(model.getField("user.tags")?.dirty).toBe(false);
     expect(model.getField("user.tags")?.dirtyCount).toBe(0);
 
     // Edit 5: Change notifications (same parent as theme)
     model.setValue("user.preferences.notifications", false);
-    
-    const updatedNotificationsField = model.getField("user.preferences.notifications");
+
+    const updatedNotificationsField = model.getField(
+      "user.preferences.notifications"
+    );
     expect(updatedNotificationsField?.dirty).toBe(true);
     expect(updatedNotificationsField?.dirtyCount).toBe(1);
-    
+
     // Check preferences parent count
     const preferencesAfterNotifications = model.getField("user.preferences");
     expect(preferencesAfterNotifications?.dirty).toBe(true);
     expect(preferencesAfterNotifications?.dirtyCount).toBe(2); // theme + notifications
-    
+
     // Check root count
     const userAfterNotifications = model.getField("user");
     expect(userAfterNotifications?.dirty).toBe(true);
     expect(userAfterNotifications?.dirtyCount).toBe(5);
-    
+
     // Check theme field remains dirty with same count
     expect(model.getField("user.preferences.theme")?.dirty).toBe(true);
     expect(model.getField("user.preferences.theme")?.dirtyCount).toBe(1);
-    
+
     // Check profile branch remains unchanged
     expect(model.getField("user.profile")?.dirty).toBe(true);
     expect(model.getField("user.profile")?.dirtyCount).toBe(3);
-    
+
     // Check tags branch still clean
     expect(model.getField("user.tags")?.dirty).toBe(false);
     expect(model.getField("user.tags")?.dirtyCount).toBe(0);
 
     // Edit 6: Change array element (third branch)
     model.setValue("user.tags.0", "senior-developer");
-    
+
     const updatedTag0Field = model.getField("user.tags.0");
     expect(updatedTag0Field?.dirty).toBe(true);
     expect(updatedTag0Field?.dirtyCount).toBe(1);
-    
+
     // Check array parent
     const updatedTagsField = model.getField("user.tags");
     expect(updatedTagsField?.dirty).toBe(true);
     expect(updatedTagsField?.dirtyCount).toBe(1);
-    
+
     // Check root count
     const userAfterTag = model.getField("user");
     expect(userAfterTag?.dirty).toBe(true);
     expect(userAfterTag?.dirtyCount).toBe(6);
-    
+
     // Check array sibling remains clean
     expect(model.getField("user.tags.1")?.dirty).toBe(false);
     expect(model.getField("user.tags.1")?.dirtyCount).toBe(0);
-    
+
     // Check other branches remain unchanged
     expect(model.getField("user.profile")?.dirty).toBe(true);
     expect(model.getField("user.profile")?.dirtyCount).toBe(3);
@@ -437,25 +445,25 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
 
     // Edit 7: Change second array element (same parent as first tag)
     model.setValue("user.tags.1", "typescript");
-    
+
     const updatedTag1Field = model.getField("user.tags.1");
     expect(updatedTag1Field?.dirty).toBe(true);
     expect(updatedTag1Field?.dirtyCount).toBe(1);
-    
+
     // Check array parent count increased
     const tagsAfterSecondEdit = model.getField("user.tags");
     expect(tagsAfterSecondEdit?.dirty).toBe(true);
     expect(tagsAfterSecondEdit?.dirtyCount).toBe(2);
-    
+
     // Check root count
     const userAfterSecondTag = model.getField("user");
     expect(userAfterSecondTag?.dirty).toBe(true);
     expect(userAfterSecondTag?.dirtyCount).toBe(7);
-    
+
     // Check first tag field remains dirty with same count
     expect(model.getField("user.tags.0")?.dirty).toBe(true);
     expect(model.getField("user.tags.0")?.dirtyCount).toBe(1);
-    
+
     // Check other branches remain unchanged
     expect(model.getField("user.profile")?.dirty).toBe(true);
     expect(model.getField("user.profile")?.dirtyCount).toBe(3);
@@ -463,10 +471,10 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
     expect(model.getField("user.preferences")?.dirtyCount).toBe(2);
 
     // 4) Undo each of the edits, and again check flag and count is correct
-    
+
     // For this test, we'll use resetForm() to simulate "undoing" all changes
     // In a real application, you might have individual undo operations
-    
+
     // Before reset - verify all fields are dirty
     expect(model.getField("user")?.dirty).toBe(true);
     expect(model.getField("user.profile")?.dirty).toBe(true);
@@ -486,40 +494,44 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
     // After reset - verify all dirty flags are false and counts are 0
     expect(model.getField("user")?.dirty).toBe(false);
     expect(model.getField("user")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.profile")?.dirty).toBe(false);
     expect(model.getField("user.profile")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.profile.name")?.dirty).toBe(false);
     expect(model.getField("user.profile.name")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.profile.email")?.dirty).toBe(false);
     expect(model.getField("user.profile.email")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.profile.age")?.dirty).toBe(false);
     expect(model.getField("user.profile.age")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.preferences")?.dirty).toBe(false);
     expect(model.getField("user.preferences")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.preferences.theme")?.dirty).toBe(false);
     expect(model.getField("user.preferences.theme")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.preferences.notifications")?.dirty).toBe(false);
-    expect(model.getField("user.preferences.notifications")?.dirtyCount).toBe(0);
-    
+    expect(model.getField("user.preferences.notifications")?.dirtyCount).toBe(
+      0
+    );
+
     expect(model.getField("user.tags")?.dirty).toBe(false);
     expect(model.getField("user.tags")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.tags.0")?.dirty).toBe(false);
     expect(model.getField("user.tags.0")?.dirtyCount).toBe(0);
-    
+
     expect(model.getField("user.tags.1")?.dirty).toBe(false);
     expect(model.getField("user.tags.1")?.dirtyCount).toBe(0);
 
     // Verify that values are still the modified values (reset only clears dirty state, not values)
     expect(model.getField("user.profile.name")?.value).toBe("Jane Smith");
-    expect(model.getField("user.profile.email")?.value).toBe("jane.smith@example.com");
+    expect(model.getField("user.profile.email")?.value).toBe(
+      "jane.smith@example.com"
+    );
     expect(model.getField("user.profile.age")?.value).toBe(30);
     expect(model.getField("user.preferences.theme")?.value).toBe("dark");
     expect(model.getField("user.preferences.notifications")?.value).toBe(false);
@@ -536,11 +548,11 @@ describe("FormModel - Dirty Flag and Count Testing", () => {
             type: "object",
             properties: {
               language: { type: "string", default: "en" },
-              timezone: { type: "string", default: "UTC" }
-            }
-          }
-        }
-      }
+              timezone: { type: "string", default: "UTC" },
+            },
+          },
+        },
+      },
     };
 
     const model = new FormModel(schema);
@@ -661,10 +673,10 @@ describe("FormModel - Nested Data Validation", () => {
           profile: {
             type: "object",
             properties: {
-      name: {
-        type: "string",
-        minLength: 1, // Make it effectively required
-        maxLength: 50,
+              name: {
+                type: "string",
+                minLength: 1, // Make it effectively required
+                maxLength: 50,
               },
               email: {
                 type: "string",
@@ -731,8 +743,10 @@ describe("FormModel - Nested Data Validation", () => {
 
     // Check individual field errors
     const nameField = model.getField("user.profile.name");
+    console.log(nameField?.errors);
     expect(nameField?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
-    expect(nameField?.errorCount).toBe(1);
+    expect(nameField?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(1));
+    expect(nameField?.errorCount).toBe(2);
 
     const emailField = model.getField("user.profile.email");
     expect(emailField?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(5));
@@ -744,11 +758,13 @@ describe("FormModel - Nested Data Validation", () => {
 
     const themeField = model.getField("user.preferences.theme");
     expect(themeField?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
-    expect(themeField?.errorCount).toBe(1);
+    expect(themeField?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(1));
+    expect(themeField?.errorCount).toBe(2);
 
     const tagField = model.getField("user.tags.0");
     expect(tagField?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
-    expect(tagField?.errorCount).toBe(1);
+    expect(tagField?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(1));
+    expect(tagField?.errorCount).toBe(2);
 
     // Verify all fields are marked as dirty
     expect(nameField?.dirty).toBe(true);
@@ -926,6 +942,5 @@ describe("FormModel - Nested Data Validation", () => {
     expect(model.getField(`${deptPath}.name`)?.errors).toEqual([]);
     expect(model.getField(`${empPath}.firstName`)?.errors).toEqual([]);
     expect(model.getField(`${empPath}.salary`)?.errors).toEqual([]);
-
   });
 });

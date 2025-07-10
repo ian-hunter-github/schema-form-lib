@@ -1,115 +1,125 @@
-import React from 'react';
-import FormContainer from '../components/FormContainer';
-import { useFormModel } from '../hooks/useFormModel';
-import type { JSONSchema } from '../types/schema';
+import React from "react";
+import FormContainer from "../components/FormContainer";
+import { useFormModel } from "../hooks/useFormModel";
+import type { JSONSchema } from "../types/schema";
 
 const FormContainerDemo: React.FC = () => {
-  const demoSchema: JSONSchema = {
-    type: 'object',
+  // const schema: JSONSchema = {
+
+  //   type: "object",
+  //   required: ["name", "email"],
+  //   properties: {
+  //     name: {
+  //       type: "string",
+  //       title: "Full Name",
+  //       minLength: 3,
+  //       maxLength: 50,
+  //     },
+  //     email: {
+  //       type: "string",
+  //       format: "email",
+  //       title: "Email Address",
+  //     },
+  //     age: {
+  //       type: "integer",
+  //       title: "Age",
+  //       minimum: 13,
+  //       maximum: 120,
+  //     },
+  //     birthDate: {
+  //       type: "string",
+  //       format: "date",
+  //       title: "Birth Date",
+  //     },
+  //     isStudent: {
+  //       type: "boolean",
+  //       title: "Are you a student?",
+  //     },
+  //     address: {
+  //       type: "object",
+  //       title: "Address (required if 18+)",
+  //       properties: {
+  //         street: { type: "string" },
+  //         city: { type: "string" },
+  //         country: {
+  //           type: "string",
+  //           enum: ["US", "UK", "CA", "AU", "Other"],
+  //         },
+  //       },
+  //     },
+  //     hobbies: {
+  //       type: "array",
+  //       title: "Hobbies",
+  //       items: {
+  //         type: "string",
+  //         enum: ["Reading", "Sports", "Music", "Cooking", "Travel"],
+  //       },
+  //       uniqueItems: true,
+  //     },
+  //     skills: {
+  //       type: "array",
+  //       title: "Skills",
+  //       items: {
+  //         type: "object",
+  //         properties: {
+  //           name: { type: "string" },
+  //           level: {
+  //             type: "string",
+  //             enum: ["Beginner", "Intermediate", "Advanced", "Expert"],
+  //           },
+  //         },
+  //       },
+  //     },
+  //     favoriteColor: {
+  //       type: "string",
+  //       format: "color",
+  //       title: "Favorite Color",
+  //     },
+  //   },
+  // };
+
+  const schema2: JSONSchema = {
+    type: "object",
     properties: {
-      personalInfo: {
-        type: 'object',
-        title: 'Personal Information',
-        properties: {
-          firstName: {
-            type: 'string',
-            title: 'First Name',
-            minLength: 2,
-            isRequired: true
-          },
-          lastName: {
-            type: 'string',
-            title: 'Last Name', 
-            minLength: 2,
-            isRequired: true
-          },
-          age: {
-            type: 'number',
-            title: 'Age',
-            minimum: 18,
-            maximum: 120
-          }
-        }
+      name: {
+        type: "string",
+        title: "Full Name",
+        isRequired: true,
+        minLength: 3,
       },
-      contactInfo: {
-        type: 'object',
-        title: 'Contact Information',
-        properties: {
-          email: {
-            type: 'string',
-            title: 'Email',
-            format: 'email',
-            isRequired: true
-          },
-          phone: {
-            type: 'string',
-            title: 'Phone Number',
-            pattern: '^\\+?[0-9\\-\\s]+$'
-          },
-          subscribe: {
-            type: 'boolean',
-            title: 'Subscribe to newsletter'
-          }
-        }
-      },
-      addresses: {
-        type: 'array',
-        title: 'Shipping Addresses',
-        items: {
-          type: 'object',
-          properties: {
-            street: { type: 'string', isRequired: true },
-            city: { type: 'string', isRequired: true },
-            country: { type: 'string', isRequired: true },
-            zip: { 
-              type: 'string',
-              pattern: '^\\d{5}(-\\d{4})?$'
-            }
-          }
-        }
-      }
-    }
+    },
   };
 
+  // const initialValues = {
+  //   name: "Alice",
+  //   email: "alice@example.com",
+  //   age: 30,
+  //   isStudent: false,
+  //   hobbies: ["Reading"],
+  //   skills: [{ name: "JavaScript", level: "Advanced" }],
+  //   address: {
+  //     street: "123 Main St",
+  //     city: "New York",
+  //     country: "US",
+  //   },
+  // };
+
   const { formModel } = useFormModel({
-    schema: demoSchema,
-    initialValues: {
-      personalInfo: {
-        firstName: 'John',
-        lastName: 'Doe',
-        age: 30
-      },
-      contactInfo: {
-        email: 'john@example.com',
-        subscribe: true
-      },
-      addresses: [{
-        street: '123 Main St',
-        city: 'Anytown',
-        country: 'USA'
-      }]
-    }
+    schema: schema2,
+    //initialValues
   });
 
-  const handleSubmit = (data: Record<string, unknown>) => {
-    console.log('Form submitted:', data);
-    alert(`Form submitted successfully!\n${JSON.stringify(data, null, 2)}`);
+  const callback = (data: Record<string, unknown>) => {
+    alert(JSON.stringify(data, null, 2));
+    console.log("Form submitted:", data);
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h2>Form Container Demo</h2>
-      <p>This demonstrates the FormContainer with:</p>
-      <ul>
-        <li>Nested object fields</li>
-        <li>Array fields</li>
-        <li>Field validation</li>
-        <li>Default mouse event handlers</li>
-      </ul>
-      
-      <FormContainer 
+    <div style={{ padding: 20 }}>
+      <h1>Enhanced Form Demo</h1>
+      <FormContainer
         formModel={formModel}
-        onSubmit={handleSubmit}
+        onSubmit={callback}
       />
     </div>
   );

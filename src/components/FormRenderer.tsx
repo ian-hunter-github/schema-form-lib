@@ -53,15 +53,17 @@ const FormRenderer: React.FC<FormRendererProps> = ({ formModel, onSubmit, layout
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Before validation FormModel fields:', Object.fromEntries(formModel.getFields()));
     const isValid = formModel.validate();
-    
+    console.log(`After validation ${isValid} FormModel fields:`, Object.fromEntries(formModel.getFields()));
+
     if (isValid && onSubmit) {
-      // Get clean data from FormModel
+      // Get clean data from FormModel - only include root-level fields
       const formData: Record<string, JSONValue> = {};
       
       for (const [path, field] of fields) {
-        // Only include root-level fields (no dots in path) and exclude empty path
-        if (!path.includes('.') && path !== '' && field.value !== undefined && field.value !== null && field.value !== '') {
+        // Skip empty path and nested paths (those containing dots)
+        if (path !== '' && !path.includes('.') && field.value !== undefined && field.value !== null && field.value !== '') {
           formData[path] = field.value;
         }
       }

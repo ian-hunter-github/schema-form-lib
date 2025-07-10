@@ -49,7 +49,10 @@ export class ObjectFieldCreator {
     schema: JSONSchema,
     objectValue: Record<string, JSONValue>
   ): void {
-    if (!schema.properties) return;
+    if (!schema.properties) {
+      // Empty object - create field but no properties
+      return;
+    }
 
     for (const [propertyName, propertySchema] of Object.entries(schema.properties)) {
       if (!isJSONSchema(propertySchema)) continue;

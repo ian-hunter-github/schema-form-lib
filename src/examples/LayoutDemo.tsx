@@ -112,7 +112,9 @@ const LayoutDemo: React.FC = () => {
   };
 
   const schema = createDemoSchema(layoutConfig);
-  const { formModel } = useFormModel(schema);
+  const { formModel } = useFormModel({
+    schema
+  });
 
   const handleSubmit = (data: any) => {
     console.log('Form submitted:', data);

@@ -30,11 +30,13 @@ export class FieldInitializer {
   }
 
   static updateFieldValue(field: FormField, newValue: JSONValue): void {
+    console.log(`[FieldInitializer] Updating field ${field.path} from ${field.value} to ${newValue}`);
     field.value = newValue;
     field.dirty = true;
     field.dirtyCount++;
     field.hasChanges = !this.valuesEqual(newValue, field.pristineValue);
     field.lastModified = new Date();
+    console.log(`[FieldInitializer] Field ${field.path} updated - hasChanges: ${field.hasChanges}, dirty: ${field.dirty}`);
   }
 
   static markFieldDirty(field: FormField): void {
@@ -57,7 +59,12 @@ export class FieldInitializer {
   }
 
   static valuesEqual(value1: JSONValue, value2: JSONValue): boolean {
-    // Deep equality check for JSON values
+    // Handle primitive values directly
+    if (typeof value1 !== 'object' || value1 === null || 
+        typeof value2 !== 'object' || value2 === null) {
+      return value1 === value2;
+    }
+    // Deep equality check for objects/arrays
     return JSON.stringify(value1) === JSON.stringify(value2);
   }
 
@@ -68,6 +75,6 @@ export class FieldInitializer {
 
   static setFieldErrors(field: FormField, errors: string[]): void {
     field.errors = errors;
-    field.errorCount = errors.length;
+    field.errorCount = errors.length; // Keep errorCount in sync with errors array
   }
 }

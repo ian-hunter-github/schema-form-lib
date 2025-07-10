@@ -4,6 +4,7 @@ import { ObjectFieldCreator } from './ObjectFieldCreator';
 import { ArrayFieldCreator } from './ArrayFieldCreator';
 import { PrimitiveFieldCreator } from './PrimitiveFieldCreator';
 import { SchemaAnalyzer } from '../valueHandling/SchemaAnalyzer';
+import { FieldInitializer } from './FieldInitializer';
 
 export class FieldCreatorFactory {
   static createField(
@@ -24,7 +25,7 @@ export class FieldCreatorFactory {
       return PrimitiveFieldCreator.createField(fields, path, schema, value);
     }
     
-    throw new Error(`Unsupported schema type: ${schema.type} at path: ${path}`);
+    throw new Error(`Unsupported schema type: ${schema.type} at path: "${path}"`);
   }
 
   static createFieldsForSchema(
@@ -38,8 +39,14 @@ export class FieldCreatorFactory {
       ArrayFieldCreator.createFieldsForSchema(fields, path, schema);
     } else if (PrimitiveFieldCreator.canHandle(schema)) {
       PrimitiveFieldCreator.createFieldsForSchema(fields, path, schema);
+    } else if (schema.type === 'object' && !schema.properties) {
+      // Handle empty object schemas by creating an empty object field
+      const emptyObject = {};
+      const field = FieldInitializer.createField(path, schema, emptyObject);
+      fields.set(path, field);
     } else {
-      throw new Error(`Unsupported schema type: ${schema.type} at path: ${path}`);
+      console.log(`Unsupported schema at path: "${path}"`, schema);
+      throw new Error(`Unsupported schema type: ${schema.type} at path: "${path}"`);
     }
   }
 
