@@ -25,7 +25,7 @@ export const StyledFieldContainer = styled.div<{
     return densityStyles.components.fieldContainer.marginBottom;
   }};
   position: relative;
-  width: 100%;
+  width: 97%;
   
   ${props => props.layout === 'floating' && `
     position: relative;

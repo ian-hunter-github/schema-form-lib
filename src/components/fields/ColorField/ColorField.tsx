@@ -3,13 +3,13 @@ import type { FormField } from '../../../types';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import { useLayoutContext } from '../../../contexts/LayoutContext';
 import {
-  SimpleFieldContainer,
-  SimpleFieldInput,
-  SimpleFieldLabel,
-  SimpleFieldDescription,
-  SimpleFieldError,
-  SimpleFieldHelper,
-} from '../../../theme/simpleStyled';
+  StyledFieldContainer,
+  StyledFieldInput,
+  StyledFieldLabel,
+  StyledFieldDescription,
+  StyledFieldError,
+  StyledFieldHelper,
+} from '../../../theme/styled';
 
 export interface ColorFieldProps {
   field: FormField;
@@ -28,10 +28,10 @@ const ColorField: React.FC<ColorFieldProps> = ({ field, onChange }) => {
   const isActive = isFloating && fieldValue !== '';
 
   return (
-    <SimpleFieldContainer
+    <StyledFieldContainer
       hasError={hasErrors}
       isDirty={field.hasChanges}
-      isFloating={isFloating}
+      layout={isFloating ? 'floating' : 'default'}
     >
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <input
@@ -57,7 +57,7 @@ const ColorField: React.FC<ColorFieldProps> = ({ field, onChange }) => {
             border: hasErrors ? '1px solid #dc2626' : '1px solid #d1d5db'
           }}
         />
-        <SimpleFieldInput
+        <StyledFieldInput
           id={fieldId}
           data-testid={fieldId}
           type="text"
@@ -86,39 +86,39 @@ const ColorField: React.FC<ColorFieldProps> = ({ field, onChange }) => {
           placeholder={isFloating ? " " : undefined}
           hasError={hasErrors}
           isDirty={field.hasChanges}
-          isFloating={isFloating}
+          variant={isFloating ? 'floating' : 'default'}
           style={{ flex: 1 }}
         />
       </div>
 
-      <SimpleFieldLabel
+      <StyledFieldLabel
         htmlFor={fieldId}
         required={field.required}
-        isFloating={isFloating}
-        isActive={isActive}
+        floating={isFloating}
+        active={isActive}
         hasError={hasErrors}
       >
         {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-      </SimpleFieldLabel>
+      </StyledFieldLabel>
 
       {field.schema.description && (
-        <SimpleFieldDescription>
+        <StyledFieldDescription>
           {field.schema.description}
-        </SimpleFieldDescription>
+        </StyledFieldDescription>
       )}
       
       {hasErrors && (
-        <SimpleFieldError>
+        <StyledFieldError>
           {field.errors[0]}
-        </SimpleFieldError>
+        </StyledFieldError>
       )}
       
       {field.dirty && (
-        <SimpleFieldHelper>
+        <StyledFieldHelper>
           Modified
-        </SimpleFieldHelper>
+        </StyledFieldHelper>
       )}
-    </SimpleFieldContainer>
+    </StyledFieldContainer>
   );
 };
 

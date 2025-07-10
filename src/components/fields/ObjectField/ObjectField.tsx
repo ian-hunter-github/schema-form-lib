@@ -6,13 +6,13 @@ import type { LayoutConfig, JSONSchemaWithLayout } from '../../../types/layout';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import LayoutContainer from '../../layout/LayoutContainer';
 import {
-  SimpleFieldContainer,
-  SimpleArrayHeader,
-  SimpleFieldLabel,
-  SimpleFieldDescription,
-  SimpleFieldError,
-  SimpleFieldHelper,
-} from '../../../theme/simpleStyled';
+  StyledFieldContainer,
+  StyledFieldLabel,
+  StyledFieldDescription,
+  StyledFieldError,
+  StyledFieldHelper,
+  StyledArrayHeader,
+} from '../../../theme/styled';
 
 export interface ObjectFieldProps {
   field: FormField;
@@ -81,9 +81,9 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
   };
 
   return (
-    <SimpleFieldContainer>
+    <StyledFieldContainer>
       {/* Accordion Header */}
-      <SimpleArrayHeader 
+      <StyledArrayHeader 
         hasBottomBorder={isExpanded}
         onClick={() => setIsExpanded(!isExpanded)}
         style={{ marginBottom: isExpanded ? '0.5rem' : 0 }}
@@ -97,7 +97,7 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
         >
           ▶
         </span>
-        <SimpleFieldLabel 
+        <StyledFieldLabel
           htmlFor={fieldId}
           id={`${fieldId}-label`}
           data-testid={`${fieldId}-label`}
@@ -109,18 +109,18 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
           }}
         >
           {capitalizeFirstLetter(field.schema.title || displayName)}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-        </SimpleFieldLabel>
+        </StyledFieldLabel>
         
         {field.dirty && (
-          <SimpleFieldHelper 
+          <StyledFieldHelper
             id={`${fieldId}-dirty-indicator`}
             data-testid={`${fieldId}-dirty-indicator`}
             style={{ marginLeft: '0.5rem' }}
           >
             Modified
-          </SimpleFieldHelper>
+          </StyledFieldHelper>
         )}
-      </SimpleArrayHeader>
+      </StyledArrayHeader>
 
       {/* Accordion Content */}
       {isExpanded && (
@@ -132,13 +132,13 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
           }}
         >
           {field.schema.description && (
-            <SimpleFieldDescription 
+            <StyledFieldDescription
               id={`${fieldId}-description`}
               data-testid={`${fieldId}-description`}
               style={{ marginBottom: '0.5rem' }}
             >
               {field.schema.description}
-            </SimpleFieldDescription>
+            </StyledFieldDescription>
           )}
 
           {/* Render nested fields using LayoutContainer */}
@@ -150,23 +150,23 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
               onChange={handleNestedChange}
             />
           ) : (
-            <SimpleFieldHelper style={{ fontStyle: 'italic' }}>
+            <StyledFieldHelper style={{ fontStyle: 'italic' }}>
               No properties defined for this object
-            </SimpleFieldHelper>
+            </StyledFieldHelper>
           )}
         </div>
       )}
 
       {/* Error display */}
       {hasErrors && (
-        <SimpleFieldError 
+        <StyledFieldError
           id={`${fieldId}-error`}
           data-testid={`${fieldId}-error`}
         >
           {errorMessage}
-        </SimpleFieldError>
+        </StyledFieldError>
       )}
-    </SimpleFieldContainer>
+    </StyledFieldContainer>
   );
 };
 

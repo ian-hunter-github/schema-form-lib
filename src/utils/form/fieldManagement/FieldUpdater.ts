@@ -1,8 +1,8 @@
-import type { JSONValue } from '../../../types/schema';
-import type { FormField } from '../../../types/fields';
-import { PathResolver } from '../pathResolution/PathResolver';
-import { FieldInitializer } from '../fieldCreation/FieldInitializer';
-import { isJSONObject } from '../schemaUtils';
+import type { JSONValue } from "../../../types/schema";
+import type { FormField } from "../../../types/fields";
+import { PathResolver } from "../pathResolution/PathResolver";
+import { FieldInitializer } from "../fieldCreation/FieldInitializer";
+import { isJSONObject } from "../schemaUtils";
 
 export class FieldUpdater {
   static updateFieldValue(
@@ -19,14 +19,16 @@ export class FieldUpdater {
 
     const oldValue = field.value;
     FieldInitializer.updateFieldValue(field, value);
-    console.log(`[FieldUpdater] Field ${path} updated from ${oldValue} to ${field.value}`);
-    
+    console.log(
+      `[FieldUpdater] Field ${path} updated from ${oldValue} to ${field.value}`
+    );
+
     // Update parent structures
     this.updateParentStructures(fields, path, value);
-    
+
     // Propagate dirty state up the hierarchy
     this.propagateDirtyState(fields, path);
-    
+
     // Propagate hasChanges state up the hierarchy
     this.propagateChangesState(fields, path);
   }
@@ -68,7 +70,7 @@ export class FieldUpdater {
     while (PathResolver.isNestedPath(currentPath)) {
       currentPath = PathResolver.getParentPath(currentPath);
       const parentField = fields.get(currentPath);
-      
+
       if (parentField && !changedPaths.has(currentPath)) {
         FieldInitializer.markFieldDirty(parentField);
         changedPaths.add(currentPath);
@@ -86,11 +88,11 @@ export class FieldUpdater {
     while (PathResolver.isNestedPath(currentPath)) {
       currentPath = PathResolver.getParentPath(currentPath);
       const parentField = fields.get(currentPath);
-      
+
       if (parentField && !changedPaths.has(currentPath)) {
         // Update parent's hasChanges flag based on comparison with pristine value
         parentField.hasChanges = !FieldInitializer.valuesEqual(
-          parentField.value, 
+          parentField.value,
           parentField.pristineValue
         );
         parentField.lastModified = new Date();
@@ -140,10 +142,13 @@ export class FieldUpdater {
     while (PathResolver.isNestedPath(currentPath)) {
       currentPath = PathResolver.getParentPath(currentPath);
       const parentField = fields.get(currentPath);
-      
+
       if (parentField && !updatedPaths.has(currentPath)) {
         // Aggregate error counts from all child fields
-        parentField.errorCount = this.calculateChildErrorCount(fields, currentPath);
+        parentField.errorCount = this.calculateChildErrorCount(
+          fields,
+          currentPath
+        );
         updatedPaths.add(currentPath);
       }
     }
@@ -158,22 +163,25 @@ export class FieldUpdater {
 
     // For objects/arrays, we want to count their own errors only if they are required
     // and have explicit validation errors (not just from children)
-    if (parentField.schema.type === 'object' || parentField.schema.type === 'array') {
+    if (
+      parentField.schema.type === "object" ||
+      parentField.schema.type === "array"
+    ) {
       if (parentField.required && parentField.errors.length > 0) {
         return parentField.errorCount;
       }
-      
+
       // Count direct children errors (no dots in remaining path)
       let errorCount = 0;
       for (const [path, field] of fields) {
         if (path.startsWith(`${parentPath}.`)) {
           const childPath = path.slice(parentPath.length + 1);
-          if (!childPath.includes('.') && field.errorCount > 0) {
+          if (!childPath.includes(".") && field.errorCount > 0) {
             errorCount += field.errorCount;
           }
         }
       }
-      
+
       return errorCount;
     }
 
@@ -184,8 +192,8 @@ export class FieldUpdater {
     for (const [path, field] of fields) {
       if (path.startsWith(`${parentPath}.`)) {
         const relativePath = path.slice(parentPath.length + 1);
-        const nestingLevel = relativePath.split('.').length;
-        
+        const nestingLevel = relativePath.split(".").length;
+
         if (field.errorCount > 0) {
           if (nestingLevel > deepestLevel) {
             deepestLevel = nestingLevel;
@@ -198,33 +206,6 @@ export class FieldUpdater {
     }
 
     return deepestErrorCount;
-  }
-
-  private static hasChildWithErrors(
-    fields: Map<string, FormField>,
-    path: string
-  ): boolean {
-    for (const [childPath, field] of fields) {
-      if (childPath.startsWith(`${path}.`) && field.errorCount > 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static hasParentWithErrors(
-    fields: Map<string, FormField>,
-    path: string
-  ): boolean {
-    let currentPath = path;
-    while (PathResolver.isNestedPath(currentPath)) {
-      currentPath = PathResolver.getParentPath(currentPath);
-      const parentField = fields.get(currentPath);
-      if (parentField && parentField.errorCount > 0) {
-        return true;
-      }
-    }
-    return false;
   }
 
   static resetFieldState(field: FormField): void {
