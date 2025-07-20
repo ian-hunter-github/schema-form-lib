@@ -30,13 +30,11 @@ export class FieldInitializer {
   }
 
   static updateFieldValue(field: FormField, newValue: JSONValue): void {
-    console.log(`[FieldInitializer] Updating field ${field.path} from ${field.value} to ${newValue}`);
     field.value = newValue;
     field.dirty = true;
     field.dirtyCount++;
     field.hasChanges = !this.valuesEqual(newValue, field.pristineValue);
     field.lastModified = new Date();
-    console.log(`[FieldInitializer] Field ${field.path} updated - hasChanges: ${field.hasChanges}, dirty: ${field.dirty}`);
   }
 
   static markFieldDirty(field: FormField): void {

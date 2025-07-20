@@ -61,8 +61,8 @@ export class NumberField extends BaseField<NumberFieldProps> {
     const showDirty = isDirty && this.props.formModel?.shouldShowDirty();
     
     const fieldTitle = capitalizeFirstLetter(field.schema.title || displayName);
-    const isFloating = this.props.formModel?.layoutContext?.isGrid12 || false;
-    const isActive = isFloating && fieldValue !== '';
+    const isFloating = true;
+    const isActive = fieldValue !== '';
 
     return (
       <StyledFieldContainer
@@ -99,9 +99,9 @@ export class NumberField extends BaseField<NumberFieldProps> {
               this.props.onChange?.(numValue, true);
             }
           }}
-          placeholder={isFloating ? " " : undefined}
+          placeholder=" "
           hasError={hasErrors}
-          variant={isFloating ? 'floating' : 'default'}
+          variant="floating"
           className={`${className || ''}`}
           data-dirty={isDirty}
           style={isDirty ? {
@@ -121,7 +121,7 @@ export class NumberField extends BaseField<NumberFieldProps> {
           active={isActive}
           hasError={hasErrors}
         >
-          {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
+          {fieldTitle}
         </StyledFieldLabel>
 
         {field.schema.description && (

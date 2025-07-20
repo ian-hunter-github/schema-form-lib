@@ -10,18 +10,12 @@ export class FieldUpdater {
     path: string,
     value: JSONValue
   ): void {
-    console.log(`[FieldUpdater] Updating field ${path} with value:`, value);
     const field = fields.get(path);
     if (!field) {
-      console.warn(`[FieldUpdater] Field not found at path: ${path}`);
       return;
     }
 
-    const oldValue = field.value;
     FieldInitializer.updateFieldValue(field, value);
-    console.log(
-      `[FieldUpdater] Field ${path} updated from ${oldValue} to ${field.value}`
-    );
 
     // Update parent structures
     this.updateParentStructures(fields, path, value);

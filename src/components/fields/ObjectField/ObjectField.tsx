@@ -53,11 +53,8 @@ class ObjectField extends BaseField<ObjectFieldProps> {
   }
 
   private toggleExpanded = (): void => {
-    console.log('toggleExpanded called, current isExpanded:', this.isExpanded);
     this.isExpanded = !this.isExpanded;
-    console.log('toggleExpanded - new isExpanded:', this.isExpanded);
     this.setState({});
-    console.log('setState completed');
   };
 
   private getNestedField = (propertyKey: string): FormField | undefined => {
@@ -101,12 +98,7 @@ class ObjectField extends BaseField<ObjectFieldProps> {
 
   render(): React.ReactNode {
     const { field, formModel } = this.props;
-    console.log('ObjectField render - isExpanded:', this.isExpanded);
-    console.log('field errors:', field.errors);
-    console.log('component errors:', this.errors);
-    console.log('field dirty:', field.dirty);
-    console.log('shouldShowDirty:', formModel?.shouldShowDirty(field));
-    console.log('isDirty:', this.isDirty());
+
     const fieldId = field.path;
     const displayName = field.path.split('.').pop() || field.path;
     const hasErrors = this.errors.length > 0;

@@ -45,7 +45,6 @@ export class FieldCreatorFactory {
       const field = FieldInitializer.createField(path, schema, emptyObject);
       fields.set(path, field);
     } else {
-      console.log(`Unsupported schema at path: "${path}"`, schema);
       throw new Error(`Unsupported schema type: ${schema.type} at path: "${path}"`);
     }
   }

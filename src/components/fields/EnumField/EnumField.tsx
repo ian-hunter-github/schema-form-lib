@@ -37,7 +37,7 @@ export class EnumField extends BaseField<EnumFieldProps> {
   }
 
   render() {
-    const { field, isGrid12 = false } = this.props;
+    const { field } = this.props;
     const fieldId = field.path;
     const displayName = field.path.split('.').pop() || field.path;
     const hasErrors = field.errors.length > 0;
@@ -56,8 +56,8 @@ export class EnumField extends BaseField<EnumFieldProps> {
         
     const fieldTitle = capitalizeFirstLetter(field.schema.title || displayName);
     const hasValue = isMultiple ? selectValue.length > 0 : selectValue !== '';
-    const isFloating = isGrid12;
-    const isActive = isFloating && hasValue;
+    const isFloating = true;
+    const isActive = hasValue;
     const isDirty = this.isDirty();
 
     return (
@@ -92,12 +92,10 @@ export class EnumField extends BaseField<EnumFieldProps> {
           }}
           hasError={hasErrors}
           isDirty={isDirty}
-          variant={isFloating ? 'floating' : 'default'}
-          style={{ minHeight: isMultiple ? '80px' : 'auto' }}
+          variant="floating"
+          style={{ minHeight: isMultiple ? '80px' : 'auto', paddingTop: isFloating ? '18px' : '8px' }}
         >
-          {!isMultiple && (
-            <option value="">{isFloating ? "" : "-- Select an option --"}</option>
-          )}
+          {!isMultiple && <option value=""></option>}
           {field.schema.enum.map((option) => {
             const stringOption = String(option);
             return (
@@ -117,7 +115,7 @@ export class EnumField extends BaseField<EnumFieldProps> {
           active={isActive}
           hasError={hasErrors}
         >
-          {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
+          {fieldTitle}
         </StyledFieldLabel>
 
         {field.schema.description && (

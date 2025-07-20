@@ -803,14 +803,13 @@ describe("FormModel - Nested Data Validation", () => {
 
     // Check individual field errors
     const nameField = model.getField("user.profile.name");
-    console.log(nameField?.errors);
     expect(nameField?.errors).toContain(VALIDATION_MESSAGES.REQUIRED);
     expect(nameField?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(1));
     expect(nameField?.errorCount).toBe(2);
 
     const emailField = model.getField("user.profile.email");
     expect(emailField?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(5));
-    expect(emailField?.errorCount).toBe(1);
+    exect(emailField?.errorCount).toBe(1);
 
     const ageField = model.getField("user.profile.age");
     expect(ageField?.errors).toContain(VALIDATION_MESSAGES.MIN_NUMBER(18));

@@ -60,24 +60,42 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
   protected renderItem(index: number): React.ReactNode {
     const item = this.getItems()[index];
     const itemValue = item !== undefined ? String(item) : '';
+    const hasValue = itemValue !== '';
 
     return (
       <div key={index} style={{ 
         display: 'flex', 
         gap: '0.5rem', 
-        marginBottom: '0.75rem' 
+        marginBottom: '0.75rem',
+        position: 'relative'
       }}>
-        <StyledFieldInput
-          id={`${this.props.field.path}.${index}`}
-          data-testid={`${this.props.field.path}.${index}`}
-          type="text"
-          value={itemValue}
-          onChange={(e) => this.handleItemChange(index, e.target.value)}
-          onBlur={(e) => this.handleItemBlur(index, e.target.value)}
-          disabled={this.props.field.schema.readOnly}
-          isDirty={this.isItemDirty(index)}
-          style={{ flex: 1 }}
-        />
+        <div style={{ flex: 1, position: 'relative' }}>
+          <StyledFieldInput
+            id={`${this.props.field.path}.${index}`}
+            data-testid={`${this.props.field.path}.${index}`}
+            type="text"
+            value={itemValue}
+            onChange={(e) => this.handleItemChange(index, e.target.value)}
+            onBlur={(e) => this.handleItemBlur(index, e.target.value)}
+            disabled={this.props.field.schema.readOnly}
+            isDirty={this.isItemDirty(index)}
+            variant="floating"
+            placeholder=" "
+            style={{ width: '100%' }}
+          />
+          <StyledFieldLabel
+            htmlFor={`${this.props.field.path}.${index}`}
+            floating={true}
+            active={hasValue}
+            style={{
+              position: 'absolute',
+              left: '12px',
+              transform: hasValue ? 'translateY(-8px) scale(0.85)' : 'translateY(12px)'
+            }}
+          >
+            Item {index + 1}
+          </StyledFieldLabel>
+        </div>
         <StyledButton
           id={`${this.props.field.path}.${index}-remove`}
           data-testid={`${this.props.field.path}.${index}-remove`}
@@ -114,7 +132,7 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
           data-testid={`${fieldId}-label`}
           required={this.props.field.required}
         >
-          {displayName}{this.props.field.required && <span style={{ color: '#dc2626' }}> *</span>}
+          {displayName}
         </StyledFieldLabel>
 
         {this.props.field.schema.description && (

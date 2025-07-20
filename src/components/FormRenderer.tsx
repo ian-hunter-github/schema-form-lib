@@ -53,9 +53,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ formModel, onSubmit, layout
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Before validation FormModel fields:', Object.fromEntries(formModel.getFields()));
     const isValid = formModel.validate();
-    console.log(`After validation ${isValid} FormModel fields:`, Object.fromEntries(formModel.getFields()));
 
     if (isValid && onSubmit) {
       // Get clean data from FormModel - only include root-level fields

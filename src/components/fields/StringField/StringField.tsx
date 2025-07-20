@@ -48,10 +48,9 @@ export class StringField extends BaseField<StringFieldProps> {
     const errorMessage = hasErrors ? field.errors[0] : undefined;
     const fieldValue = (this.currentValue as string) || '';
     const isDirty = this.isDirty();
-    const isGrid12 = this.props.formModel?.layoutContext?.isGrid12 || false;
     const fieldTitle = capitalizeFirstLetter(field.schema.title || displayName);
-    const isFloating = isGrid12;
-    const isActive = isFloating && fieldValue !== '';
+    const isFloating = true;
+    const isActive = fieldValue !== '';
 
     return (
       <StyledFieldContainer
@@ -67,12 +66,12 @@ export class StringField extends BaseField<StringFieldProps> {
           type="text"
           value={fieldValue}
           disabled={field.schema.readOnly}
-  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-    this.setValue(e.target.value);
-    this.props.field.dirty = true;
-    this.forceUpdate();
-    this.props.onChange?.(e.target.value, false);
-  }}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            this.setValue(e.target.value);
+            this.props.field.dirty = true;
+            this.forceUpdate();
+            this.props.onChange?.(e.target.value, false);
+          }}
           onBlur={(e: React.ChangeEvent<HTMLInputElement>) => {
             this.setValue(e.target.value);
             this.validate();
@@ -81,9 +80,9 @@ export class StringField extends BaseField<StringFieldProps> {
               this.props.formModel.validate();
             }
           }}
-          placeholder={isFloating ? " " : undefined}
+          placeholder=" "
           hasError={hasErrors}
-          variant={isFloating ? 'floating' : 'default'}
+          variant="floating"
           className={`${className || ''}`}
           data-dirty={isDirty}
           style={isDirty ? {
@@ -103,7 +102,7 @@ export class StringField extends BaseField<StringFieldProps> {
           active={isActive}
           hasError={hasErrors}
         >
-          {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
+          {fieldTitle}
         </StyledFieldLabel>
 
         {field.schema.description && (
