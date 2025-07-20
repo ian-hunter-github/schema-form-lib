@@ -1,4 +1,6 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
+import { BaseField } from '../BaseField';
+import type { BaseFieldProps } from '../BaseField';
 import type { FormField } from '../../../types/fields';
 import type { FormModel } from '../../../utils/form/FormModel';
 import type { JSONValue } from '../../../types/schema';
@@ -11,52 +13,70 @@ import {
   StyledFieldDescription,
   StyledFieldError,
   StyledFieldHelper,
-  StyledArrayHeader,
 } from '../../../theme/styled';
 
-export interface ObjectFieldProps {
+export interface ObjectFieldProps extends BaseFieldProps {
   field: FormField;
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
 }
 
-const ObjectField: React.FC<ObjectFieldProps> = ({ 
-  field, 
-  onChange, 
-  formModel 
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+class ObjectField extends BaseField<ObjectFieldProps> {
+  private isExpanded = false;
   
-  const fieldId = field.path;
-  const displayName = field.path.split('.').pop() || field.path;
-  const hasErrors = field.errors.length > 0;
-  const errorMessage = hasErrors ? field.errors[0] : undefined;
+  constructor(props: ObjectFieldProps) {
+    super(props);
+    this.isExpanded = false;
+  }
 
-  // Get the object properties from the schema
-  const properties = field.schema.properties || {};
-  const propertyKeys = Object.keys(properties);
+  componentDidMount(): void {
+    this.validate();
+  }
 
-  // Helper function to get nested field from FormModel
-  const getNestedField = (propertyKey: string): FormField | undefined => {
-    if (!formModel) return undefined;
-    const nestedPath = field.path ? `${field.path}.${propertyKey}` : propertyKey;
-    return formModel.getField(nestedPath);
-  };
-
-  // Helper function to handle nested field changes
-  const handleNestedChange = (path: string, value: JSONValue) => {
-    formModel.setValue(path, value);
-    // Propagate the change up to parent
-    if (onChange) {
-      onChange(field.value);
+  componentDidUpdate(prevProps: ObjectFieldProps): void {
+    if (prevProps.field.errors !== this.props.field.errors) {
+      this.validate();
     }
+    if (prevProps.field.dirty !== this.props.field.dirty) {
+      this.dirty = this.props.field.dirty;
+      this.setState({}); // Use setState instead of forceUpdate
+    }
+  }
+
+  isDirty(): boolean {
+    return this.props.field.dirty || false;
+  }
+  
+  protected validate(): void {
+    this.errors = this.props.field.errors;
+    this.setState({}); // Use setState instead of forceUpdate
+  }
+
+  private toggleExpanded = (): void => {
+    console.log('toggleExpanded called, current isExpanded:', this.isExpanded);
+    this.isExpanded = !this.isExpanded;
+    console.log('toggleExpanded - new isExpanded:', this.isExpanded);
+    this.setState({});
+    console.log('setState completed');
   };
 
-  // Get nested fields for layout container
-  const getNestedFields = (): FormField[] => {
+  private getNestedField = (propertyKey: string): FormField | undefined => {
+    if (!this.props.formModel) return undefined;
+    const nestedPath = this.props.field.path ? `${this.props.field.path}.${propertyKey}` : propertyKey;
+    return this.props.formModel.getField(nestedPath);
+  };
+
+  private handleNestedChange = (path: string, value: JSONValue): void => {
+    this.props.formModel.setValue(path, value);
+    // Update our value from the form model
+    this.setValue(this.props.formModel.getField(this.props.field.path).value);
+    this.props.onChange?.(this.currentValue, false);
+  };
+
+  private getNestedFields = (propertyKeys: string[]): FormField[] => {
     const nestedFields: FormField[] = [];
     for (const propertyKey of propertyKeys) {
-      const nestedField = getNestedField(propertyKey);
+      const nestedField = this.getNestedField(propertyKey);
       if (nestedField) {
         nestedFields.push(nestedField);
       }
@@ -64,9 +84,8 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
     return nestedFields;
   };
 
-  // Get layout configuration from schema
-  const getObjectLayoutConfig = (): LayoutConfig => {
-    const schema = field.schema as JSONSchemaWithLayout;
+  private getObjectLayoutConfig = (): LayoutConfig => {
+    const schema = this.props.field.schema as JSONSchemaWithLayout;
     const layoutConfig = schema['x-layout'];
     
     if (layoutConfig) {
@@ -80,50 +99,77 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
     return { strategy: 'vertical' };
   };
 
-  return (
-    <StyledFieldContainer>
-      {/* Accordion Header */}
-      <StyledArrayHeader 
-        hasBottomBorder={isExpanded}
-        onClick={() => setIsExpanded(!isExpanded)}
-        style={{ marginBottom: isExpanded ? '0.5rem' : 0 }}
-      >
-        <span 
+  render(): React.ReactNode {
+    const { field, formModel } = this.props;
+    console.log('ObjectField render - isExpanded:', this.isExpanded);
+    console.log('field errors:', field.errors);
+    console.log('component errors:', this.errors);
+    console.log('field dirty:', field.dirty);
+    console.log('shouldShowDirty:', formModel?.shouldShowDirty(field));
+    console.log('isDirty:', this.isDirty());
+    const fieldId = field.path;
+    const displayName = field.path.split('.').pop() || field.path;
+    const hasErrors = this.errors.length > 0;
+    const errorMessage = hasErrors ? this.errors[0] : undefined;
+
+    // Get the object properties from the schema
+    const properties = field.schema.properties || {};
+    const propertyKeys = Object.keys(properties);
+
+    return (
+      <StyledFieldContainer>
+        {/* Accordion Header */}
+        <div 
+          onClick={this.toggleExpanded}
           style={{ 
-            marginRight: '0.25rem',
-            transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s ease'
-          }}
-        >
-          ▶
-        </span>
-        <StyledFieldLabel
-          htmlFor={fieldId}
-          id={`${fieldId}-label`}
-          data-testid={`${fieldId}-label`}
-          required={field.required}
-          style={{ 
-            margin: 0,
+            marginBottom: this.isExpanded ? '0.5rem' : 0,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0.5rem',
             cursor: 'pointer',
-            flex: 1
+            borderBottom: this.isExpanded ? '1px solid #e5e7eb' : 'none'
           }}
         >
-          {capitalizeFirstLetter(field.schema.title || displayName)}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-        </StyledFieldLabel>
-        
-        {field.dirty && (
-          <StyledFieldHelper
-            id={`${fieldId}-dirty-indicator`}
-            data-testid={`${fieldId}-dirty-indicator`}
-            style={{ marginLeft: '0.5rem' }}
+          <span 
+            style={{ 
+              marginRight: '0.25rem',
+              transform: this.isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease'
+            }}
           >
-            Modified
-          </StyledFieldHelper>
-        )}
-      </StyledArrayHeader>
+            ▶
+          </span>
+          <StyledFieldLabel
+            htmlFor={fieldId}
+            id={`${fieldId}-label`}
+            data-testid={`${fieldId}-label`}
+            required={field.required}
+            style={{ 
+              margin: 0,
+              cursor: 'pointer',
+              flex: 1
+            }}
+          >
+            {capitalizeFirstLetter(field.schema.title || displayName)}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
+          </StyledFieldLabel>
+          
+          {this.isDirty() && formModel?.shouldShowDirty(field) && (
+            <StyledFieldHelper
+              id={`${fieldId}-dirty-indicator-header`}
+              data-testid={`${fieldId}-dirty-indicator-header`}
+              style={{ 
+                marginLeft: '0.5rem',
+                color: '#ca8a04',
+                fontWeight: '500'
+              }}
+            >
+              Modified
+            </StyledFieldHelper>
+          )}
+        </div>
 
       {/* Accordion Content */}
-      {isExpanded && (
+      {this.isExpanded && (
         <div 
           style={{
             paddingLeft: '1.5rem',
@@ -144,10 +190,10 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
           {/* Render nested fields using LayoutContainer */}
           {propertyKeys.length > 0 ? (
             <LayoutContainer
-              fields={getNestedFields()}
+              fields={this.getNestedFields(propertyKeys)}
               formModel={formModel}
-              layoutConfig={getObjectLayoutConfig()}
-              onChange={handleNestedChange}
+              layoutConfig={this.getObjectLayoutConfig()}
+              onChange={this.handleNestedChange}
             />
           ) : (
             <StyledFieldHelper style={{ fontStyle: 'italic' }}>
@@ -157,18 +203,21 @@ const ObjectField: React.FC<ObjectFieldProps> = ({
         </div>
       )}
 
-      {/* Error display */}
-      {hasErrors && (
-        <StyledFieldError
-          id={`${fieldId}-error`}
-          data-testid={`${fieldId}-error`}
-        >
-          {errorMessage}
-        </StyledFieldError>
-      )}
-    </StyledFieldContainer>
-  );
-};
+        {hasErrors && formModel?.shouldShowErrors() && (
+          <div style={{ marginTop: '0.5rem' }}>
+            <StyledFieldError
+              id={`${fieldId}-error`}
+              data-testid={`${fieldId}-error`}
+            >
+              {errorMessage}
+            </StyledFieldError>
+          </div>
+        )}
+        
+      </StyledFieldContainer>
+    );
+  }
+}
 
 const areEqual = (prevProps: ObjectFieldProps, nextProps: ObjectFieldProps) => {
   return (
@@ -179,4 +228,5 @@ const areEqual = (prevProps: ObjectFieldProps, nextProps: ObjectFieldProps) => {
   );
 };
 
-export default memo(ObjectField, areEqual);
+const MemoizedObjectField = memo(ObjectField as React.ComponentType<ObjectFieldProps>, areEqual);
+export default MemoizedObjectField;

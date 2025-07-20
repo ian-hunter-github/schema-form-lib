@@ -663,66 +663,6 @@ describe("FormModel - Advanced Features", () => {
   });
 });
 
-describe("FormModel - Hybrid Mode", () => {
-  it("should track dirty states in hybrid mode", () => {
-    const schema: JSONSchemaProperties = {
-      user: {
-        type: "object",
-        properties: {
-          name: { type: "string", default: "John" },
-          profile: {
-            type: "object",
-            properties: {
-              email: { type: "string" },
-              age: { type: "number" }
-            }
-          }
-        }
-      }
-    };
-
-    const model = new FormModel(schema, { hybridMode: true });
-    
-    // Initial state
-    expect(model.getDirtyFields()).toEqual([]);
-    expect(model.getChangedValues()).toEqual({});
-
-    // Modify fields
-    model.setValue("user.name", "Jane");
-    model.setValue("user.profile.email", "jane@example.com");
-
-    // Verify dirty tracking
-    expect(model.getDirtyFields()).toEqual(["user.name", "user.profile.email"]);
-    expect(model.getChangedValues()).toEqual({
-      "user.name": "Jane",
-      "user.profile.email": "jane@example.com"
-    });
-
-    // Clear dirty states
-    model.clearAllDirtyStates();
-    expect(model.getDirtyFields()).toEqual([]);
-    expect(model.getChangedValues()).toEqual({});
-  });
-
-  it("should maintain backward compatibility when hybrid mode is off", () => {
-    const schema: JSONSchemaProperties = {
-      user: {
-        type: "object",
-        properties: {
-          name: { type: "string" }
-        }
-      }
-    };
-
-    const model = new FormModel(schema); // hybridMode defaults to false
-    
-    model.setValue("user.name", "Test");
-    expect(model.getField("user.name")?.dirty).toBe(true);
-    expect(() => model.getDirtyFields()).toThrow();
-    expect(() => model.getChangedValues()).toThrow();
-  });
-});
-
 describe("FormModel - Nested Data Validation", () => {
   it("should handle nested data validation lifecycle", () => {
     // 1) Set up model with nested data
@@ -877,6 +817,595 @@ describe("FormModel - Nested Data Validation", () => {
     expect(updatedAgeField?.value).toBe(30);
     expect(updatedThemeField?.value).toBe("light");
     expect(updatedTagField?.value).toBe("designer");
+  });
+
+  it("should handle hybrid mode operations", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+  it("should handle hybrid mode operations", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
+  });
+
+  it("should handle deeply nested validation scenarios", () => {
+    const schema: JSONSchemaProperties = {
+      user: {
+        type: "object",
+        properties: {
+          profile: {
+            type: "object",
+            properties: {
+              name: { type: "string", default: "John" },
+              email: { type: "string", default: "john@example.com" },
+            },
+          },
+        },
+      },
+    };
+
+    const model = new FormModel(schema);
+
+    // Test dirty state aggregation
+    model.setValue("user.profile.name", "Jane");
+    expect(model.getAggregatedDirtyState("user")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.name")).toBe(true);
+    expect(model.getAggregatedDirtyState("user.profile.email")).toBe(false);
+
+    // Test changed values collection
+    const changedValues = model.getChangedValues();
+    expect(changedValues.size).toBe(1);
+    expect(changedValues.get("user.profile.name")).toEqual({
+      current: "Jane",
+      pristine: "John"
+    });
+
+    // Test clear dirty states
+    model.clearAllDirtyStates();
+    expect(model.getField("user.profile.name")?.dirty).toBe(false);
+    expect(model.getField("user.profile.name")?.hasChanges).toBe(true);
+
+    // Verify can still get changed values after clearing dirty states
+    expect(model.getChangedValues().size).toBe(1);
   });
 
   it("should handle deeply nested validation scenarios", () => {

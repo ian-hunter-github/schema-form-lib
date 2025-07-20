@@ -1,132 +1,163 @@
 import React from 'react';
+import { BaseField } from '../BaseField';
+import type { BaseFieldProps } from '../BaseField';
+import type { JSONValue } from '../../../types/schema';
 import type { FormField } from '../../../types/fields';
 import type { FormModel } from '../../../utils/form/FormModel';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
-import { useLayoutContext } from '../../../contexts/LayoutContext';
 import {
   StyledFieldContainer,
   StyledFieldSelect,
   StyledFieldLabel,
   StyledFieldDescription,
   StyledFieldError,
-  StyledFieldHelper,
 } from '../../../theme/styled';
 
-export interface EnumFieldProps {
+export interface EnumFieldProps extends BaseFieldProps {
   field: FormField;
-  onChange: (value: string | string[], shouldValidate?: boolean) => void;
+  onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
+  isGrid12?: boolean;
 }
 
-const EnumField: React.FC<EnumFieldProps> = ({ field, onChange }) => {
-  const fieldId = field.path;
-  const displayName = field.path.split('.').pop() || field.path;
-  const hasErrors = field.errors.length > 0;
-  const errorMessage = hasErrors ? field.errors[0] : undefined;
-  
-  // Get layout context to determine if we should use floating labels
-  const { isGrid12 } = useLayoutContext();
+export class EnumField extends BaseField<EnumFieldProps> {
+  private selectRef = React.createRef<HTMLSelectElement>();
+  private isDirtyState = false;
 
-  if (!field.schema.enum) {
-    return null;
+  componentDidUpdate() {
+    const isDirty = this.isDirty();
+    if (this.selectRef.current) {
+      this.selectRef.current.dataset.dirty = String(isDirty);
+    }
+    this.isDirtyState = isDirty;
   }
 
-  const isMultiple = field.schema.type === 'array';
-  const selectValue = isMultiple 
-    ? Array.isArray(field.value) ? (field.value as string[]).map(String) : []
-    : typeof field.value === 'string' || typeof field.value === 'number' 
-      ? String(field.value) 
-      : '';
-      
-  const fieldTitle = capitalizeFirstLetter(field.schema.title || displayName);
-  const hasValue = isMultiple ? selectValue.length > 0 : selectValue !== '';
-  const isFloating = isGrid12;
-  const isActive = isFloating && hasValue;
+  isDirty() {
+    return super.isDirty() || this.isDirtyState;
+  }
 
-  return (
-    <StyledFieldContainer
-      hasError={hasErrors}
-      isDirty={field.hasChanges}
-      layout={isFloating ? 'floating' : 'default'}
-    >
-      <StyledFieldSelect
-        id={fieldId}
-        data-testid={fieldId}
-        multiple={isMultiple}
-        value={selectValue}
-        disabled={field.schema.readOnly}
-        autoComplete="off"
-        data-lpignore="true"
-        onChange={(e) => {
-          const newValue = isMultiple 
-            ? Array.from(e.target.selectedOptions, option => option.value)
-            : e.target.value;
-          onChange(newValue, false);
-        }}
-        onBlur={(e) => {
-          const newValue = isMultiple 
-            ? Array.from(e.target.selectedOptions, option => option.value)
-            : e.target.value;
-          onChange(newValue, true);
-        }}
+  render() {
+    const { field, isGrid12 = false } = this.props;
+    const fieldId = field.path;
+    const displayName = field.path.split('.').pop() || field.path;
+    const hasErrors = field.errors.length > 0;
+    const errorMessage = hasErrors ? field.errors[0] : undefined;
+    
+    if (!field.schema.enum) {
+      return null;
+    }
+
+    const isMultiple = field.schema.type === 'array';
+    const selectValue = isMultiple 
+      ? Array.isArray(this.currentValue) ? (this.currentValue as string[]).map(String) : []
+      : typeof this.currentValue === 'string' || typeof this.currentValue === 'number' 
+        ? String(this.currentValue) 
+        : '';
+        
+    const fieldTitle = capitalizeFirstLetter(field.schema.title || displayName);
+    const hasValue = isMultiple ? selectValue.length > 0 : selectValue !== '';
+    const isFloating = isGrid12;
+    const isActive = isFloating && hasValue;
+    const isDirty = this.isDirty();
+
+    return (
+      <StyledFieldContainer
         hasError={hasErrors}
-        isDirty={field.hasChanges}
-        variant={isFloating ? 'floating' : 'default'}
-        style={{ minHeight: isMultiple ? '80px' : 'auto' }}
+        isDirty={isDirty}
+        layout={isFloating ? 'floating' : 'default'}
       >
-        {!isMultiple && (
-          <option value="">{isFloating ? "" : "-- Select an option --"}</option>
+        <StyledFieldSelect
+          ref={this.selectRef}
+          id={fieldId}
+          data-testid={fieldId}
+          multiple={isMultiple}
+          value={selectValue}
+          disabled={field.schema.readOnly}
+          autoComplete="off"
+          data-lpignore="true"
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            const newValue = isMultiple 
+              ? Array.from(e.target.selectedOptions, (option: HTMLOptionElement) => option.value)
+              : e.target.value;
+            this.setValue(newValue);
+            this.isDirtyState = true;
+            this.props.onChange?.(newValue, false);
+          }}
+          onBlur={(e: React.FocusEvent<HTMLSelectElement>) => {
+            const newValue = isMultiple 
+              ? Array.from(e.target.selectedOptions, (option: HTMLOptionElement) => option.value)
+              : e.target.value;
+            this.validate();
+            this.props.onChange?.(newValue, true);
+          }}
+          hasError={hasErrors}
+          isDirty={isDirty}
+          variant={isFloating ? 'floating' : 'default'}
+          style={{ minHeight: isMultiple ? '80px' : 'auto' }}
+        >
+          {!isMultiple && (
+            <option value="">{isFloating ? "" : "-- Select an option --"}</option>
+          )}
+          {field.schema.enum.map((option) => {
+            const stringOption = String(option);
+            return (
+              <option key={stringOption} value={stringOption}>
+                {stringOption}
+              </option>
+            );
+          })}
+        </StyledFieldSelect>
+        
+        <StyledFieldLabel
+          htmlFor={fieldId}
+          id={`${fieldId}-label`}
+          data-testid={`${fieldId}-label`}
+          required={field.required}
+          floating={isFloating}
+          active={isActive}
+          hasError={hasErrors}
+        >
+          {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
+        </StyledFieldLabel>
+
+        {field.schema.description && (
+          <StyledFieldDescription
+            id={`${fieldId}-description`}
+            data-testid={`${fieldId}-description`}
+          >
+            {field.schema.description}
+          </StyledFieldDescription>
         )}
-        {field.schema.enum.map((option) => {
-          const stringOption = String(option);
-          return (
-            <option key={stringOption} value={stringOption}>
-              {stringOption}
-            </option>
-          );
-        })}
-      </StyledFieldSelect>
-      
-      <StyledFieldLabel
-        htmlFor={fieldId}
-        id={`${fieldId}-label`}
-        data-testid={`${fieldId}-label`}
-        required={field.required}
-        floating={isFloating}
-        active={isActive}
-        hasError={hasErrors}
-      >
-        {fieldTitle}{field.required && <span style={{ color: '#dc2626' }}> *</span>}
-      </StyledFieldLabel>
-
-      {field.schema.description && (
-        <StyledFieldDescription
-          id={`${fieldId}-description`}
-          data-testid={`${fieldId}-description`}
-        >
-          {field.schema.description}
-        </StyledFieldDescription>
-      )}
-      
-      {hasErrors && (
-        <StyledFieldError
-          id={`${fieldId}-error`}
-          data-testid={`${fieldId}-error`}
-        >
-          {errorMessage}
-        </StyledFieldError>
-      )}
-      
-      {field.dirty && (
-        <StyledFieldHelper
-          id={`${fieldId}-dirty-indicator`}
-          data-testid={`${fieldId}-dirty-indicator`}
-        >
-          Modified
-        </StyledFieldHelper>
-      )}
-    </StyledFieldContainer>
-  );
-};
+        
+        {hasErrors && (
+          <StyledFieldError
+            id={`${fieldId}-error`}
+            data-testid={`${fieldId}-error`}
+          >
+            {errorMessage}
+          </StyledFieldError>
+        )}
+        
+        {field.dirty && !hasErrors && (
+          <div
+            id={`${fieldId}-dirty-indicator`}
+            data-testid={`${fieldId}-dirty-indicator`}
+            style={{
+              display: 'block',
+              color: '#666',
+              fontSize: '0.875rem',
+              marginTop: '0.25rem',
+              padding: '0.25rem',
+              backgroundColor: '#f8f9fa',
+              borderLeft: '3px solid #6c757d'
+            }}
+          >
+            Modified
+          </div>
+        )}
+      </StyledFieldContainer>
+    );
+  }
+}
 
 export default EnumField;

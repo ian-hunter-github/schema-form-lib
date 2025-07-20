@@ -22,17 +22,26 @@ import { BufferingManager } from "./BufferingManager";
  * - Change tracking
  * - Array operations
  */
+export interface LayoutContext {
+  isGrid12: boolean;
+}
+
 export class FormModel {
+  layoutContext?: LayoutContext;
   protected fields: Map<string, FormField> = new Map();
   private listeners: Set<(fields: Map<string, FormField>) => void> = new Set();
   private fieldCache: Map<string, FormField> = new Map();
+  private hybridMode: boolean = false;
+  private dirtyFields: Set<string> = new Set();
+  private changedValues: Map<string, JSONValue> = new Map();
 
   /**
    * Creates a new FormModel instance
    * @param schema - The JSON schema to build the form from
    */
-  constructor(schema: JSONSchema | JSONSchemaProperties) {
+  constructor(schema: JSONSchema | JSONSchemaProperties, options: { hybridMode?: boolean } = {}) {
     const effectiveSchema = isJSONSchema(schema) ? schema : { type: 'object' as const, properties: schema };
+    this.hybridMode = options.hybridMode || false;
     this.buildForm(effectiveSchema);
   }
 
@@ -84,8 +93,14 @@ export class FormModel {
   public setValue(path: string, value: JSONValue): void {
     try {
       // Ensure the field exists (will throw if not found)
-      this.getField(path);
+      const field = this.getField(path);
+      const oldValue = field.value;
       FieldUpdater.updateFieldValue(this.fields, path, value);
+      
+      if (this.hybridMode && JSON.stringify(oldValue) !== JSON.stringify(value)) {
+        this.dirtyFields.add(path);
+        this.changedValues.set(path, value);
+      }
       this.notifyListeners();
     } catch (error) {
       console.error(`Failed to set value for path ${path}:`, error);
@@ -240,4 +255,79 @@ export class FormModel {
     return BufferingManager.getChangeStatistics(this.fields);
   }
 
+  /**
+   * Determines if validation errors should be shown for a field
+   */
+  public shouldShowErrors(): boolean {
+    return true; // Default to always showing errors
+  }
+
+  /**
+   * Determines if dirty indicators should be shown for a field
+   * @param field - Optional field to check dirty state for
+   */
+  public shouldShowDirty(_field?: FormField): boolean { // eslint-disable-line @typescript-eslint/no-unused-vars
+    // Field parameter is used by some implementations to make conditional decisions
+    return true; // Default to always showing dirty state
+  }
+
+  /**
+   * Gets all dirty fields in hybrid mode
+   */
+  public getDirtyFields(): string[] {
+    if (this.hybridMode) {
+      return Array.from(this.dirtyFields);
+    }
+    throw new Error('getDirtyFields() is only available in hybrid mode');
+  }
+
+  /**
+   * Gets aggregated dirty state for a field and its children
+   */
+  public getAggregatedDirtyState(path: string): boolean {
+    if (this.hybridMode) {
+      return this.dirtyFields.has(path) || 
+        Array.from(this.dirtyFields).some(p => p.startsWith(`${path}.`));
+    }
+
+    const field = this.fields.get(path);
+    if (!field) return false;
+
+    // Check if the field itself is dirty
+    if (field.dirty) return true;
+
+    // Check all child fields recursively
+    for (const [childPath, childField] of this.fields.entries()) {
+      if (childPath.startsWith(`${path}.`)) {
+        if (childField.dirty) return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Gets all changed values (current and pristine)
+   */
+  public getChangedValues(): Record<string, JSONValue> {
+    if (!this.hybridMode) {
+      throw new Error('getChangedValues() is only available in hybrid mode');
+    }
+    return Object.fromEntries(this.changedValues);
+  }
+
+  /**
+   * Clears all dirty states while maintaining change tracking
+   */
+  public clearAllDirtyStates(): void {
+    for (const field of this.fields.values()) {
+      field.dirty = false;
+      field.dirtyCount = 0;
+    }
+    if (this.hybridMode) {
+      this.dirtyFields.clear();
+      this.changedValues.clear();
+    }
+    this.notifyListeners();
+  }
 }

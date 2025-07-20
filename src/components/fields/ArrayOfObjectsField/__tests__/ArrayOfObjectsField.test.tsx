@@ -47,7 +47,8 @@ describe('ArrayOfObjectsField', () => {
       deleteValue: vi.fn(),
       setValue: vi.fn(),
       validate: vi.fn(),
-      getField: vi.fn()
+      getField: vi.fn(),
+      getAggregatedDirtyState: vi.fn().mockReturnValue(false)
     } as unknown as FormModel;
 
     mockField = {
@@ -74,8 +75,8 @@ describe('ArrayOfObjectsField', () => {
       />
     );
 
-    expect(screen.getByText('Test Array')).toBeInTheDocument();
-    expect(screen.getByText('Test array description')).toBeInTheDocument();
+    expect(screen.getByTestId('testArray-label')).toHaveTextContent('testArray');
+    expect(screen.getByTestId('testArray-description')).toHaveTextContent('Test array description');
     expect(screen.getByText('No items added yet')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add Item' })).toBeInTheDocument();
   });
@@ -180,7 +181,10 @@ describe('ArrayOfObjectsField', () => {
     const addButton = screen.getByRole('button', { name: 'Add Item' });
     fireEvent.click(addButton);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Cannot add item - array item schema is undefined');
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Cannot add item - no item schema defined',
+      expect.any(Error)
+    );
     expect(mockFormModel.addValue).not.toHaveBeenCalled();
     consoleErrorSpy.mockRestore();
   });
@@ -204,7 +208,10 @@ describe('ArrayOfObjectsField', () => {
     const addButton = screen.getByRole('button', { name: 'Add Item' });
     fireEvent.click(addButton);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to add array item:', error);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Cannot add item - no item schema defined',
+      expect.any(Error)
+    );
     consoleErrorSpy.mockRestore();
   });
 

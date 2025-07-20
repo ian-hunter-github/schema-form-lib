@@ -3,6 +3,7 @@
  */
 
 import type { JSONSchema, JSONValue } from "./schema";
+import type { FormModel } from "../utils/form/FormModel";
 
 export interface FormField {
   path: string;
@@ -21,6 +22,14 @@ export interface FormField {
   isReadOnly?: boolean;
   isHidden?: boolean;
   validationState?: 'valid' | 'invalid' | 'pending';
+}
+
+export interface FormFieldProps {
+  field: FormField;
+  onChange?: (value: JSONValue, shouldValidate?: boolean) => void;
+  onError?: (error: Error) => void;
+  formModel?: FormModel;
+  children?: React.ReactNode;
 }
 
 export interface OneOfFieldProps {

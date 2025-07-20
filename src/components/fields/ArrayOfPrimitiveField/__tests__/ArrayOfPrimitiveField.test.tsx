@@ -38,6 +38,8 @@ describe('ArrayOfPrimitiveField', () => {
     deleteValue: vi.fn(),
     setValue: vi.fn(),
     validate: vi.fn(),
+    getAggregatedDirtyState: vi.fn().mockReturnValue(false),
+    getField: vi.fn(),
   } as unknown as FormModel;
 
   beforeEach(() => {
@@ -57,12 +59,13 @@ describe('ArrayOfPrimitiveField', () => {
 
   it('displays field title from schema', () => {
     const field = createMockFormField({
+      path: 'customField',
       schema: { type: 'array', title: 'Custom Title', items: { type: 'string' } }
     });
     
     render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
     
-    expect(screen.getByText('Custom Title')).toBeInTheDocument();
+    expect(screen.getByTestId('customField-label')).toHaveTextContent('Custom Title');
   });
 
   it('displays existing array items', () => {

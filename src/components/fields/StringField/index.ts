@@ -1,2 +1,1 @@
-export { default } from './StringField';
-export type { StringFieldProps } from './StringField';
+export { default, StringField, type StringFieldProps } from './StringField';

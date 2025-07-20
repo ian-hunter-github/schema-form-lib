@@ -1,2 +1,1 @@
-export { default } from './EnumField';
-export type { EnumFieldProps } from './EnumField';
+export { default, EnumField, type EnumFieldProps } from './EnumField';

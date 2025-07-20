@@ -38,6 +38,7 @@ export type JSONSchema = {
   oneOf?: JSONSchema[];
   anyOf?: JSONSchema[];
   allOf?: JSONSchema[];
+  validationMessage?: string;
 };
 
 export type JSONSchemaProperties = {

@@ -1,114 +1,103 @@
-import React, { memo, useState } from 'react';
+import React from 'react';
+import type { JSONValue } from '../../../types/schema';
 import type { FormField } from '../../../types/fields';
 import type { FormModel } from '../../../utils/form/FormModel';
-import type { JSONValue } from '../../../types/schema';
-import { capitalizeFirstLetter } from '../../../utils/StringUtils';
+import { ArrayFieldBase } from '../ArrayFieldBase';
 import FieldRenderer from '../../FieldRenderer';
+import styled from '@emotion/styled';
 import {
-  StyledArrayContainer,
   StyledFieldLabel,
   StyledFieldDescription,
-  StyledArrayItem,
-  StyledArrayHeader,
-  StyledArrayContent,
-  StyledButton,
   StyledFieldError,
   StyledFieldHelper,
 } from '../../../theme/styled';
 
+const StyledArrayContainer = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const StyledArrayItem = styled.div<{ isDirty?: boolean }>`
+  margin-bottom: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  background-color: ${props => props.isDirty ? 'rgba(255, 243, 205, 0.3)' : 'white'};
+`;
+
+const StyledArrayHeader = styled.div<{ hasBottomBorder?: boolean }>`
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  background-color: #f9fafb;
+  border-bottom: ${props => props.hasBottomBorder ? '1px solid #e5e7eb' : 'none'};
+  &:hover {
+    background-color: #f3f4f6;
+  }
+`;
+
+const StyledArrayContent = styled.div`
+  padding: 1rem;
+`;
+
+const StyledButton = styled.button<{
+  variant?: 'primary' | 'danger';
+  size?: 'sm' | 'md';
+  disabled?: boolean;
+}>`
+  padding: ${props => props.size === 'sm' ? '0.25rem 0.5rem' : '0.5rem 1rem'};
+  border-radius: 0.25rem;
+  font-size: ${props => props.size === 'sm' ? '0.875rem' : '1rem'};
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+
+  ${props => props.variant === 'primary' && `
+    background-color: ${props.disabled ? '#9ca3af' : '#3b82f6'};
+    color: white;
+    &:hover {
+      background-color: ${props.disabled ? '#9ca3af' : '#2563eb'};
+    }
+  `}
+
+  ${props => props.variant === 'danger' && `
+    background-color: ${props.disabled ? '#9ca3af' : '#ef4444'};
+    color: white;
+    &:hover {
+      background-color: ${props.disabled ? '#9ca3af' : '#dc2626'};
+    }
+  `}
+`;
+
 export interface ArrayOfObjectsFieldProps {
   field: FormField;
-  onChange: (value: JSONValue[], shouldValidate?: boolean) => void;
+  onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
 }
 
-const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formModel }) => {
-  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
-  
-  const fieldId = field.path;
-  const displayName = field.path.split('.').pop() || field.path;
-  const hasErrors = field.errors.length > 0;
-  const errorMessage = hasErrors ? field.errors[0] : undefined;
+class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
+  private expandedItems = new Set<number>();
 
-  // Get items directly from FormModel
-  const items = Array.isArray(field.value) ? field.value : [];
-  const itemSchema = field.schema.items;
-
-  const handleAddItem = () => {
-    if (!itemSchema) {
-      console.error('Cannot add item - array item schema is undefined');
-      return;
-    }
-    
-    try {
-      // Create a default object based on the item schema
-      const defaultValue = createDefaultObjectValue(itemSchema);
-      formModel.addValue(field.path, defaultValue);
-    } catch (error) {
-      console.error('Failed to add array item:', error);
-    }
-  };
-
-  const handleRemoveItem = (index: number) => {
-    const elementPath = `${field.path}.${index}`;
-    formModel.deleteValue(elementPath);
-    
-    // Remove from expanded items and adjust indices
-    const newExpandedItems = new Set<number>();
-    expandedItems.forEach(expandedIndex => {
-      if (expandedIndex < index) {
-        newExpandedItems.add(expandedIndex);
-      } else if (expandedIndex > index) {
-        newExpandedItems.add(expandedIndex - 1);
-      }
-    });
-    setExpandedItems(newExpandedItems);
-  };
-
-  const toggleItemExpansion = (index: number) => {
-    const newExpandedItems = new Set(expandedItems);
-    if (newExpandedItems.has(index)) {
-      newExpandedItems.delete(index);
-    } else {
-      newExpandedItems.add(index);
-    }
-    setExpandedItems(newExpandedItems);
-  };
-
-  const handleNestedChange = (itemIndex: number, propertyKey: string, value: JSONValue, shouldValidate?: boolean) => {
-    const nestedPath = `${field.path}.${itemIndex}.${propertyKey}`;
-    formModel.setValue(nestedPath, value);
-    if (shouldValidate) {
-      formModel.validate();
-    }
-  };
-
-  const getNestedField = (itemIndex: number, propertyKey: string): FormField | undefined => {
-    const nestedPath = `${field.path}.${itemIndex}.${propertyKey}`;
-    return formModel.getField(nestedPath);
-  };
-
-  const renderObjectItem = (itemIndex: number) => {
-    const isExpanded = expandedItems.has(itemIndex);
-    const itemPath = `${field.path}.${itemIndex}`;
-    const itemField = formModel.getField(itemPath);
-    
+  protected renderItem(index: number): React.ReactNode {
+    const itemSchema = this.props.field.schema.items;
     if (!itemSchema || !itemSchema.properties) {
       return null;
     }
 
+    const isExpanded = this.isItemExpanded(index);
+    const itemPath = `${this.props.field.path}.${index}`;
+    const itemField = this.props.formModel.getField(itemPath);
     const properties = itemSchema.properties;
     const propertyKeys = Object.keys(properties);
 
     return (
       <StyledArrayItem 
-        key={itemIndex} 
-        isDirty={itemField?.hasChanges || false}
+        key={index} 
+        isDirty={this.isItemDirty(index)}
       >
-        {/* Item Header */}
         <StyledArrayHeader 
           hasBottomBorder={isExpanded}
-          onClick={() => toggleItemExpansion(itemIndex)}
+          onClick={() => this.toggleItemExpansion(index)}
         >
           <span 
             style={{ 
@@ -120,7 +109,7 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
             ▶
           </span>
           <span style={{ flex: 1, fontWeight: '500' }}>
-            Item {itemIndex + 1}
+            Item {index + 1}
           </span>
           
           {itemField?.dirty && (
@@ -133,31 +122,30 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              handleRemoveItem(itemIndex);
+              this.handleRemoveItem(index);
             }}
-            disabled={field.schema.readOnly}
+            disabled={this.props.field.schema.readOnly}
             variant="danger"
             size="sm"
-            data-testid={`${fieldId}.${itemIndex}-remove`}
+            data-testid={`${this.props.field.path}.${index}-remove`}
           >
             Remove
           </StyledButton>
         </StyledArrayHeader>
 
-        {/* Item Content */}
         {isExpanded && (
           <StyledArrayContent>
             {propertyKeys.map(propertyKey => {
-              const nestedField = getNestedField(itemIndex, propertyKey);
+              const nestedField = this.getNestedField(index, propertyKey);
               if (!nestedField) return null;
 
               return (
                 <div key={propertyKey} style={{ marginBottom: '1rem' }}>
                   <FieldRenderer
                     field={nestedField}
-                    formModel={formModel}
+                    formModel={this.props.formModel}
                     onChange={(value: JSONValue, shouldValidate?: boolean) => 
-                      handleNestedChange(itemIndex, propertyKey, value, shouldValidate)
+                      this.handleNestedChange(index, propertyKey, value, shouldValidate)
                     }
                   />
                 </div>
@@ -173,138 +161,163 @@ const ArrayOfObjectsField: React.FC<ArrayOfObjectsFieldProps> = ({ field, formMo
         )}
       </StyledArrayItem>
     );
-  };
-
-  return (
-    <StyledArrayContainer id={fieldId} data-testid={fieldId}>
-      <StyledFieldLabel 
-        htmlFor={fieldId} 
-        id={`${fieldId}-label`}
-        data-testid={`${fieldId}-label`}
-        required={field.required}
-        style={{ 
-          fontWeight: '500',
-          marginBottom: '0.25rem',
-          display: 'block'
-        }}
-      >
-        {capitalizeFirstLetter(field.schema.title || displayName)}
-      </StyledFieldLabel>
-
-      {field.schema.description && (
-        <StyledFieldDescription 
-          id={`${fieldId}-description`} 
-          data-testid={`${fieldId}-description`}
-          style={{ marginBottom: '0.5rem' }}
-        >
-          {field.schema.description}
-        </StyledFieldDescription>
-      )}
-
-      {/* Array Items */}
-      <div>
-        {items.map((_, index) => renderObjectItem(index))}
-        
-        {items.length === 0 && (
-          <div 
-            style={{ 
-              color: '#6b7280',
-              fontStyle: 'italic',
-              padding: '1.5rem',
-              textAlign: 'center' as const,
-              border: '2px dashed #e5e7eb',
-              borderRadius: '0.375rem',
-              marginBottom: '0.5rem'
-            }}
-          >
-            No items added yet
-          </div>
-        )}
-      </div>
-
-      {/* Add Button */}
-      <StyledButton
-        id={`${fieldId}-add`}
-        data-testid={`${fieldId}-add`}
-        type="button"
-        onClick={handleAddItem}
-        disabled={field.schema.readOnly}
-        variant="primary"
-      >
-        Add Item
-      </StyledButton>
-
-      {/* Error Display */}
-      {hasErrors && (
-        <StyledFieldError 
-          id={`${fieldId}-error`} 
-          data-testid={`${fieldId}-error`}
-        >
-          {errorMessage}
-        </StyledFieldError>
-      )}
-      
-      {/* Dirty Indicator */}
-      {field.dirty && (
-        <StyledFieldHelper 
-          id={`${fieldId}-dirty-indicator`} 
-          data-testid={`${fieldId}-dirty-indicator`}
-        >
-          Modified
-        </StyledFieldHelper>
-      )}
-    </StyledArrayContainer>
-  );
-};
-
-// Helper function to create default object values
-function createDefaultObjectValue(itemSchema?: { properties?: Record<string, { type?: string; default?: JSONValue }> }): Record<string, JSONValue> {
-  if (!itemSchema || !itemSchema.properties) {
-    return {};
   }
 
-  const defaultObj: Record<string, JSONValue> = {};
-  const properties = itemSchema.properties;
+  protected getDefaultItemValue(): JSONValue {
+    return this.createDefaultObjectValue(this.props.field.schema.items);
+  }
 
-  for (const [key, propSchema] of Object.entries(properties)) {
-    const prop = propSchema;
-    if (prop.default !== undefined) {
-      defaultObj[key] = prop.default;
+  protected isItemExpanded(index: number): boolean {
+    return this.expandedItems.has(index);
+  }
+
+  protected toggleItemExpansion(index: number): void {
+    const newExpandedItems = new Set(this.expandedItems);
+    if (newExpandedItems.has(index)) {
+      newExpandedItems.delete(index);
     } else {
-      // Set appropriate default based on type
-      switch (prop.type) {
-        case 'string':
-          defaultObj[key] = '';
-          break;
-        case 'number':
-        case 'integer':
-          defaultObj[key] = 0;
-          break;
-        case 'boolean':
-          defaultObj[key] = false;
-          break;
-        case 'array':
-          defaultObj[key] = [];
-          break;
-        case 'object':
-          defaultObj[key] = {};
-          break;
-        default:
-          defaultObj[key] = null;
-      }
+      newExpandedItems.add(index);
+    }
+    this.expandedItems = newExpandedItems;
+    this.forceUpdate();
+  }
+
+  private getNestedField(itemIndex: number, propertyKey: string): FormField | undefined {
+    const nestedPath = `${this.props.field.path}.${itemIndex}.${propertyKey}`;
+    return this.props.formModel.getField(nestedPath);
+  }
+
+  private handleNestedChange(itemIndex: number, propertyKey: string, value: JSONValue, shouldValidate?: boolean) {
+    const nestedPath = `${this.props.field.path}.${itemIndex}.${propertyKey}`;
+    this.props.formModel.setValue(nestedPath, value);
+    if (shouldValidate) {
+      this.props.formModel.validate();
     }
   }
 
-  return defaultObj;
+  private createDefaultObjectValue(itemSchema?: { properties?: Record<string, { type?: string; default?: JSONValue }> }): Record<string, JSONValue> {
+    if (!itemSchema || !itemSchema.properties) {
+      return {};
+    }
+
+    const defaultObj: Record<string, JSONValue> = {};
+    const properties = itemSchema.properties;
+
+    for (const [key, propSchema] of Object.entries(properties)) {
+      const prop = propSchema;
+      if (prop.default !== undefined) {
+        defaultObj[key] = prop.default;
+      } else {
+        switch (prop.type) {
+          case 'string':
+            defaultObj[key] = '';
+            break;
+          case 'number':
+          case 'integer':
+            defaultObj[key] = 0;
+            break;
+          case 'boolean':
+            defaultObj[key] = false;
+            break;
+          case 'array':
+            defaultObj[key] = [];
+            break;
+          case 'object':
+            defaultObj[key] = {};
+            break;
+          default:
+            defaultObj[key] = null;
+        }
+      }
+    }
+
+    return defaultObj;
+  }
+
+  render() {
+    const fieldId = this.props.field.path;
+    const displayName = this.props.field.path.split('.').pop() || this.props.field.path;
+    const hasErrors = this.props.field.errors.length > 0;
+    const errorMessage = hasErrors ? this.props.field.errors[0] : undefined;
+    const items = this.getItems();
+
+    return (
+      <StyledArrayContainer id={fieldId} data-testid={fieldId}>
+        <StyledFieldLabel 
+          htmlFor={fieldId} 
+          id={`${fieldId}-label`}
+          data-testid={`${fieldId}-label`}
+          required={this.props.field.required}
+          style={{ 
+            fontWeight: '500',
+            marginBottom: '0.25rem',
+            display: 'block'
+          }}
+        >
+          {displayName}
+        </StyledFieldLabel>
+
+        {this.props.field.schema.description && (
+          <StyledFieldDescription 
+            id={`${fieldId}-description`} 
+            data-testid={`${fieldId}-description`}
+            style={{ marginBottom: '0.5rem' }}
+          >
+            {this.props.field.schema.description}
+          </StyledFieldDescription>
+        )}
+
+        <div>
+          {items.map((_, index) => this.renderItem(index))}
+          
+          {items.length === 0 && (
+            <div 
+              style={{ 
+                color: '#6b7280',
+                fontStyle: 'italic',
+                padding: '1.5rem',
+                textAlign: 'center' as const,
+                border: '2px dashed #e5e7eb',
+                borderRadius: '0.375rem',
+                marginBottom: '0.5rem'
+              }}
+            >
+              No items added yet
+            </div>
+          )}
+        </div>
+
+        <StyledButton
+          id={`${fieldId}-add`}
+          data-testid={`${fieldId}-add`}
+          type="button"
+          onClick={this.handleAddItem}
+          disabled={this.props.field.schema.readOnly}
+          variant="primary"
+        >
+          Add Item
+        </StyledButton>
+
+        {hasErrors && (
+          <StyledFieldError 
+            id={`${fieldId}-error`} 
+            data-testid={`${fieldId}-error`}
+          >
+            {errorMessage}
+          </StyledFieldError>
+        )}
+        
+        {this.props.field.dirty && (
+          <StyledFieldHelper 
+            id={`${fieldId}-dirty-indicator`} 
+            data-testid={`${fieldId}-dirty-indicator`}
+          >
+            Modified
+          </StyledFieldHelper>
+        )}
+      </StyledArrayContainer>
+    );
+  }
 }
 
-const areEqual = (prevProps: ArrayOfObjectsFieldProps, nextProps: ArrayOfObjectsFieldProps) => {
-  return (
-    prevProps.field.value === nextProps.field.value &&
-    prevProps.field.errors === nextProps.field.errors &&
-    prevProps.field.hasChanges === nextProps.field.hasChanges &&
-    prevProps.field.schema === nextProps.field.schema
-  );
-};
-
-export default memo(ArrayOfObjectsField, areEqual);
+export default ArrayOfObjectsField;

@@ -1,2 +1,1 @@
-export { default } from './BooleanField';
-export type { BooleanFieldProps } from './BooleanField';
+export { default, BooleanField, type BooleanFieldProps } from './BooleanField';

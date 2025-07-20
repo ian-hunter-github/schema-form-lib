@@ -39,6 +39,12 @@ const createMockFormField = (overrides: Partial<FormField> = {}): FormField => {
 const createMockFormModel = (fields: Record<string, FormField> = {}) => ({
   getField: vi.fn((path: string) => fields[path]),
   setValue: vi.fn(),
+  shouldShowErrors: vi.fn((field?: FormField) => {
+    return field ? field.errors.length > 0 : true;
+  }),
+  shouldShowDirty: vi.fn((field?: FormField) => {
+    return field ? field.dirty : true;
+  }),
 } as unknown as FormModel);
 
 describe('ObjectField', () => {
@@ -125,6 +131,10 @@ describe('ObjectField', () => {
     
     render(<ObjectField field={field} onChange={mockOnChange} formModel={formModel} />);
     
+    // Click to expand the accordion
+    const header = screen.getByText('Test Object').closest('div');
+    fireEvent.click(header!);
+    
     expect(screen.getByTestId('testObject-error')).toBeInTheDocument();
     expect(screen.getByText('Object validation failed')).toBeInTheDocument();
   });
@@ -135,8 +145,13 @@ describe('ObjectField', () => {
     
     render(<ObjectField field={field} onChange={mockOnChange} formModel={formModel} />);
     
-    expect(screen.getByTestId('testObject-dirty-indicator')).toBeInTheDocument();
-    expect(screen.getByText('Modified')).toBeInTheDocument();
+    // Click to expand the accordion
+    const header = screen.getByText('Test Object').closest('div');
+    fireEvent.click(header!);
+    
+    const dirtyIndicator = screen.getByTestId('testObject-dirty-indicator-header');
+    expect(dirtyIndicator).toBeInTheDocument();
+    expect(dirtyIndicator).toHaveTextContent('Modified');
   });
 
   it('toggles accordion expansion when header is clicked', () => {
@@ -301,7 +316,7 @@ describe('ObjectField', () => {
     expect(screen.getByText('Test Object')).toBeInTheDocument();
   });
 
-  it('handles complex nested scenarios', () => {
+  it('handles complex nested scenarios', async () => {
     const field = createMockFormField({
       path: 'user',
       schema: {
@@ -371,8 +386,13 @@ describe('ObjectField', () => {
     // Check all elements are present
     expect(screen.getByText('User Information')).toBeInTheDocument();
     expect(screen.getByText('Complete user profile')).toBeInTheDocument();
+    
+    // Error and dirty indicators should be visible after expanding
+    expect(screen.getByTestId('user-error')).toBeInTheDocument();
     expect(screen.getByText('User validation failed')).toBeInTheDocument();
-    expect(screen.getByText('Modified')).toBeInTheDocument();
+    const dirtyIndicator = screen.getByTestId('user-dirty-indicator-header');
+    expect(dirtyIndicator).toBeInTheDocument();
+    expect(dirtyIndicator).toHaveTextContent('Modified');
     
     const label = screen.getByTestId('user-label');
     expect(label).toBeInTheDocument();

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import StringField from './StringField';
 import type { FormField } from '../../../types';
-import type { JSONSchema } from '../../../types/schema';
+import type { JSONSchema, JSONValue } from '../../../types/schema';
 import { FormModel } from '../../../utils/form/FormModel';
 
 class MockFormModel extends FormModel {
@@ -141,18 +141,19 @@ const StringFieldDemo: React.FC = () => {
 
   const handleFieldChange = (
     fieldSetter: React.Dispatch<React.SetStateAction<FormField>>,
-    value: string,
+    value: JSONValue,
     triggerValidation?: boolean
   ) => {
+    const stringValue = typeof value === 'string' ? value : '';
     fieldSetter(prevField => ({
       ...prevField,
-      value,
-      dirty: value !== prevField.pristineValue,
-      hasChanges: value !== prevField.pristineValue,
+      value: stringValue,
+      dirty: stringValue !== prevField.pristineValue,
+      hasChanges: stringValue !== prevField.pristineValue,
       lastModified: new Date(),
       // Simple validation example
-      errors: triggerValidation && value.length < 3 ? ['Field must be at least 3 characters long'] : [],
-      errorCount: triggerValidation && value.length < 3 ? 1 : 0,
+      errors: triggerValidation && stringValue.length < 3 ? ['Field must be at least 3 characters long'] : [],
+      errorCount: triggerValidation && stringValue.length < 3 ? 1 : 0,
     }));
     console.log('Field changed:', { value, triggerValidation });
   };
@@ -167,7 +168,7 @@ const StringFieldDemo: React.FC = () => {
         <StringField
           field={basicField}
           onChange={(value, triggerValidation) => 
-            handleFieldChange(setBasicField, value, triggerValidation)
+            handleFieldChange(setBasicField, value as string, triggerValidation)
           }
           formModel={mockFormModel}
         />
@@ -178,7 +179,7 @@ const StringFieldDemo: React.FC = () => {
         <StringField
           field={requiredField}
           onChange={(value, triggerValidation) => 
-            handleFieldChange(setRequiredField, value, triggerValidation)
+            handleFieldChange(setRequiredField, value as string, triggerValidation)
           }
           formModel={mockFormModel}
         />
@@ -189,7 +190,7 @@ const StringFieldDemo: React.FC = () => {
         <StringField
           field={errorField}
           onChange={(value, triggerValidation) => 
-            handleFieldChange(setErrorField, value, triggerValidation)
+            handleFieldChange(setErrorField, value as string, triggerValidation)
           }
           formModel={mockFormModel}
         />
@@ -200,7 +201,7 @@ const StringFieldDemo: React.FC = () => {
         <StringField
           field={dirtyField}
           onChange={(value, triggerValidation) => 
-            handleFieldChange(setDirtyField, value, triggerValidation)
+            handleFieldChange(setDirtyField, value as string, triggerValidation)
           }
           formModel={mockFormModel}
         />
