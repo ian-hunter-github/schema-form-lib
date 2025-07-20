@@ -105,6 +105,12 @@ const FormContainerDemo: React.FC = () => {
           },
         },
       },
+      tags: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
     },
   };
 

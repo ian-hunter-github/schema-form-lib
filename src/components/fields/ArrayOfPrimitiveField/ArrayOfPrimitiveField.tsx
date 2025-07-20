@@ -64,12 +64,18 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
 
     return (
       <div key={index} style={{ 
-        display: 'flex', 
-        gap: '0.5rem', 
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 10fr) minmax(0, 1fr)',
+        width: '100%',
+        gap: '0.5rem',
         marginBottom: '0.75rem',
         position: 'relative'
       }}>
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div style={{ 
+          position: 'relative',
+          minWidth: 0,
+          boxSizing: 'border-box'
+        }}>
           <StyledFieldInput
             id={`${this.props.field.path}.${index}`}
             data-testid={`${this.props.field.path}.${index}`}
@@ -81,7 +87,10 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
             isDirty={this.isItemDirty(index)}
             variant="floating"
             placeholder=" "
-            style={{ width: '100%' }}
+            style={{ 
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
           />
           <StyledFieldLabel
             htmlFor={`${this.props.field.path}.${index}`}
@@ -104,8 +113,18 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
           disabled={this.props.field.schema.readOnly}
           variant="danger"
           size="sm"
+          style={{ 
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '0.25rem'
+          }}
+          aria-label="Remove item"
         >
-          Remove
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </StyledButton>
       </div>
     );
