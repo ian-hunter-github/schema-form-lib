@@ -109,13 +109,13 @@ class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
             ▶
           </span>
           <span style={{ flex: 1, fontWeight: '500' }}>
-            Item {index + 1}
+            {this.props.field.schema.title 
+              ? `${this.props.field.schema.title.replace(/s$/, '')} ${index + 1}`
+              : `Item ${index + 1}`}
           </span>
           
           {itemField?.dirty && (
-            <StyledFieldHelper style={{ marginRight: '0.5rem' }}>
-              Modified
-            </StyledFieldHelper>
+            <StyledFieldHelper style={{ marginRight: '0.5rem' }}/>
           )}
           
           <StyledButton

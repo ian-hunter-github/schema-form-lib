@@ -135,8 +135,8 @@ describe('ArrayOfObjectsField', () => {
       />
     );
 
-    expect(screen.getByText('Item 1')).toBeInTheDocument();
-    expect(screen.getByText('Item 2')).toBeInTheDocument();
+            expect(screen.getByText('Test Array 1')).toBeInTheDocument();
+            expect(screen.getByText('Test Array 2')).toBeInTheDocument();
     expect(screen.queryByText('No items added yet')).not.toBeInTheDocument();
   });
 
@@ -304,7 +304,7 @@ describe('ArrayOfObjectsField', () => {
       />
     );
 
-    const itemHeader = screen.getByText('Item 1').closest('div');
+    const itemHeader = screen.getByText('Test Array 1').closest('div');
     expect(itemHeader).toBeInTheDocument();
 
     // Initially collapsed - no mock fields should be visible
@@ -454,7 +454,7 @@ describe('ArrayOfObjectsField', () => {
     );
 
     // Expand the item first
-    const itemHeader = screen.getByText('Item 1').closest('div');
+    const itemHeader = screen.getByText('Test Array 1').closest('div');
     fireEvent.click(itemHeader!);
 
     // Find and interact with the nested field

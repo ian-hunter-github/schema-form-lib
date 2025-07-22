@@ -48,7 +48,11 @@ export class StringField extends BaseField<StringFieldProps> {
     const errorMessage = hasErrors ? field.errors[0] : undefined;
     const fieldValue = (this.currentValue as string) || '';
     const isDirty = this.isDirty();
-    const fieldTitle = capitalizeFirstLetter(field.schema.title || displayName);
+    const fieldTitle = capitalizeFirstLetter(
+      (field.schema.description && field.schema.description.length < 50 
+        ? field.schema.description 
+        : field.schema.title || displayName)
+    );
     const isFloating = true;
     const isActive = fieldValue !== '';
 
@@ -140,9 +144,7 @@ export class StringField extends BaseField<StringFieldProps> {
             id={`${fieldId}-dirty-indicator`}
             data-testid={`${fieldId}-dirty-indicator`}
             isDirty={isDirty}
-          >
-            Modified
-          </StyledFieldHelper>
+          />
         )}
       </StyledFieldContainer>
     );
