@@ -42,6 +42,8 @@ const FormContainerDemo: React.FC = () => {
                   relationship: {
                     type: "string",
                     title: "Relationship Type",
+                    enum: ["Family", "Friend", "Colleague", "Other"],
+                    default: "Friend",
                   },
                   friendsOfFriendsOfFriends: {
                     type: "array",
@@ -51,11 +53,15 @@ const FormContainerDemo: React.FC = () => {
                         name: {
                           type: "string",
                           title: "Friend of Friend of Friend's Name",
+                          isRequired: true,
                         },
                         metDate: {
                           type: "string",
                           format: "date",
                           title: "Date Met",
+                          isRequired: true,
+                          pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+                          description: "Must be in YYYY-MM-DD format"
                         }
                       }
                     }
@@ -75,23 +81,31 @@ const FormContainerDemo: React.FC = () => {
     },
   };
 
-  // const initialValues = {
-  //   name: "Alice",
-  //   email: "alice@example.com",
-  //   age: 30,
-  //   isStudent: false,
-  //   hobbies: ["Reading"],
-  //   skills: [{ name: "JavaScript", level: "Advanced" }],
-  //   address: {
-  //     street: "123 Main St",
-  //     city: "New York",
-  //     country: "US",
-  //   },
-  // };
+  const initialValues = {
+    name: "John Doe",
+    friends: [
+      {
+        name: "Jane Smith",
+        age: 28,
+        friendsOfFriends: [
+          {
+            name: "Mike Johnson",
+            relationship: "Colleague",
+            friendsOfFriendsOfFriends: [
+              {
+                name: "Sarah Williams",
+                metDate: "2023-01-15"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
 
   const { formModel } = useFormModel({
     schema: schema2,
-    //initialValues
+    initialValues
   });
 
   const callback = (data: Record<string, unknown>) => {

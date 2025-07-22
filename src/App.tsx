@@ -4,6 +4,7 @@ import { BufferedFormExample } from './examples/BufferedFormExample';
 import LayoutDemo from './examples/LayoutDemo';
 import { ThemeSchemaDemo } from './demo/ThemeSchemaDemo';
 import FormContainerDemo from './demo/FormContainerDemo';
+import ApiConfigDemo from './demo/ApiConfigDemo';
 import type { JSONSchemaProperties } from './types/schema';
 import { ThemeProvider, useVariants } from './theme';
 import './App.css';
@@ -45,7 +46,7 @@ const DensitySelector: React.FC = () => {
 };
 
 function App() {
-  const [currentExample, setCurrentExample] = useState<'unified' | 'buffered' | 'layout' | 'theme' | 'container'>('unified');
+  const [currentExample, setCurrentExample] = useState<'unified' | 'buffered' | 'layout' | 'theme' | 'container' | 'apiconfig'>('unified');
 
   const schema: JSONSchemaProperties = {
     name: { 
@@ -267,6 +268,19 @@ function App() {
             >
               Form Container Demo
             </button>
+            <button
+              onClick={() => setCurrentExample('apiconfig')}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: currentExample === 'apiconfig' ? '#007bff' : '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              API Config Demo
+            </button>
           </div>
         </div>
 
@@ -299,6 +313,30 @@ function App() {
                 showUnsavedWarning={true}
                 showBufferingControls={true}
               />
+            </div>
+          </div>
+        )}
+
+        {currentExample === 'apiconfig' && (
+          <div>
+            <h2>API Configuration Demo</h2>
+            <p>
+              This demonstrates loading a complex API configuration schema:
+            </p>
+            <ul>
+              <li><strong>Schema Loading:</strong> Loaded from external JSON file</li>
+              <li><strong>Complex Structures:</strong> Handles nested objects and arrays</li>
+              <li><strong>FormContainer:</strong> Uses the FormContainer component</li>
+              <li><strong>Type Safety:</strong> Proper TypeScript typing</li>
+            </ul>
+            
+            <div style={{ 
+              border: '2px solid #17a2b8', 
+              borderRadius: '8px', 
+              padding: '20px',
+              backgroundColor: '#f8f9fa'
+            }}>
+              <ApiConfigDemo />
             </div>
           </div>
         )}

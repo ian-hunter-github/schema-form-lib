@@ -55,16 +55,11 @@
                 },
                 "required": {
                   "type": "boolean",
-                  "default": false,
                   "description": "Whether the attribute is required"
                 },
                 "description": {
                   "type": "string",
                   "description": "Description of the attribute"
-                },
-                "default": {
-                  "description": "Default value for the attribute",
-                  "default": null
                 },
                 "validation": {
                   "type": "object",
@@ -121,7 +116,6 @@
                 },
                 "required": {
                   "type": "boolean",
-                  "default": false,
                   "description": "Whether the relationship is required"
                 }
               }
@@ -169,7 +163,6 @@
                       },
                       "required": {
                         "type": "boolean",
-                        "default": false,
                         "description": "Whether the parameter is required"
                       },
                       "description": {
