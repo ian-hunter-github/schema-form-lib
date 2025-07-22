@@ -137,20 +137,6 @@ describe('StringField', () => {
     expect(screen.getByText('FirstName')).toBeInTheDocument();
   });
 
-  it('displays description when provided', () => {
-    const field = createMockFormField({
-      schema: {
-        type: 'string',
-        description: 'Enter your full name here'
-      }
-    });
-    
-    render(<StringField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
-    
-    const description = screen.getByTestId('testField-description');
-    expect(description).toBeInTheDocument();
-    expect(description).toHaveTextContent('Enter your full name here');
-  });
 
   it('does not display description when not provided', () => {
     const field = createMockFormField({

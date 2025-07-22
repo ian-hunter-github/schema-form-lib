@@ -20,6 +20,8 @@ export interface NumberFieldProps extends BaseFieldProps {
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
   className?: string;
+  /** Whether to show field descriptions (default: true) */
+  showDescriptions?: boolean;
 }
 
 export class NumberField extends BaseField<NumberFieldProps> {
@@ -124,7 +126,7 @@ export class NumberField extends BaseField<NumberFieldProps> {
           {fieldTitle}
         </StyledFieldLabel>
 
-        {field.schema.description && (
+        {field.schema.description && this.props.showDescriptions !== false && (
           <StyledFieldDescription
             id={`${fieldId}-description`}
             data-testid={`${fieldId}-description`}

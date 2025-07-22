@@ -43,6 +43,8 @@ export interface BooleanFieldProps extends BaseFieldProps {
   field: FormField;
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
+  /** Whether to show field descriptions (default: true) */
+  showDescriptions?: boolean;
 }
 
 export class BooleanField extends BaseField<BooleanFieldProps> {
@@ -110,7 +112,7 @@ export class BooleanField extends BaseField<BooleanFieldProps> {
           </StyledCheckboxLabel>
         </StyledCheckboxWrapper>
 
-        {field.schema.description && (
+        {field.schema.description && this.props.showDescriptions !== false && (
           <StyledFieldDescription 
             id={`${fieldId}-description`} 
             data-testid={`${fieldId}-description`}

@@ -382,7 +382,7 @@
       },
       "description": "Security configuration"
     },
-    "deployment": {
+    "deployments": {
       "type": "array",
       "items": {
         "type": "object",

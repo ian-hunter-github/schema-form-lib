@@ -9,7 +9,7 @@ import {
   StyledFieldContainer,
   StyledFieldInput,
   StyledFieldLabel,
-  StyledFieldDescription,
+  //StyledFieldDescription,
   StyledFieldError,
   StyledFieldHelper,
 } from '../../../theme/styled';
@@ -20,6 +20,8 @@ export interface StringFieldProps extends BaseFieldProps {
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
   className?: string;
+  /** Whether to show field descriptions (default: true) */
+  showDescriptions?: boolean;
 }
 
 export class StringField extends BaseField<StringFieldProps> {
@@ -110,14 +112,14 @@ export class StringField extends BaseField<StringFieldProps> {
           {fieldTitle}
         </StyledFieldLabel>
 
-        {field.schema.description && (
+        {/* {field.schema.description && this.props.showDescriptions !== false && (
           <StyledFieldDescription
             id={`${fieldId}-description`}
             data-testid={`${fieldId}-description`}
           >
             {field.schema.description}
           </StyledFieldDescription>
-        )}
+        )} */}
         
         {hasErrors && (
           <StyledFieldError

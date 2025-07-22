@@ -28,6 +28,8 @@ interface FieldRendererProps {
    * @param shouldValidate - Whether to trigger validation after change
    */
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
+  /** Whether to show field descriptions (default: true) */
+  showDescriptions?: boolean;
 }
 
 /**
@@ -42,7 +44,7 @@ interface FieldRendererProps {
  *   onChange={(value) => console.log(value)}
  * />
  */
-const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChange }) => {
+const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChange, showDescriptions = true }) => {
   // Handle oneOf fields first (highest priority)
   if (field.schema.oneOf) {
     return (
@@ -56,7 +58,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
 
   // Handle enum fields (second priority)
   if (field.schema.enum) {
-    return <EnumField field={field} formModel={formModel} onChange={onChange} />;
+      return <EnumField field={field} formModel={formModel} onChange={onChange} showDescriptions={showDescriptions} />;
   }
 
   // Handle object fields - lazy loaded to avoid circular dependencies
@@ -80,11 +82,11 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, formModel, onChang
       if (field.schema.format === 'color') {
         return <ColorField field={field} onChange={onChange} />;
       }
-      return <StringField field={field} formModel={formModel} onChange={onChange} />;
+      return <StringField field={field} formModel={formModel} onChange={onChange} showDescriptions={showDescriptions} />;
     case 'number':
-      return <NumberField field={field} formModel={formModel} onChange={onChange} />;
+      return <NumberField field={field} formModel={formModel} onChange={onChange} showDescriptions={showDescriptions} />;
     case 'boolean':
-      return <BooleanField field={field} formModel={formModel} onChange={onChange} />;
+      return <BooleanField field={field} formModel={formModel} onChange={onChange} showDescriptions={showDescriptions} />;
     case 'array':
       // Check if the array contains objects or primitives
       if (itemSchema && itemSchema.type === 'object' && itemSchema.properties) {

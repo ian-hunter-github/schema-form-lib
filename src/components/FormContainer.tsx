@@ -8,12 +8,15 @@ interface FormContainerProps {
   formModel: FormModel;
   onSubmit?: (data: Record<string, unknown>) => void;
   layoutConfig?: LayoutConfig;
+  /** Whether to show field descriptions (default: true) */
+  showDescriptions?: boolean;
 }
 
 const FormContainer: React.FC<FormContainerProps> = ({
   formModel,
   onSubmit,
   layoutConfig,
+  showDescriptions = true,
 }) => {
   const { theme } = useTheme();
   const { colors, components, shadows, layout } = theme;
@@ -82,6 +85,7 @@ const FormContainer: React.FC<FormContainerProps> = ({
         formModel={formModel}
         onSubmit={onSubmit}
         layoutConfig={layoutConfig}
+        showDescriptions={showDescriptions}
       />
     </div>
   );

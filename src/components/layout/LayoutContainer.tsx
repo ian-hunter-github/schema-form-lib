@@ -21,6 +21,8 @@ interface LayoutContainerProps {
   layoutConfig: LayoutConfig;
   onChange: (path: string, value: JSONValue) => void;
   className?: string;
+  /** Whether to show field descriptions (default: true) */
+  showDescriptions?: boolean;
 }
 
 const LayoutContainer: React.FC<LayoutContainerProps> = ({
@@ -28,7 +30,8 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
   formModel,
   layoutConfig: propConfig = {},
   onChange,
-  className = ''
+  className = '',
+  showDescriptions = true
 }) => {
   const { theme } = useTheme();
   
@@ -63,11 +66,12 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
       >
         {fields.map((field) => (
           <div key={field.path} className="field-wrapper">
-            <FieldRenderer
-              field={field}
-              formModel={formModel}
-              onChange={(value) => onChange(field.path, value)}
-            />
+              <FieldRenderer
+                field={field}
+                formModel={formModel}
+                onChange={(value) => onChange(field.path, value)}
+                showDescriptions={showDescriptions}
+              />
           </div>
         ))}
       </div>
@@ -109,6 +113,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
                   field={field}
                   formModel={formModel}
                   onChange={(value) => onChange(field.path, value)}
+                  showDescriptions={showDescriptions}
                 />
               </div>
             ));
@@ -193,6 +198,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
             field={field}
             formModel={formModel}
             onChange={(value) => onChange(field.path, value)}
+            showDescriptions={showDescriptions}
           />
         </div>
       ))}

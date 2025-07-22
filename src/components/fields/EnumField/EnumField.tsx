@@ -18,6 +18,8 @@ export interface EnumFieldProps extends BaseFieldProps {
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
   isGrid12?: boolean;
+  /** Whether to show field descriptions (default: true) */
+  showDescriptions?: boolean;
 }
 
 export class EnumField extends BaseField<EnumFieldProps> {
@@ -118,7 +120,7 @@ export class EnumField extends BaseField<EnumFieldProps> {
           {fieldTitle}
         </StyledFieldLabel>
 
-        {field.schema.description && (
+        {field.schema.description && this.props.showDescriptions !== false && (
           <StyledFieldDescription
             id={`${fieldId}-description`}
             data-testid={`${fieldId}-description`}

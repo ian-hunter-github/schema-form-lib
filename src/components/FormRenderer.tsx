@@ -9,9 +9,16 @@ interface FormRendererProps {
   formModel: FormModel;
   onSubmit?: (data: Record<string, JSONValue>) => void;
   layoutConfig?: LayoutConfig;
+  /** Whether to show field descriptions (default: true) */
+  showDescriptions?: boolean;
 }
 
-const FormRenderer: React.FC<FormRendererProps> = ({ formModel, onSubmit, layoutConfig = { strategy: 'vertical' } }) => {
+const FormRenderer: React.FC<FormRendererProps> = ({ 
+  formModel, 
+  onSubmit, 
+  layoutConfig = { strategy: 'vertical' },
+  showDescriptions = true 
+}) => {
   const [fields, setFields] = useState<Map<string, FormField>>(formModel.getFields());
 
   useEffect(() => {
@@ -82,6 +89,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ formModel, onSubmit, layout
         formModel={formModel}
         layoutConfig={layoutConfig}
         onChange={handleFieldChange}
+        showDescriptions={showDescriptions}
       />
       <button type="submit" data-testid="submit-button">
         Submit
