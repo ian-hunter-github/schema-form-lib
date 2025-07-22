@@ -142,7 +142,7 @@ describe('ArrayOfPrimitiveField', () => {
     
     const label = screen.getByTestId('testField-label');
     expect(label).toBeInTheDocument();
-    expect(label.textContent).toContain('*');
+    expect(label).toHaveAttribute("required");
   });
 
   it('displays error message when field has errors', () => {

@@ -225,7 +225,8 @@ describe('EnumField', () => {
     
     const label = screen.getByTestId('testField-label');
     expect(label).toBeInTheDocument();
-    expect(label.textContent).toContain('*');
+    expect(label).toHaveAttribute("required");
+    
   });
 
   it('does not show required indicator when field is not required', () => {
@@ -235,7 +236,7 @@ describe('EnumField', () => {
     
     const label = screen.getByTestId('testField-label');
     expect(label).toBeInTheDocument();
-    expect(label.textContent).not.toContain('*');
+    expect(label).not.toHaveAttribute("required");
   });
 
   it('displays error message when field has errors', () => {

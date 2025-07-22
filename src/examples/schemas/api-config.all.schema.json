@@ -1,0 +1,694 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/api-config.schema.json",
+  "title": "APIConfig",
+  "type": "object",
+  "description": "Schema for validating API configurations",
+  "required": ["name", "version", "entities", "description", "createdAt"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the API"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "API version (semver)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the API",
+      "default": ""
+    },
+    "basePath": {
+      "type": "string",
+      "description": "Base path for API endpoints"
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "attributes"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the entity"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the entity"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the attribute"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["string", "number", "boolean", "date", "datetime", "object", "array"],
+                  "description": "Type of the attribute"
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether the attribute is required"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Description of the attribute"
+                },
+                "default": {
+                  "description": "Default value for the attribute",
+                  "default": null
+                },
+                "validation": {
+                  "type": "object",
+                  "description": "Validation rules for the attribute",
+                  "properties": {
+                    "minLength": {
+                      "type": "number",
+                      "description": "Minimum length for string values"
+                    },
+                    "maxLength": {
+                      "type": "number",
+                      "description": "Maximum length for string values"
+                    },
+                    "pattern": {
+                      "type": "string",
+                      "description": "Regex pattern for string values"
+                    },
+                    "minimum": {
+                      "type": "number",
+                      "description": "Minimum value for number values"
+                    },
+                    "maximum": {
+                      "type": "number",
+                      "description": "Maximum value for number values"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "List of entity attributes"
+          },
+          "relationships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "target"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the relationship"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many"],
+                  "description": "Type of relationship"
+                },
+                "target": {
+                  "type": "string",
+                  "description": "Name of the target entity"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Description of the relationship"
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether the relationship is required"
+                }
+              }
+            },
+            "description": "List of entity relationships"
+          },
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["path", "method"],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Endpoint path"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+                  "description": "HTTP method"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Description of the endpoint"
+                },
+                "parameters": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["name", "in", "type"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Name of the parameter"
+                      },
+                      "in": {
+                        "type": "string",
+                        "enum": ["query", "path", "header", "body"],
+                        "description": "Location of the parameter"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["string", "number", "boolean", "array", "object"],
+                        "description": "Type of the parameter"
+                      },
+                      "required": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether the parameter is required"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Description of the parameter"
+                      }
+                    }
+                  },
+                  "description": "List of endpoint parameters"
+                },
+                "responses": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["status"],
+                    "properties": {
+                      "status": {
+                        "type": "number",
+                        "description": "HTTP status code"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Description of the response"
+                      },
+                      "schema": {
+                        "type": "object",
+                        "description": "Response schema"
+                      }
+                    }
+                  },
+                  "description": "List of endpoint responses"
+                }
+              }
+            },
+            "description": "List of entity endpoints"
+          }
+        }
+      },
+      "description": "List of API entities"
+    },
+    "security": {
+      "type": "object",
+      "required": ["authentication"],
+      "properties": {
+        "authentication": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["none", "basic", "jwt", "oauth2", "api-key"],
+              "description": "Authentication type"
+            },
+            "jwt": {
+              "type": "object",
+              "description": "JWT configuration",
+              "properties": {
+                "issuer": {
+                  "type": "string",
+                  "description": "JWT issuer"
+                },
+                "audience": {
+                  "type": "string",
+                  "description": "JWT audience"
+                },
+                "secret": {
+                  "type": "string",
+                  "description": "JWT secret key"
+                },
+                "expiresIn": {
+                  "type": "string",
+                  "description": "Token expiration time"
+                }
+              }
+            },
+            "oauth2": {
+              "type": "object",
+              "description": "OAuth2 configuration",
+              "properties": {
+                "authorizationUrl": {
+                  "type": "string",
+                  "description": "OAuth2 authorization URL"
+                },
+                "tokenUrl": {
+                  "type": "string",
+                  "description": "OAuth2 token URL"
+                },
+                "scopes": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Available OAuth2 scopes"
+                }
+              }
+            },
+            "apiKey": {
+              "type": "object",
+              "description": "API key configuration",
+              "properties": {
+                "header": {
+                  "type": "string",
+                  "description": "Header name for API key"
+                },
+                "queryParam": {
+                  "type": "string",
+                  "description": "Query parameter name for API key"
+                }
+              }
+            }
+          }
+        },
+        "authorization": {
+          "type": "object",
+          "description": "Authorization configuration",
+          "properties": {
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Role name"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Role description"
+                  },
+                  "permissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of permissions"
+                  }
+                }
+              },
+              "description": "List of security roles"
+            },
+            "policies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "effect", "actions"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Policy name"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Policy description"
+                  },
+                  "effect": {
+                    "type": "string",
+                    "enum": ["allow", "deny"],
+                    "description": "Policy effect"
+                  },
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of actions"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of resources"
+                  },
+                  "conditions": {
+                    "type": "object",
+                    "description": "Policy conditions"
+                  }
+                }
+              },
+              "description": "List of security policies"
+            }
+          }
+        },
+        "cors": {
+          "type": "object",
+          "description": "CORS configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether CORS is enabled"
+            },
+            "origins": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Allowed origins"
+            },
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Allowed HTTP methods"
+            },
+            "headers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Allowed headers"
+            }
+          }
+        }
+      },
+      "description": "Security configuration"
+    },
+    "deployment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "environment", "target"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the deployment configuration"
+          },
+          "environment": {
+            "type": "string",
+            "enum": ["development", "staging", "production"],
+            "description": "Deployment environment"
+          },
+          "target": {
+            "type": "string",
+            "enum": ["aws", "azure", "gcp", "on-premise", "docker"],
+            "description": "Deployment target platform"
+          },
+          "deploymentId": {
+            "type": "string",
+            "description": "Unique identifier for the deployment"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the deployment configuration"
+          },
+          "region": {
+            "type": "string",
+            "description": "Target region for cloud deployments"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Base URL for the deployed API"
+          },
+          "aws": {
+            "type": "object",
+            "description": "AWS-specific configuration",
+            "properties": {
+              "lambda": {
+                "type": "object",
+                "description": "AWS Lambda configuration",
+                "properties": {
+                  "memorySize": {
+                    "type": "number",
+                    "description": "Memory size in MB"
+                  },
+                  "timeout": {
+                    "type": "number",
+                    "description": "Timeout in seconds"
+                  }
+                }
+              },
+              "apiGateway": {
+                "type": "object",
+                "description": "API Gateway configuration",
+                "properties": {
+                  "stageName": {
+                    "type": "string",
+                    "description": "Deployment stage name"
+                  }
+                }
+              }
+            }
+          },
+          "azure": {
+            "type": "object",
+            "description": "Azure-specific configuration",
+            "properties": {
+              "functionApp": {
+                "type": "object",
+                "description": "Azure Function App configuration",
+                "properties": {
+                  "plan": {
+                    "type": "string",
+                    "description": "App service plan"
+                  }
+                }
+              }
+            }
+          },
+          "gcp": {
+            "type": "object",
+            "description": "Google Cloud-specific configuration",
+            "properties": {
+              "cloudFunction": {
+                "type": "object",
+                "description": "Cloud Function configuration",
+                "properties": {
+                  "memory": {
+                    "type": "string",
+                    "description": "Memory allocation"
+                  }
+                }
+              }
+            }
+          },
+          "docker": {
+            "type": "object",
+            "description": "Docker-specific configuration",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Docker image name"
+              },
+              "port": {
+                "type": "number",
+                "description": "Exposed port"
+              }
+            }
+          },
+          "scaling": {
+            "type": "object",
+            "description": "Scaling configuration",
+            "properties": {
+              "minInstances": {
+                "type": "number",
+                "description": "Minimum number of instances"
+              },
+              "maxInstances": {
+                "type": "number",
+                "description": "Maximum number of instances"
+              }
+            }
+          },
+          "monitoring": {
+            "type": "object",
+            "description": "Monitoring configuration",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether monitoring is enabled"
+              },
+              "alerts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "metric", "threshold"],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Alert name"
+                    },
+                    "metric": {
+                      "type": "string",
+                      "description": "Metric to monitor"
+                    },
+                    "threshold": {
+                      "type": "number",
+                      "description": "Threshold value"
+                    },
+                    "operator": {
+                      "type": "string",
+                      "enum": ["gt", "lt", "eq"],
+                      "default": "gt",
+                      "description": "Comparison operator"
+                    },
+                    "period": {
+                      "type": "string",
+                      "description": "Evaluation period"
+                    },
+                    "action": {
+                      "type": "string",
+                      "description": "Action to take when triggered"
+                    }
+                  }
+                },
+                "description": "List of monitoring alerts"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+          }
+        }
+      },
+      "description": "Deployment configurations"
+    },
+    "datasource": {
+      "type": "object",
+      "description": "Data source configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["postgres", "mysql", "mongodb", "rest", "graphql"],
+          "description": "Data source type"
+        },
+        "connection": {
+          "type": "object",
+          "description": "Connection details",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "Connection URL"
+            },
+            "host": {
+              "type": "string",
+              "description": "Database host"
+            },
+            "port": {
+              "type": "number",
+              "description": "Database port"
+            },
+            "database": {
+              "type": "string",
+              "description": "Database name"
+            },
+            "username": {
+              "type": "string",
+              "description": "Database username"
+            },
+            "password": {
+              "type": "string",
+              "description": "Database password"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "description": "Shared components",
+      "properties": {
+        "schemas": {
+          "type": "object",
+          "description": "Shared schemas",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "responses": {
+          "type": "object",
+          "description": "Shared responses",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Shared parameters",
+          "additionalProperties": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "cicd": {
+      "type": "object",
+      "description": "CI/CD configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether CI/CD is enabled"
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["build", "test", "deploy", "release"]
+          },
+          "description": "CI/CD pipeline stages"
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "description": "Documentation configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether documentation is enabled"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["openapi", "asyncapi", "markdown"],
+          "description": "Documentation format"
+        }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    }
+  }
+}

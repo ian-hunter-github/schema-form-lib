@@ -169,7 +169,8 @@ describe('StringField', () => {
     const label = screen.getByTestId('testField-label');
     expect(label).toBeInTheDocument();
     // Check for the required asterisk in the label text
-    expect(label).toHaveTextContent('Test Field *');
+    expect(label).toHaveTextContent('Test Field');
+    expect(label).toHaveAttribute('required');
   });
 
   it('does not show required indicator when field is not required', () => {
@@ -181,7 +182,7 @@ describe('StringField', () => {
     expect(label).toBeInTheDocument();
     // Check that there's no asterisk in the label text
     expect(label).toHaveTextContent('Test Field');
-    expect(label).not.toHaveTextContent('*');
+    expect(label).not.toHaveAttribute('required');
   });
 
   it('displays error message when field has errors', () => {
@@ -307,7 +308,7 @@ describe('StringField', () => {
     const label = screen.getByTestId('user.email-label');
     expect(label).toBeInTheDocument();
     // Check for the required asterisk in the label text
-    expect(label).toHaveTextContent('Email Address *');
+    expect(input).toHaveAttribute('required');
   });
 
   it('handles interaction correctly', () => {

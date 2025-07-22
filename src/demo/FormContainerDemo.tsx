@@ -4,79 +4,6 @@ import { useFormModel } from "../hooks/useFormModel";
 import type { JSONSchema } from "../types/schema";
 
 const FormContainerDemo: React.FC = () => {
-  // const schema: JSONSchema = {
-
-  //   type: "object",
-  //   required: ["name", "email"],
-  //   properties: {
-  //     name: {
-  //       type: "string",
-  //       title: "Full Name",
-  //       minLength: 3,
-  //       maxLength: 50,
-  //     },
-  //     email: {
-  //       type: "string",
-  //       format: "email",
-  //       title: "Email Address",
-  //     },
-  //     age: {
-  //       type: "integer",
-  //       title: "Age",
-  //       minimum: 13,
-  //       maximum: 120,
-  //     },
-  //     birthDate: {
-  //       type: "string",
-  //       format: "date",
-  //       title: "Birth Date",
-  //     },
-  //     isStudent: {
-  //       type: "boolean",
-  //       title: "Are you a student?",
-  //     },
-  //     address: {
-  //       type: "object",
-  //       title: "Address (required if 18+)",
-  //       properties: {
-  //         street: { type: "string" },
-  //         city: { type: "string" },
-  //         country: {
-  //           type: "string",
-  //           enum: ["US", "UK", "CA", "AU", "Other"],
-  //         },
-  //       },
-  //     },
-  //     hobbies: {
-  //       type: "array",
-  //       title: "Hobbies",
-  //       items: {
-  //         type: "string",
-  //         enum: ["Reading", "Sports", "Music", "Cooking", "Travel"],
-  //       },
-  //       uniqueItems: true,
-  //     },
-  //     skills: {
-  //       type: "array",
-  //       title: "Skills",
-  //       items: {
-  //         type: "object",
-  //         properties: {
-  //           name: { type: "string" },
-  //           level: {
-  //             type: "string",
-  //             enum: ["Beginner", "Intermediate", "Advanced", "Expert"],
-  //           },
-  //         },
-  //       },
-  //     },
-  //     favoriteColor: {
-  //       type: "string",
-  //       format: "color",
-  //       title: "Favorite Color",
-  //     },
-  //   },
-  // };
 
   const schema2: JSONSchema = {
     type: "object",
@@ -102,6 +29,40 @@ const FormContainerDemo: React.FC = () => {
               title: "Friend's Age",
               minimum: 0,
             },
+            friendsOfFriends: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    title: "Friend of Friend's Name",
+                    isRequired: true,
+                  },
+                  relationship: {
+                    type: "string",
+                    title: "Relationship Type",
+                  },
+                  friendsOfFriendsOfFriends: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: {
+                          type: "string",
+                          title: "Friend of Friend of Friend's Name",
+                        },
+                        metDate: {
+                          type: "string",
+                          format: "date",
+                          title: "Date Met",
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
         },
       },

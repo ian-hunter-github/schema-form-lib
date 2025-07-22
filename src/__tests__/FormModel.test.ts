@@ -809,7 +809,7 @@ describe("FormModel - Nested Data Validation", () => {
 
     const emailField = model.getField("user.profile.email");
     expect(emailField?.errors).toContain(VALIDATION_MESSAGES.MIN_LENGTH(5));
-    exect(emailField?.errorCount).toBe(1);
+    expect(emailField?.errorCount).toBe(1);
 
     const ageField = model.getField("user.profile.age");
     expect(ageField?.errors).toContain(VALIDATION_MESSAGES.MIN_NUMBER(18));

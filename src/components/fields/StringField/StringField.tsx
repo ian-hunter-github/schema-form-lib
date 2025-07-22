@@ -85,6 +85,7 @@ export class StringField extends BaseField<StringFieldProps> {
           variant="floating"
           className={`${className || ''}`}
           data-dirty={isDirty}
+          required={field.required || undefined}
           style={isDirty ? {
             backgroundColor: 'rgb(255, 243, 205)',
             borderColor: 'rgb(255, 193, 7)',
