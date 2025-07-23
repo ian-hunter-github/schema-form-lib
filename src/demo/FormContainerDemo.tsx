@@ -116,7 +116,7 @@ const FormContainerDemo: React.FC = () => {
   return (
     <div style={{ padding: 20 }}>
       <h1>Enhanced Form Demo</h1>
-      <FormContainer formModel={formModel} onSubmit={callback} />
+      <FormContainer formModel={formModel} onSubmit={callback} nestingDepth={0} />
     </div>
   );
 };

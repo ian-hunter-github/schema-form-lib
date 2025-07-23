@@ -1,6 +1,11 @@
 import styled from '@emotion/styled';
 import { defaultTheme } from './themes/default';
 import type { VariantConfig } from './variants/types';
+import { colors } from './tokens/colors';
+
+export type Theme = typeof defaultTheme & {
+  colors: typeof colors;
+};
 
 // Helper to access theme properties safely with type assertion
 const getTheme = (props: { theme?: unknown }) => (props.theme || defaultTheme) as typeof defaultTheme;

@@ -66,6 +66,19 @@ export const colors = {
     secondary: '#f9fafb',
     tertiary: '#f3f4f6',
     overlay: 'rgba(0, 0, 0, 0.5)',
+    nested: {
+      0: '#B3D4FF',  // Pastel blue (base level)
+      1: '#D1C4E9',  // Pastel purple
+      2: '#B2DFDB',  // Pastel teal
+      3: '#C8E6C9',  // Pastel green
+      4: '#FFE0B2',  // Pastel orange
+      5: '#F8BBD0',  // Pastel pink
+      6: '#D7CCC8',  // Pastel brown
+      7: '#CFD8DC',  // Pastel blue gray
+      8: '#FFCCBC',  // Pastel deep orange
+      9: '#E1BEE7',  // Pastel light purple
+      10: '#BBDEFB', // Pastel light blue
+    },
   },
   
   // Text colors
@@ -87,6 +100,28 @@ export const colors = {
     warning: '#fed7aa',
     success: '#a7f3d0',
   },
-} as const;
+} as const satisfies {
+  [key: string]: unknown;
+  background: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    overlay: string;
+    nested: {
+      [key: number]: string;
+      0: string;
+      1: string;
+      2: string;
+      3: string;
+      4: string;
+      5: string;
+      6: string;
+      7: string;
+      8: string;
+      9: string;
+      10: string;
+    };
+  };
+};
 
 export type Colors = typeof colors;

@@ -1,5 +1,7 @@
 import React from "react";
 import { useTheme } from "../theme";
+import styled from '@emotion/styled';
+import type { Colors } from '../theme/tokens/colors';
 import FormRenderer from "./FormRenderer";
 import type { FormModel } from "../utils/form/FormModel";
 import type { LayoutConfig } from "../types/layout";
@@ -10,6 +12,8 @@ interface FormContainerProps {
   layoutConfig?: LayoutConfig;
   /** Whether to show field descriptions (default: true) */
   showDescriptions?: boolean;
+  /** Current nesting depth for nested fields */
+  nestingDepth: number;
 }
 
 const FormContainer: React.FC<FormContainerProps> = ({
@@ -17,6 +21,7 @@ const FormContainer: React.FC<FormContainerProps> = ({
   onSubmit,
   layoutConfig,
   showDescriptions = true,
+  nestingDepth,
 }) => {
   const { theme } = useTheme();
   const { colors, components, shadows, layout } = theme;
@@ -68,14 +73,10 @@ const FormContainer: React.FC<FormContainerProps> = ({
   };
 
   return (
-    <div
-      style={{
-        border: `1px solid ${colors.border.primary}`,
-        borderRadius: components.field.input.borderRadius,
-        padding: layout.form.padding,
-        width: "100%",
-        backgroundColor: colors.background.primary,
-      }}
+    <StyledFormContainer
+      borderColor={colors.border.primary}
+      borderRadius={components.field.input.borderRadius}
+      padding={layout.form.padding}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onFocus={handleFocus}
@@ -86,9 +87,22 @@ const FormContainer: React.FC<FormContainerProps> = ({
         onSubmit={onSubmit}
         layoutConfig={layoutConfig}
         showDescriptions={showDescriptions}
+        nestingDepth={nestingDepth}
       />
-    </div>
+    </StyledFormContainer>
   );
 };
+
+const StyledFormContainer = styled.div<{
+  borderColor: string;
+  borderRadius: string;
+  padding: string;
+}>`
+  border: 1px solid ${props => props.borderColor};
+  border-radius: ${props => props.borderRadius};
+  padding: ${props => props.padding};
+  width: 100%;
+  background-color: ${(props) => (props.theme as { colors: Colors }).colors.background.nested[0]};
+`;
 
 export default FormContainer;

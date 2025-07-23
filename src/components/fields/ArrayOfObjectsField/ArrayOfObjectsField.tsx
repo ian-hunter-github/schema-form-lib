@@ -1,5 +1,6 @@
 import React from "react";
-import { capitalizeFirstLetter } from "../../../utils/StringUtils";
+import type { Theme } from "../../../theme/styled";
+import { capitalizeFirstLetter, toSingular } from "../../../utils/StringUtils";
 import type { JSONValue } from "../../../types/schema";
 import type { FormField } from "../../../types/fields";
 import type { FormModel } from "../../../utils/form/FormModel";
@@ -12,28 +13,44 @@ import {
   StyledFieldHelper,
 } from "../../../theme/styled";
 
-const StyledArrayContainer = styled.div`
+const StyledArrayContainer = styled.div<{ nestingDepth: number }>`
   margin-bottom: 1rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.375rem;
   padding: 1rem;
+  background-color: ${(props) => {
+    const depth = Math.min(props.nestingDepth, 10);
+    const nestedColors = (props.theme as Theme).colors.background.nested;
+    return nestedColors[depth as keyof typeof nestedColors];
+  }};
 `;
 
-const StyledArrayItem = styled.div<{ isDirty?: boolean }>`
+const StyledArrayItem = styled.div<{ isDirty?: boolean; nestingDepth: number }>`
   margin-bottom: 1rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.375rem;
   overflow: hidden;
-  background-color: ${(props) =>
-    props.isDirty ? "rgba(255, 243, 205, 0.3)" : "white"};
+  background-color: ${(props) => {
+    if (props.isDirty) return "rgba(255, 243, 205, 0.3)";
+    const depth = Math.min(props.nestingDepth, 10);
+    const nestedColors = (props.theme as Theme).colors.background.nested;
+    return nestedColors[depth as keyof typeof nestedColors];
+  }};
 `;
 
-const StyledArrayHeader = styled.div<{ hasBottomBorder?: boolean }>`
+const StyledArrayHeader = styled.div<{
+  hasBottomBorder?: boolean;
+  nestingDepth: number;
+}>`
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
   cursor: pointer;
-  background-color: #f9fafb;
+  background-color: ${(props) => {
+    const depth = Math.min(props.nestingDepth, 10);
+    const nestedColors = (props.theme as Theme).colors.background.nested;
+    return nestedColors[depth as keyof typeof nestedColors];
+  }};
   border-bottom: ${(props) =>
     props.hasBottomBorder ? "1px solid #e5e7eb" : "none"};
   &:hover {
@@ -41,8 +58,13 @@ const StyledArrayHeader = styled.div<{ hasBottomBorder?: boolean }>`
   }
 `;
 
-const StyledArrayContent = styled.div`
+const StyledArrayContent = styled.div<{ nestingDepth: number }>`
   padding: 1rem;
+  background-color: ${(props) => {
+    const depth = Math.min(props.nestingDepth, 10);
+    const nestedColors = (props.theme as Theme).colors.background.nested;
+    return nestedColors[depth as keyof typeof nestedColors];
+  }};
 `;
 
 const StyledButton = styled.button<{
@@ -83,12 +105,20 @@ export interface ArrayOfObjectsFieldProps {
   field: FormField;
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
+  nestingDepth: number;
 }
 
 class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
   private expandedItems = new Set<number>();
+  private currentDepth: number;
+
+  constructor(props: ArrayOfObjectsFieldProps) {
+    super(props);
+    this.currentDepth = props.nestingDepth;
+  }
 
   protected renderItem(index: number): React.ReactNode {
+    const nestingDepth = this.currentDepth + 1;
     const itemSchema = this.props.field.schema.items;
     if (!itemSchema || !itemSchema.properties) {
       return null;
@@ -101,9 +131,14 @@ class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
     const propertyKeys = Object.keys(properties);
 
     return (
-      <StyledArrayItem key={index} isDirty={this.isItemDirty(index)}>
+      <StyledArrayItem
+        key={index}
+        isDirty={this.isItemDirty(index)}
+        nestingDepth={nestingDepth}
+      >
         <StyledArrayHeader
           hasBottomBorder={isExpanded}
+          nestingDepth={nestingDepth}
           onClick={() => this.toggleItemExpansion(index)}
         >
           <span
@@ -117,12 +152,12 @@ class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
           </span>
           <span style={{ flex: 1, fontWeight: "500" }}>
             {this.props.field.schema.title
-              ? `${this.toSingular(this.props.field.schema.title)} ${index + 1}`
+              ? `${toSingular(this.props.field.schema.title)} ${index + 1}`
               : (() => {
                   const pathParts = this.props.field.path.split(".");
                   const lastPart = pathParts[pathParts.length - 1];
                   return lastPart
-                    ? `${this.toSingular(lastPart)} ${index + 1}`
+                    ? `${toSingular(lastPart)} ${index + 1}`
                     : `Entity ${index + 1}`;
                 })()}
           </span>
@@ -168,7 +203,7 @@ class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
         </StyledArrayHeader>
 
         {isExpanded && (
-          <StyledArrayContent>
+          <StyledArrayContent nestingDepth={nestingDepth}>
             {propertyKeys.map((propertyKey) => {
               const nestedField = this.getNestedField(index, propertyKey);
               if (!nestedField) return null;
@@ -177,6 +212,7 @@ class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
                 <div key={propertyKey} style={{ marginBottom: "1rem" }}>
                   <FieldRenderer
                     field={nestedField}
+                    nestingDepth={nestingDepth + 1}
                     formModel={this.props.formModel}
                     onChange={(value: JSONValue, shouldValidate?: boolean) =>
                       this.handleNestedChange(
@@ -242,65 +278,6 @@ class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
     }
   }
 
-  private toSingular(word: string): string {
-    if (!word) return "Item";
-
-    const exceptions: Record<string, string> = {
-      "alumni": "alumnus",
-      "analyses": "analysis",
-      "appendices": "appendix",
-      "attributes": "attribute",
-      "axes": "axis",
-      "bacteria": "bacterium",
-      "cacti": "cactus",
-      "children": "child",
-      "corpora": "corpus",
-      "criteria": "criterion",
-      "crises": "crisis",
-      "data": "datum",
-      "diagnoses": "diagnosis",
-      "feet": "foot",
-      "focuses": "focus",
-      "fungi": "fungus",
-      "hypotheses": "hypothesis",
-      "indices": "index",
-      "loci": "locus",
-      "matrices": "matrix",
-      "media": "medium",
-      "nuclei": "nucleus",
-      "oases": "oasis",
-      "people": "person",
-      "phenomena": "phenomenon",
-      "radiuses": "radius",
-      "responses": "response",
-      "roles": "role",
-      "series": "series",
-      "species": "species",
-      "stimuli": "stimulus",
-      "strata": "stratum",
-      "syllabi": "syllabus",
-      "teeth": "tooth",
-      "theses": "thesis",
-      "vertices": "vertex",
-    };
-
-    if (exceptions[word]) {
-      return exceptions[word];
-    }
-
-    // Handle common English plural patterns
-    if (word.endsWith("ies")) {
-      word = word.slice(0, -3) + "y";
-    } else if (word.endsWith("es")) {
-      word = word.slice(0, -2);
-    } else if (word.endsWith("s") && word.length > 1) {
-      word = word.slice(0, -1);
-    }
-
-    // Capitalize first letter
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  }
-
   private createDefaultObjectValue(itemSchema?: {
     properties?: Record<string, { type?: string; default?: JSONValue }>;
   }): Record<string, JSONValue> {
@@ -343,7 +320,8 @@ class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
   }
 
   render() {
-    const fieldId = this.props.field.path;
+    const { field, nestingDepth } = this.props;
+    const fieldId = field.path;
     const displayName =
       this.props.field.path.split(".").pop() || this.props.field.path;
     const hasErrors = this.props.field.errors.length > 0;
@@ -351,8 +329,7 @@ class ArrayOfObjectsField extends ArrayFieldBase<ArrayOfObjectsFieldProps> {
     const items = this.getItems();
 
     return (
-      <StyledArrayContainer id={fieldId} data-testid={fieldId}>
-        
+      <StyledArrayContainer id={fieldId} data-testid={fieldId} nestingDepth={nestingDepth}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <StyledFieldLabel
             htmlFor={fieldId}

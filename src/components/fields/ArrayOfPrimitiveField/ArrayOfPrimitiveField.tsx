@@ -3,17 +3,25 @@ import type { JSONValue } from '../../../types/schema';
 import type { FormField } from '../../../types/fields';
 import type { FormModel } from '../../../utils/form/FormModel';
 import { ArrayFieldBase } from '../ArrayFieldBase';
+import { capitalizeFirstLetter } from "../../../utils/StringUtils";
 import styled from '@emotion/styled';
+import type { Theme } from '../../../theme/styled';
 import {
   StyledFieldLabel,
   StyledFieldDescription,
   StyledFieldInput,
   StyledFieldError,
-  StyledFieldHelper,
 } from '../../../theme/styled';
 
-const StyledArrayContainer = styled.div`
-  margin-bottom: 1rem;
+const StyledArrayContainer = styled.div<{ nestingDepth: number }>`
+  margin: 0.5rem 0;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background-color: ${(props) => {
+    const depth = Math.min(props.nestingDepth, 10);
+    const nestedColors = (props.theme as Theme).colors.background.nested;
+    return nestedColors[depth as keyof typeof nestedColors] || nestedColors[0];
+  }};
 `;
 
 const StyledButton = styled.button<{
@@ -49,6 +57,7 @@ export interface ArrayOfPrimitiveFieldProps {
   field: FormField;
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
+  nestingDepth: number;
 }
 
 class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
@@ -135,7 +144,8 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
   }
 
   render() {
-    const fieldId = this.props.field.path;
+    const { field,  } = this.props;
+    const fieldId = field.path;
     const displayName = this.props.field.schema.title || 
                       this.props.field.path.split('.').pop() || 
                       this.props.field.path;
@@ -144,15 +154,54 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
     const items = this.getItems();
 
     return (
-      <StyledArrayContainer id={fieldId} data-testid={fieldId}>
-        <StyledFieldLabel 
-          htmlFor={fieldId} 
-          id={`${fieldId}-label`}
-          data-testid={`${fieldId}-label`}
-          required={this.props.field.required}
-        >
-          {displayName}
-        </StyledFieldLabel>
+      <StyledArrayContainer id={fieldId} data-testid={fieldId} nestingDepth={this.props.nestingDepth}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <StyledFieldLabel
+            htmlFor={fieldId}
+            id={`${fieldId}-label`}
+            data-testid={`${fieldId}-label`}
+            required={this.props.field.required}
+            style={{
+              fontSize: '2rem',
+              marginBottom: '0',
+            }}
+          >
+            {capitalizeFirstLetter(displayName)}
+          </StyledFieldLabel>
+
+          <StyledButton
+            id={`${fieldId}-add`}
+            data-testid={`${fieldId}-add`}
+            type="button"
+            onClick={this.handleAddItem}
+            disabled={this.props.field.schema.readOnly}
+            variant="primary"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '0',
+            }}
+            aria-label="Add item"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 4V20M4 12H20"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </StyledButton>
+        </div>
 
         {this.props.field.schema.description && (
           <StyledFieldDescription 
@@ -181,18 +230,6 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
           </div>
         )}
 
-        <StyledButton
-          id={`${fieldId}-add`}
-          data-testid={`${fieldId}-add`}
-          type="button"
-          onClick={this.handleAddItem}
-          disabled={this.props.field.schema.readOnly}
-          variant="primary"
-          style={{ marginTop: '0.5rem' }}
-        >
-          Add Item
-        </StyledButton>
-
         {hasErrors && (
           <StyledFieldError 
             id={`${fieldId}-error`} 
@@ -202,14 +239,6 @@ class ArrayOfPrimitiveField extends ArrayFieldBase<ArrayOfPrimitiveFieldProps> {
           </StyledFieldError>
         )}
         
-        {this.props.field.dirty && (
-          <StyledFieldHelper 
-            id={`${fieldId}-dirty-indicator`} 
-            data-testid={`${fieldId}-dirty-indicator`}
-          >
-            Modified
-          </StyledFieldHelper>
-        )}
       </StyledArrayContainer>
     );
   }

@@ -50,7 +50,7 @@ describe('ArrayOfPrimitiveField', () => {
   it('renders with basic props', () => {
     const field = createMockFormField();
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     expect(screen.getByTestId('testField')).toBeInTheDocument();
     expect(screen.getByTestId('testField-label')).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('ArrayOfPrimitiveField', () => {
       schema: { type: 'array', title: 'Custom Title', items: { type: 'string' } }
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     expect(screen.getByTestId('customField-label')).toHaveTextContent('Custom Title');
   });
@@ -73,7 +73,7 @@ describe('ArrayOfPrimitiveField', () => {
       value: ['item1', 'item2', 'item3']
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     expect(screen.getByTestId('testField.0')).toBeInTheDocument();
     expect(screen.getByTestId('testField.1')).toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('ArrayOfPrimitiveField', () => {
   it('adds new item when add button is clicked', () => {
     const field = createMockFormField();
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     const addButton = screen.getByTestId('testField-add');
     fireEvent.click(addButton);
@@ -100,7 +100,7 @@ describe('ArrayOfPrimitiveField', () => {
       value: ['item1', 'item2']
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     const removeButton = screen.getByTestId('testField.0-remove');
     fireEvent.click(removeButton);
@@ -113,7 +113,7 @@ describe('ArrayOfPrimitiveField', () => {
       value: ['item1']
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     const input = screen.getByTestId('testField.0');
     fireEvent.change(input, { target: { value: 'updated item' } });
@@ -126,7 +126,7 @@ describe('ArrayOfPrimitiveField', () => {
       value: ['item1']
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     const input = screen.getByTestId('testField.0');
     fireEvent.blur(input, { target: { value: 'blurred item' } });
@@ -138,7 +138,7 @@ describe('ArrayOfPrimitiveField', () => {
   it('shows required indicator when field is required', () => {
     const field = createMockFormField({ required: true });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     const label = screen.getByTestId('testField-label');
     expect(label).toBeInTheDocument();
@@ -151,19 +151,10 @@ describe('ArrayOfPrimitiveField', () => {
       errorCount: 1
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0} />);
     
     expect(screen.getByTestId('testField-error')).toBeInTheDocument();
     expect(screen.getByText('Array must have at least one item')).toBeInTheDocument();
-  });
-
-  it('shows dirty indicator when field is dirty', () => {
-    const field = createMockFormField({ dirty: true });
-    
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
-    
-    expect(screen.getByTestId('testField-dirty-indicator')).toBeInTheDocument();
-    expect(screen.getByText('Modified')).toBeInTheDocument();
   });
 
   it('disables inputs and buttons when read-only', () => {
@@ -172,7 +163,7 @@ describe('ArrayOfPrimitiveField', () => {
       schema: { type: 'array', readOnly: true, items: { type: 'string' } }
     });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0} />);
     
     const input = screen.getByTestId('testField.0') as HTMLInputElement;
     const addButton = screen.getByTestId('testField-add') as HTMLButtonElement;
@@ -187,7 +178,7 @@ describe('ArrayOfPrimitiveField', () => {
   it('handles empty array gracefully', () => {
     const field = createMockFormField({ value: [] });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     expect(screen.getByTestId('testField-add')).toBeInTheDocument();
     expect(screen.queryByTestId('testField.0')).not.toBeInTheDocument();
@@ -196,7 +187,7 @@ describe('ArrayOfPrimitiveField', () => {
   it('handles null/undefined values gracefully', () => {
     const field = createMockFormField({ value: null });
     
-    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel} />);
+    render(<ArrayOfPrimitiveField field={field} onChange={mockOnChange} formModel={mockFormModel}  nestingDepth={0}/>);
     
     expect(screen.getByTestId('testField-add')).toBeInTheDocument();
     expect(screen.queryByTestId('testField.0')).not.toBeInTheDocument();

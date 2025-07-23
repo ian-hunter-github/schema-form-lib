@@ -80,7 +80,7 @@ const ApiConfigDemo: React.FC = () => {
   return (
     <div style={{ padding: 20 }}>
       <h1>API Configuration Demo</h1>
-      <FormContainer formModel={formModel} onSubmit={callback} />
+      <FormContainer formModel={formModel} onSubmit={callback} nestingDepth={0}/>
     </div>
   );
 };

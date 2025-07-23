@@ -4,6 +4,8 @@ import type { FormModel } from "../utils/form/FormModel";
 import type { FormField } from "../types/fields";
 import type { LayoutConfig } from "../types/layout";
 import LayoutContainer from "./layout/LayoutContainer";
+import type { Colors } from '../theme/tokens/colors';
+import styled from '@emotion/styled';
 
 interface FormRendererProps {
   formModel: FormModel;
@@ -11,13 +13,16 @@ interface FormRendererProps {
   layoutConfig?: LayoutConfig;
   /** Whether to show field descriptions (default: true) */
   showDescriptions?: boolean;
+  /** Current nesting depth for nested fields */
+  nestingDepth: number;
 }
 
 const FormRenderer: React.FC<FormRendererProps> = ({ 
   formModel, 
   onSubmit, 
   layoutConfig = { strategy: 'vertical' },
-  showDescriptions = true 
+  showDescriptions = true,
+  nestingDepth
 }) => {
   const [fields, setFields] = useState<Map<string, FormField>>(formModel.getFields());
 
@@ -83,19 +88,28 @@ const FormRenderer: React.FC<FormRendererProps> = ({
     .map(([, field]) => field);
 
   return (
-    <form data-testid="form-renderer" onSubmit={handleSubmit}>
-      <LayoutContainer
-        fields={rootFields}
-        formModel={formModel}
-        layoutConfig={layoutConfig}
-        onChange={handleFieldChange}
-        showDescriptions={showDescriptions}
-      />
-      <button type="submit" data-testid="submit-button">
-        Submit
-      </button>
-    </form>
+    <StyledFormContainer>
+      <form data-testid="form-renderer" onSubmit={handleSubmit}>
+        <LayoutContainer
+          fields={rootFields}
+          formModel={formModel}
+          layoutConfig={layoutConfig}
+          onChange={handleFieldChange}
+          showDescriptions={showDescriptions}
+          nestingDepth={nestingDepth}
+        />
+        <button type="submit" data-testid="submit-button">
+          Submit
+        </button>
+      </form>
+    </StyledFormContainer>
   );
 };
+
+const StyledFormContainer = styled.div`
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background-color: ${(props) => (props.theme as { colors: Colors }).colors.background.nested[0]};
+`;
 
 export default FormRenderer;

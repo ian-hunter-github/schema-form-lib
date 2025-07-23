@@ -23,6 +23,8 @@ interface LayoutContainerProps {
   className?: string;
   /** Whether to show field descriptions (default: true) */
   showDescriptions?: boolean;
+  /** Current nesting depth for nested fields */
+  nestingDepth: number;
 }
 
 const LayoutContainer: React.FC<LayoutContainerProps> = ({
@@ -31,7 +33,8 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
   layoutConfig: propConfig = {},
   onChange,
   className = '',
-  showDescriptions = true
+  showDescriptions = true,
+  nestingDepth
 }) => {
   const { theme } = useTheme();
   
@@ -71,6 +74,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
                 formModel={formModel}
                 onChange={(value) => onChange(field.path, value)}
                 showDescriptions={showDescriptions}
+                nestingDepth={nestingDepth}
               />
           </div>
         ))}
@@ -114,6 +118,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
                   formModel={formModel}
                   onChange={(value) => onChange(field.path, value)}
                   showDescriptions={showDescriptions}
+                  nestingDepth={nestingDepth}
                 />
               </div>
             ));
@@ -171,6 +176,7 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
                     field={field}
                     formModel={formModel}
                     onChange={(value) => onChange(field.path, value)}
+                    nestingDepth={nestingDepth}
                   />
                 </div>
               );
@@ -194,12 +200,13 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
     >
       {fields.map((field) => (
         <div key={field.path} className="field-wrapper">
-          <FieldRenderer
-            field={field}
-            formModel={formModel}
-            onChange={(value) => onChange(field.path, value)}
-            showDescriptions={showDescriptions}
-          />
+                <FieldRenderer
+                  field={field}
+                  formModel={formModel}
+                  onChange={(value) => onChange(field.path, value)}
+                  showDescriptions={showDescriptions}
+                  nestingDepth={nestingDepth}
+                />
         </div>
       ))}
     </div>

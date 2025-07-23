@@ -8,17 +8,19 @@ import type { LayoutConfig, JSONSchemaWithLayout } from '../../../types/layout';
 import { capitalizeFirstLetter } from '../../../utils/StringUtils';
 import LayoutContainer from '../../layout/LayoutContainer';
 import {
-  StyledFieldContainer,
   StyledFieldLabel,
   StyledFieldDescription,
   StyledFieldError,
   StyledFieldHelper,
 } from '../../../theme/styled';
+import type { Theme } from '../../../theme/styled';
+import styled from '@emotion/styled';
 
 export interface ObjectFieldProps extends BaseFieldProps {
   field: FormField;
   onChange: (value: JSONValue, shouldValidate?: boolean) => void;
   formModel: FormModel;
+  nestingDepth: number;
 }
 
 class ObjectField extends BaseField<ObjectFieldProps> {
@@ -97,7 +99,7 @@ class ObjectField extends BaseField<ObjectFieldProps> {
   };
 
   render(): React.ReactNode {
-    const { field, formModel } = this.props;
+    const { field, formModel, nestingDepth } = this.props;
 
     const fieldId = field.path;
     const displayName = field.path.split('.').pop() || field.path;
@@ -109,24 +111,13 @@ class ObjectField extends BaseField<ObjectFieldProps> {
     const propertyKeys = Object.keys(properties);
 
     return (
-      <StyledFieldContainer>
-        {/* Accordion Header */}
-        <div 
-          onClick={this.toggleExpanded}
-          style={{ 
-            marginBottom: this.isExpanded ? '0.5rem' : 0,
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0.5rem',
-            cursor: 'pointer',
-            borderBottom: this.isExpanded ? '1px solid #e5e7eb' : 'none'
-          }}
-        >
+      <StyledObjectContainer nestingDepth={this.props.nestingDepth}>
+        <HeaderContainer onClick={this.toggleExpanded}>
           <span 
             style={{ 
               marginRight: '0.25rem',
               transform: this.isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-              transition: 'transform 0.2s ease'
+              transition: 'transform 0.2s ease',
             }}
           >
             ▶
@@ -158,55 +149,45 @@ class ObjectField extends BaseField<ObjectFieldProps> {
               Modified
             </StyledFieldHelper>
           )}
-        </div>
+        </HeaderContainer>
 
-      {/* Accordion Content */}
-      {this.isExpanded && (
-        <div 
-          style={{
-            paddingLeft: '1.5rem',
-            borderLeft: '2px solid #e5e7eb',
-            marginLeft: '0.5rem'
-          }}
-        >
-          {field.schema.description && (
-            <StyledFieldDescription
-              id={`${fieldId}-description`}
-              data-testid={`${fieldId}-description`}
-              style={{ marginBottom: '0.5rem' }}
-            >
-              {field.schema.description}
-            </StyledFieldDescription>
-          )}
+        {this.isExpanded && (
+          <ContentContainer>
+            {field.schema.description && (
+              <StyledFieldDescription
+                id={`${fieldId}-description`}
+                data-testid={`${fieldId}-description`}
+                style={{ marginBottom: '0.5rem' }}
+              >
+                {field.schema.description}
+              </StyledFieldDescription>
+            )}
 
-          {/* Render nested fields using LayoutContainer */}
-          {propertyKeys.length > 0 ? (
-            <LayoutContainer
-              fields={this.getNestedFields(propertyKeys)}
-              formModel={formModel}
-              layoutConfig={this.getObjectLayoutConfig()}
-              onChange={this.handleNestedChange}
-            />
-          ) : (
-            <StyledFieldHelper style={{ fontStyle: 'italic' }}>
-              No properties defined for this object
-            </StyledFieldHelper>
-          )}
-        </div>
-      )}
+            {propertyKeys.length > 0 ? (
+              <LayoutContainer
+                fields={this.getNestedFields(propertyKeys)}
+                formModel={formModel}
+                layoutConfig={this.getObjectLayoutConfig()}
+                onChange={this.handleNestedChange}
+                nestingDepth={nestingDepth + 1}
+              />
+            ) : (
+              <StyledFieldHelper style={{ fontStyle: 'italic' }}>
+                No properties defined for this object
+              </StyledFieldHelper>
+            )}
 
-        {hasErrors && formModel?.shouldShowErrors() && (
-          <div style={{ marginTop: '0.5rem' }}>
-            <StyledFieldError
-              id={`${fieldId}-error`}
-              data-testid={`${fieldId}-error`}
-            >
-              {errorMessage}
-            </StyledFieldError>
-          </div>
+            {hasErrors && formModel?.shouldShowErrors() && (
+              <StyledFieldError
+                id={`${fieldId}-error`}
+                data-testid={`${fieldId}-error`}
+              >
+                {errorMessage}
+              </StyledFieldError>
+            )}
+          </ContentContainer>
         )}
-        
-      </StyledFieldContainer>
+      </StyledObjectContainer>
     );
   }
 }
@@ -219,6 +200,30 @@ const areEqual = (prevProps: ObjectFieldProps, nextProps: ObjectFieldProps) => {
     prevProps.field.schema === nextProps.field.schema
   );
 };
+
+const StyledObjectContainer = styled.div<{ nestingDepth: number }>`
+  margin: 0.5rem 0;
+  padding: 0;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  background-color: ${(props) => {
+    const depth = Math.min(props.nestingDepth, 10);
+    const nestedColors = (props.theme as Theme).colors.background.nested;
+    return nestedColors[depth as keyof typeof nestedColors];
+  }};
+`;
+
+const HeaderContainer = styled.div`
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+`;
+
+const ContentContainer = styled.div`
+  padding: 1rem;
+`;
 
 const MemoizedObjectField = memo(ObjectField as React.ComponentType<ObjectFieldProps>, areEqual);
 export default MemoizedObjectField;

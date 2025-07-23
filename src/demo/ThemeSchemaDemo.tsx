@@ -98,6 +98,7 @@ export const ThemeSchemaDemo = () => {
           <FormRenderer 
             formModel={formModel}
             onSubmit={() => {}} // Required prop but not used
+            nestingDepth={0}
           />
         </div>
         <div style={{

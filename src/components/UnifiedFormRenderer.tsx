@@ -129,6 +129,7 @@ const UnifiedFormRenderer: React.FC<UnifiedFormRendererProps> = ({
               field={field}
               formModel={formModel}
               onChange={(value, shouldValidate) => handleFieldChange(field.path, value, shouldValidate)}
+              nestingDepth={0}
             />
             
             {/* Individual field revert button */}

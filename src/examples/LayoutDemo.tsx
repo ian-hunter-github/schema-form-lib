@@ -116,7 +116,7 @@ const LayoutDemo: React.FC = () => {
     schema
   });
 
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data: unknown) => {
     console.log('Form submitted:', data);
     alert('Form submitted! Check console for data.');
   };
@@ -344,6 +344,7 @@ const LayoutDemo: React.FC = () => {
           formModel={formModel}
           layoutConfig={layoutConfig}
           onSubmit={handleSubmit}
+          nestingDepth={0}
         />
       </div>
 
