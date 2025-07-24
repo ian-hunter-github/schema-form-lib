@@ -1,500 +1,415 @@
-# Schema Form Builder
+# Schema Form Library
 
-A powerful React component library for generating forms from JSON schemas with extensive customization options.
+A powerful React form library that generates forms from JSON schemas with extensive customization options.
+
+## Features
+
+- Dynamic form generation from JSON schemas
+- Comprehensive field types and validation
+- Theme customization
+- Flexible layout system
+- Array and nested object support
+- TypeScript support
 
 ## Installation
 
 ```bash
-npm install schema-form-app@beta
-# or
-yarn add schema-form-app@beta
+npm install schema-form-lib
 ```
 
-## Getting Started
+## Development Setup
 
-### Basic Usage
+1. Clone the repository:
+```bash
+git clone https://github.com/your-username/schema-form-lib.git
+cd schema-form-lib
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start development server:
+```bash
+npm run dev
+```
+
+## Git Workflow
+
+### Branching Strategy
+- `main`: Stable production branch
+- `feature/*`: Feature development branches
+- `bugfix/*`: Bug fix branches
+
+### Creating a Release
+```bash
+git tag -a v0.1.0 -m "Release 0.1.0"
+git push origin v0.1.0
+```
+
+## Building & Publishing
+
+1. Build the package:
+```bash
+npm run build
+```
+
+2. Publish to npm:
+```bash
+npm login
+npm publish --access public
+```
+
+3. Version management:
+```bash
+npm version patch|minor|major
+```
+
+## Basic Usage
 
 ```jsx
-import { SchemaRenderer } from 'schema-form-app';
+import { FormContainer } from 'schema-form-lib';
+import { useFormModel } from 'schema-form-lib/hooks';
 
 const schema = {
   type: 'object',
   properties: {
-    name: { 
-      type: 'string',
-      title: 'Full Name',
-      description: 'Enter your full name'
-    },
-    age: { 
-      type: 'number',
-      minimum: 18,
-      maximum: 120 
-    }
-  },
-  required: ['name']
-};
-
-function App() {
-  return (
-    <SchemaRenderer 
-      schema={schema}
-      onSubmit={(data) => console.log(data)}
-    />
-  );
-}
-```
-
-### Loading Schema from File or URL
-
-```jsx
-import { SchemaRenderer } from 'schema-form-app';
-import { useState, useEffect } from 'react';
-
-async function loadSchemaFromFile() {
-  const response = await fetch('/path/to/schema.json');
-  return await response.json();
-}
-
-async function loadSchemaFromUrl(url) {
-  const response = await fetch(url);
-  return await response.json();
-}
-
-function App() {
-  const [schema, setSchema] = useState(null);
-
-  useEffect(() => {
-    // Load from local file
-    loadSchemaFromFile().then(setSchema);
-    
-    // OR load from URL
-    // loadSchemaFromUrl('https://example.com/schemas/form.json').then(setSchema);
-  }, []);
-
-  if (!schema) return <div>Loading schema...</div>;
-
-  return (
-    <SchemaRenderer 
-      schema={schema}
-      onSubmit={(data) => console.log(data)}
-    />
-  );
-}
-```
-
-## Advanced Features
-
-### Theme Customization
-
-The form appearance can be fully customized through themes. There are three ways to apply a theme:
-
-#### 1. Using a Theme Object
-
-```jsx
-import { ThemeProvider } from 'schema-form-app';
-import { SchemaRenderer } from 'schema-form-app';
-
-const customTheme = {
-  name: 'my-theme',
-  colors: {
-    primary: {
-      500: '#3b82f6', // Blue-500
-      600: '#2563eb'  // Blue-600
-    },
-    semantic: {
-      error: '#ef4444',
-      warning: '#f59e0b',
-      success: '#10b981'
-    }
-  },
-  spacing: {
-    sm: '0.5rem',
-    md: '1rem',
-    lg: '1.5rem'
+    name: { type: 'string', title: 'Full Name' },
+    age: { type: 'number', minimum: 18 }
   }
 };
 
 function App() {
-  return (
-    <ThemeProvider initialTheme={customTheme}>
-      <SchemaRenderer schema={schema} />
-    </ThemeProvider>
-  );
+  const { formModel } = useFormModel({ schema });
+  return <FormContainer formModel={formModel} nestingDepth={0} />;
 }
 ```
 
-#### 2. Using a JSON File
+## User Guide
 
+### Core Components
+
+#### FormContainer
+Main form wrapper component with props:
+- `formModel`: FormModel instance
+- `nestingDepth`: Current nesting level (0 for root)
+- `layoutConfig`: Optional layout configuration
+- `showDescriptions`: Show/hide field descriptions
+
+#### Field Update Handling
+The library manages field updates through:
+
+1. **Validation Flow**:
+   - OnChange: Basic type validation
+   - OnBlur: Full validation (configurable)
+   - OnSubmit: Comprehensive validation
+
+2. **Change Tracking**:
+   - Tracks dirty/pristine state per field
+   - Maintains original vs current values
+   - Supports reverting changes
+
+3. **Error Propagation**:
+   - Immediate visual feedback
+   - Error messages from schema
+   - Custom validation support
+
+4. **Performance**:
+   - Batched updates for arrays
+   - Optimized re-renders
+   - Selective validation for nested fields
+
+## Developer Guide
+
+### Field Update Implementation
+
+#### Validation Process
+1. Field changes trigger `setValue()` in FormModel
+2. Value updates propagate through FieldUpdater
+3. Validation occurs via FormValidator
+4. Errors are applied to field state
+
+#### Change Tracking
+- Dirty state managed via BufferingManager
+- Original values stored in FormField instances
+- Change detection uses deep equality checks
+
+#### Performance Optimizations
+- Debounced validation for rapid input
+- Memoized field components
+- Batched state updates
+
+### Adding JSDoc Documentation
+All core classes now include JSDoc comments:
+```typescript
+/**
+ * Manages form state and validation
+ * @class FormModel
+ * @param {JSONSchema} schema - Form schema definition
+ * @param {Object} [options] - Configuration options
+ * @param {boolean} [options.hybridMode] - Enable hybrid change tracking
+ */
+class FormModel {
+  /**
+   * Sets a field's value
+   * @param {string} path - Field path (e.g. 'user.name')
+   * @param {JSONValue} value - New field value
+   * @throws {FormModelError} If field not found or invalid value
+   */
+  setValue(path: string, value: JSONValue): void
+}
+```
+
+### FieldRenderers
+Specialized components for each field type:
+- StringField
+- NumberField
+- BooleanField
+- ArrayField
+- ObjectField
+
+## Advanced Features
+
+### Array Operations
 ```jsx
-import theme from './custom-theme.json';
+// Adding array items
+formModel.addValue('arrayPath', defaultValue);
 
-function App() {
-  return (
-    <ThemeProvider initialTheme={theme}>
-      <SchemaRenderer schema={schema} />
-    </ThemeProvider>
-  );
-}
+// Removing items
+formModel.deleteValue('arrayPath.0');
 ```
 
-#### 3. Loading from URL
+### Theme Customization
 
+The library provides comprehensive theming support through the `ThemeProvider` component.
+
+#### Basic Usage
 ```jsx
-function App() {
-  return (
-    <ThemeProvider themeUrl="/themes/custom.json">
-      <SchemaRenderer schema={schema} />
-    </ThemeProvider>
-  );
-}
+import { ThemeProvider } from 'schema-form-lib';
+
+<ThemeProvider>
+  <FormContainer formModel={formModel} />
+</ThemeProvider>
 ```
 
-#### Default Theme
-
-The package includes a built-in default theme that's automatically applied when no custom theme is specified. You can find the default theme configuration at:
-
+#### Default Theme Structure
+The default theme includes:
 ```json
-// src/theme/themes/default.json
 {
-  "name": "default",
   "colors": {
-    "primary": {
-      "500": "#3b82f6",
-      "600": "#2563eb"
-    },
-    "semantic": {
-      "error": "#ef4444",
-      "warning": "#f59e0b",
-      "success": "#10b981"
-    }
+    "primary": { "500": "#3b82f6" },
+    "secondary": { "500": "#6b7280" }
   },
   "spacing": {
     "sm": "0.5rem",
     "md": "1rem",
     "lg": "1.5rem"
+  },
+  "typography": {
+    "fontFamily": "system-ui, sans-serif"
   }
 }
 ```
 
-To extend the default theme while keeping its core styles, you can merge it with your customizations:
-
+#### Overriding Theme Values
 ```jsx
-import defaultTheme from 'schema-form-app/themes/default';
+const customTheme = {
+  colors: {
+    primary: { 500: '#10b981' } // Override primary color
+  }
+};
+
+<ThemeProvider initialTheme={customTheme}>
+  <FormContainer formModel={formModel} />
+</ThemeProvider>
+```
+
+#### Creating Custom Themes
+1. Extend the default theme:
+```jsx
+import { defaultTheme } from 'schema-form-lib/theme';
 
 const customTheme = {
   ...defaultTheme,
   colors: {
     ...defaultTheme.colors,
-    primary: {
-      500: '#8b5cf6', // Purple-500
-      600: '#7c3aed'  // Purple-600
-    }
+    primary: { 500: '#ef4444' }
   }
 };
+```
 
-function App() {
-  return (
-    <ThemeProvider initialTheme={customTheme}>
-      <SchemaRenderer schema={schema} />
-    </ThemeProvider>
-  );
+2. Create from scratch (must match theme schema):
+```jsx
+const customTheme = {
+  colors: {
+    primary: { 500: '#8b5cf6' },
+    error: { 500: '#dc2626' }
+  },
+  spacing: {
+    sm: '4px',
+    md: '8px',
+    lg: '16px'
+  }
+};
+```
+
+#### Theme Validation
+Themes are validated against the theme schema:
+- Invalid themes fall back to defaults
+- Warnings are logged in development
+- Use `theme.schema.json` for reference
+
+#### Dynamic Theme Switching
+```jsx
+const [currentTheme, setTheme] = useState(defaultTheme);
+
+<ThemeProvider initialTheme={currentTheme}>
+  <FormContainer formModel={formModel} />
+  <button onClick={() => setTheme(darkTheme)}>
+    Switch to Dark Theme
+  </button>
+</ThemeProvider>
+```
+
+## Performance Considerations
+
+### Unnecessary UI Form Refreshes
+The API Demo exhibits form refreshes when fields are updated due to:
+
+1. Complex nested schema structure triggering full validation
+2. Deeply nested objects causing multiple state updates
+3. No current optimization for partial validation
+
+**Workaround**: Use simpler schemas or break forms into smaller components.
+
+**Future Improvements**:
+- Partial validation for nested fields
+- Optimized state updates
+- Memoization of field components
+
+## Outstanding Issues
+
+- Complex schema performance (tracked in #123)
+- Nested array validation edge cases
+- Theme customization limitations
+
+## Examples
+
+See the demo implementations:
+- `src/demo/FormContainerDemo.tsx`
+- `src/demo/ApiConfigDemo.tsx`
+- `src/demo/ThemeDemo.tsx`
+
+## API Documentation
+
+For complete API documentation including all classes, methods and types, see [API.md](API.md).
+
+### Core API Reference
+
+```typescript
+/**
+ * Core form state management class that handles:
+ * - Field creation and validation
+ * - Value updates and change tracking
+ * - Array operations
+ * - Form lifecycle events
+ */
+class FormModel {
+  /**
+   * @param schema - JSON schema definition
+   * @param options - { hybridMode?: boolean }
+   */
+  constructor(schema: JSONSchema, options?: { hybridMode?: boolean })
+
+  /**
+   * Sets a field's value
+   * @param path - Field path (e.g. 'user.name')
+   * @param value - New field value
+   * @throws {FormModelError} If invalid path or value
+   */
+  setValue(path: string, value: JSONValue): void
+
+  /**
+   * Validates all fields
+   * @returns true if all fields are valid
+   */
+  validate(): boolean
+
+  /**
+   * Gets all form fields
+   * @returns Map of path => FormField
+   */
+  getFields(): Map<string, FormField>
+}
+
+### ThemeProvider
+
+```typescript
+/**
+ * Provides theme context to form components
+ */
+interface ThemeProviderProps {
+  /**
+   * Initial theme configuration
+   * @default defaultTheme
+   */
+  initialTheme?: ThemeObject
+
+  /**
+   * URL to load theme JSON from
+   */
+  themeUrl?: string
+
+  /**
+   * Children components
+   */
+  children: ReactNode
 }
 ```
 
-### Layout Customization
+## Code Documentation
 
-Control form layout using the `layout` prop:
+The library uses comprehensive JSDoc comments throughout the codebase. Key aspects:
 
-```jsx
-<SchemaRenderer
-  schema={schema}
-  layout={{
-    type: 'grid',
-    columns: 2,
-    gap: '1rem',
-    responsive: {
-      sm: { columns: 1 },
-      md: { columns: 2 }
-    }
-  }}
-/>
+### Generating Documentation
+```bash
+npm run docs  # Generates HTML documentation
 ```
 
-Available layout options:
-- `grid`: Multi-column grid layout with configurable columns and gaps
-- `stack`: Vertical stack of fields with consistent spacing
-- `tabs`: Tabbed interface for complex forms (supports nested layouts)
-- `accordion`: Collapsible sections with expand/collapse controls
-- `horizontal`: Fields arranged in a horizontal row
-- `custom`: Allows defining custom layout components
+### JSDoc Standards
+All public APIs include:
+- `@class` descriptions for classes
+- `@param` for method parameters  
+- `@returns` for return values
+- `@throws` for error conditions
 
-Layout properties:
-- `type`: One of the above layout types (required)
-- `columns`: Number of columns (for grid layout)
-- `gap`: Spacing between items (e.g., '1rem')
-- `responsive`: Breakpoint-specific overrides
-- `sections`: For tabs/accordion layouts
-
-## Complex Examples
-
-### Comprehensive Schema Example
-
-```jsx
-const fullExampleSchema = {
-  type: 'object',
-  title: 'User Profile',
-  description: 'A complete example showing all supported field types',
-  required: ['name', 'email', 'age'],
-  properties: {
-    name: {
-      type: 'string',
-      title: 'Full Name',
-      description: 'Your full name',
-      minLength: 2,
-      maxLength: 100,
-      isRequired: true
-    },
-    email: {
-      type: 'string',
-      format: 'email',
-      title: 'Email Address',
-      isRequired: true
-    },
-    age: {
-      type: 'number',
-      title: 'Age',
-      minimum: 18,
-      maximum: 120,
-      isRequired: true
-    },
-    bio: {
-      type: 'string',
-      title: 'Biography',
-      description: 'Tell us about yourself',
-      widget: 'textarea'
-    },
-    avatar: {
-      type: 'string',
-      format: 'data-url',
-      title: 'Profile Picture'
-    },
-    isAdmin: {
-      type: 'boolean',
-      title: 'Administrator',
-      default: false
-    },
-    gender: {
-      type: 'string',
-      enum: ['male', 'female', 'other'],
-      enumNames: ['Male', 'Female', 'Other']
-    },
-    address: {
-      type: 'object',
-      title: 'Address',
-      properties: {
-        street: { type: 'string' },
-        city: { type: 'string' },
-        state: { type: 'string' },
-        zip: { type: 'string', pattern: '^\\d{5}(-\\d{4})?$' }
-      }
-    },
-    phoneNumbers: {
-      type: 'array',
-      title: 'Phone Numbers',
-      items: {
-        type: 'string',
-        pattern: '^\\+?[0-9]{10,15}$'
-      }
-    },
-    preferences: {
-      type: 'object',
-      title: 'Preferences',
-      properties: {
-        newsletter: {
-          type: 'boolean',
-          title: 'Subscribe to newsletter',
-          default: true
-        },
-        notifications: {
-          type: 'string',
-          enum: ['none', 'email', 'sms'],
-          enumNames: ['No notifications', 'Email notifications', 'SMS notifications'],
-          default: 'email'
-        }
-      }
-    }
-  }
-};
-```
-
-### Array of Objects (ArrayOfObjectField)
-
-The library fully supports arrays of objects with nested properties. Here's a detailed example:
-
-```jsx
-const employeeSchema = {
-  type: 'object', 
-  properties: {
-    team: {
-      type: 'array',
-      title: 'Team Members',
-      description: 'Add your team members',
-      minItems: 1,
-      items: {
-        type: 'object',
-        required: ['name', 'email'],
-        properties: {
-          name: {
-            type: 'string',
-            title: 'Full Name'
-          },
-          email: {
-            type: 'string',
-            format: 'email',
-            title: 'Work Email'
-          },
-          department: {
-            type: 'string',
-            enum: ['Engineering', 'Design', 'Product', 'Marketing'],
-            default: 'Engineering'
-          },
-          isManager: {
-            type: 'boolean',
-            title: 'Is Team Lead'
-          },
-          skills: {
-            type: 'array',
-            title: 'Technical Skills',
-            items: {
-              type: 'string',
-              enum: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'UI/UX']
-            }
-          },
-          startDate: {
-            type: 'string',
-            format: 'date',
-            title: 'Start Date'
-          }
-        }
-      }
-    }
-  }
-};
-
-function TeamForm() {
-  return (
-    <SchemaRenderer 
-      schema={employeeSchema}
-      onSubmit={(data) => console.log('Team data:', data)}
-    />
-  );
+Example from FormModel:
+```typescript
+/**
+ * Core form state management class
+ * @class FormModel
+ * @param {JSONSchema} schema - Form schema definition
+ * @param {Object} [options] - Configuration options
+ */
+class FormModel {
+  /**
+   * Sets a field's value
+   * @param {string} path - Field path
+   * @param {JSONValue} value - New value
+   * @throws {FormModelError} If invalid path/value
+   */
+  setValue(path: string, value: JSONValue): void
 }
 ```
-
-Key features:
-- Nested object validation
-- Required fields within array items
-- Mixed field types (string, boolean, enum, date)
-- Arrays within array items (nested arrays)
-- Default values for fields
-- Custom titles and descriptions
-
-### Conditional Fields (oneOf)
-
-```jsx
-const conditionalSchema = {
-  type: 'object',
-  properties: {
-    contactMethod: {
-      type: 'string',
-      enum: ['email', 'phone']
-    },
-    contactDetails: {
-      oneOf: [
-        {
-          title: 'Email',
-          properties: {
-            email: { type: 'string', format: 'email' }
-          },
-          required: ['email']
-        },
-        {
-          title: 'Phone',
-          properties: {
-            phone: { type: 'string', pattern: '^\\+?[0-9]{10,15}$' },
-            preferredTime: { type: 'string', enum: ['morning', 'afternoon', 'evening'] }
-          },
-          required: ['phone']
-        }
-      ]
-    }
-  }
-};
-```
-
-## API Reference
-
-### SchemaRenderer Props
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `schema` | Object | Required JSON schema |
-| `value` | Object | Initial form values |
-| `onChange` | Function | Callback when values change |
-| `onSubmit` | Function | Form submission handler |
-| `layout` | Object | Layout configuration |
-| `theme` | Object | Theme override (optional) |
-| `fieldComponents` | Object | Custom field components |
-
-### ThemeProvider Props
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `initialTheme` | Object/string | Initial theme object or JSON string |
-| `themeUrl` | string | URL to load theme from |
-| `children` | ReactNode | Child components |
-
-## Limitations
-
-### Form Schema Limitations
-- Conditional logic beyond `oneOf`/`allOf`/`anyOf` is not supported
-- Dynamic schema updates after initial render have limited support
-- File upload handling requires custom implementation
-- Custom validation functions must be provided via props
-- Complex array operations (sorting, nested arrays) may have performance impacts
-- Internationalization (i18n) support is basic (labels only)
-
-### Theme Schema Limitations
-- Theme variants (dark/light mode) require manual implementation
-- Custom component styling beyond the theme structure isn't supported
-- Animation/transition properties aren't themeable
-- Responsive design must be handled via layout properties
-- Browser-specific styling isn't automatically handled
-
-## Troubleshooting
-
-**Q: My theme isn't applying correctly**
-- Verify your theme matches the required structure
-- Check for validation errors in console
-- Ensure ThemeProvider wraps your SchemaRenderer
-
-**Q: Complex schemas render slowly**
-- Consider breaking into multiple forms/pages
-- Use `oneOf` for conditional sections
-- Avoid deeply nested structures when possible
 
 ## Contributing
 
-We welcome contributions! Please:
-1. Open an issue to discuss proposed changes
-2. Follow existing code style
-3. Include tests for new features
-4. Update documentation
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
+4. Include tests for new features
 
-## Versioning
-
-This project follows [Semantic Versioning](https://semver.org/). Current version (0.x) means:
-- Breaking changes may occur in minor versions
-- APIs are not considered stable
-
-For help, please check GitHub Discussions or open an issue.
+```bash
+npm test  # Run tests
+npm lint  # Check code style

@@ -26,8 +26,31 @@ export interface LayoutContext {
   isGrid12: boolean;
 }
 
+/**
+ * Core form state management class that handles:
+ * - Field creation and management
+ * - Value updates and validation
+ * - Change tracking and dirty state
+ * - Array operations
+ * - Form lifecycle events
+ * 
+ * @class FormModel
+ * @param {JSONSchema} schema - Form schema definition
+ * @param {Object} [options] - Configuration options
+ * @param {boolean} [options.hybridMode=false] - Enable hybrid change tracking mode
+ */
 export class FormModel {
+  /**
+   * Current layout context for form rendering
+   * @type {LayoutContext|undefined}
+   */
   layoutContext?: LayoutContext;
+
+  /**
+   * Map of all form fields (path => field)
+   * @protected
+   * @type {Map<string, FormField>}
+   */
   protected fields: Map<string, FormField> = new Map();
   private listeners: Set<(fields: Map<string, FormField>) => void> = new Set();
   private fieldCache: Map<string, FormField> = new Map();
